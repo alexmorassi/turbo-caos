@@ -1,0 +1,93 @@
+// PISTA 10 — PISTA MALUCA. A final do campeonato: um PARQUE DE DIVERSOES. Arquibancadas cheias, baloes, roda-gigante, tendas listradas
+// e cores fortes. Tudo o que as outras pistas ensinaram, junto: o LOOP DUPLO (dois loops seguidos), o SACA-ROLHA, DOIS PAREDOES fazendo
+// os cantos do lobo de cima, o VIADUTO do oito e a MEGA-RAMPA (crista a 6 m, vao de 26 m). Dois atalhos: a RAMPA DO PALHACO (no desvio
+// da avenida, pula por cima do circo) e o TOBOGA (no lobo de baixo, estreito e sem muro, com impulso).
+// O oito: lobo de cima 270 graus para a direita, lobo de baixo 270 para a esquerda (soma zero).
+import { Construtor } from './construtor.js';
+
+const VIADUTO = 8.5; // m acima da avenida (folga de 6 m + laje + carro)
+const c = new Construtor({ inicio: [0, 0, 0], rumo: -45, largura: 15 });
+c.reta(60, { nome: 'largada' })
+  .reta(50)
+  .ponto('entrada_palhaco')
+  .reta(25)
+  // o desvio do circo (bojo para a esquerda); a rampa do palhaco corta reto por dentro
+  .esquerda(25, 90, { incl: 8 })
+  .reta(30)
+  .direita(25, 90, { incl: 8 })
+  .reta(50)
+  .direita(25, 90, { incl: 8 })
+  .reta(30)
+  .esquerda(25, 90, { incl: 8 })
+  .reta(25)
+  .ponto('saida_palhaco')
+  .reta(30)
+  // lobo de cima: paredao, loop duplo, paredao, saca-rolha, curva
+  .paredao(40, 90, 'dir', { inclMax: 60, nome: 'paredao_1' })
+  .reta(30)
+  .reta(25, { marca: 'impulso' })
+  .loop({ raio: 12, larg: 12, nome: 'loop_1' })
+  .reta(55)
+  .loop({ raio: 12, larg: 12, nome: 'loop_2' })
+  .reta(30)
+  .paredao(40, 90, 'dir', { inclMax: 60, nome: 'paredao_2' })
+  .reta(30)
+  .sacaRolha({ raio: 8, comp: 96, larg: 12, lado: 'esq', nome: 'saca_rolha' })
+  .reta(30)
+  .direita(40, 90, { incl: 10 })
+  // o viaduto
+  // (o cruzamento cai ~100 m depois do topo da subida: o plano do viaduto cobre 50 m de cada lado dele)
+  .reta(80, { sobe: VIADUTO, perfil: 'linear' })
+  .reta(130, { ponte: true, nome: 'viaduto' })
+  .reta(75, { sobe: -VIADUTO, perfil: 'linear' })
+  // lobo de baixo: o toboga (atalho) por dentro
+  .esquerda(40, 90, { incl: 10 })
+  .reta(20)
+  .ponto('entrada_toboga')
+  .reta(20)
+  .direita(25, 90, { incl: 8 })
+  .reta(15)
+  .esquerda(25, 90, { incl: 8 })
+  .reta(40)
+  .esquerda(25, 90, { incl: 8 })
+  .reta(15)
+  .direita(25, 90, { incl: 8 })
+  .reta(20)
+  .ponto('saida_toboga')
+  .reta(30, { elastica: true })
+  .esquerda(40, 90, { incl: 10 })
+  .reta(50, { elastica: true })
+  .esquerda(40, 90, { incl: 10 })
+  // a mega-rampa na reta da chegada: a ultima emocao antes da bandeirada
+  .reta(20)
+  .rampa({ comp: 34, altura: 6, vao: 26, queda: 2, pouso: 42, nome: 'mega_rampa', perigo: 'abismo' })
+  .reta(60, { nome: 'chegada' });
+
+c.atalho({
+  de: 'entrada_palhaco', ate: 'saida_palhaco', lado: 'dir', largura: 9, nome: 'Rampa do Palhaço',
+  via: (t) => t.direita(140, 5).reta(6).rampa({ comp: 22, altura: 3.2, vao: 16, queda: 1.0, pouso: 24, perigo: 'abismo' }),
+  douradas: [{ em: 2, d: 0 }],
+});
+c.atalho({
+  de: 'entrada_toboga', ate: 'saida_toboga', lado: 'esq', largura: 8, nome: 'Tobogã', muro: false,
+  via: (t) => t.esquerda(140, 5).reta(30, { marca: 'impulso' }).direita(140, 5),
+  douradas: [{ em: 1, d: 0 }],
+});
+const tracado = c.compila();
+
+export default {
+  id: 'maluca', nome: 'Pista Maluca', ordem: 10, largura: 15,
+  ...tracado,
+  douradas: [{ em: tracado.marcos.mega_rampa.i, d: 0 }, { em: tracado.marcos.viaduto.i, d: 0 }],
+  tema: {
+    estilo: 'maluca',
+    ceu: { topo: '#2a63d8', meio: '#7fb0f5', horizonte: '#ffe0f2', baixo: '#ffd6ea', nuvem: '#ffffff', nuvemBaixo: '#ffd0e6' },
+    sol: { dir: [0.45, 0.68, -0.45], cor: '#fff4e0', forca: 3.2, disco: '#fffbe8', halo: 0.5 },
+    hemi: { ceu: '#ffeefa', chao: '#7a9a5a', forca: 1.6 },
+    neblina: { cor: '#ffe6f4', perto: 220, longe: 1500 },
+    asfalto: '#4a4458', faixa: '#ffffff', tracejado: '#ffe14a', zebra: ['#ff2b8a', '#ffffff'], muro: ['#ff2b8a', '#ffe14a', '#22c6ff', '#7cff6b'],
+    estrutura: '#b06ad8', corRampa: '#ff5ad0', portico: '#ff2b8a', corImpulso: '#7cff6b', corImpulso2: '#22e6ff',
+    terreno: { tipo: 'plano', nivel: 0, cor: '#7cc85a', cor2: '#62b24a', corRocha: '#8a8a7a', ruido: 0.5, nivelFundo: -0.4 },
+    nuvens: 1,
+  },
+};
