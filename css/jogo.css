@@ -1,1 +1,324 @@
-/* STUB DA FUNDACAO (fase 1) — a fase 6 substitui pelo visual das telas e do HUD. */
+/* VISUAL DAS TELAS E DO HUD (fase 6). A linguagem e a do jogo do Breno (referencias/breno/index.html): botoes REDONDOS grandes com
+   emoji/SVG, paineis creme com borda grossa de tinta, sombra "de brinquedo" (0 7px 0), letras grossas com contorno, quase nenhum texto.
+   A paleta e a do Turbo Caos (a tela de carga do index.html): noite #0b1630, ceu #2a4fb8, fogo #ffe45c -> #ff7a1a -> #e8321a.
+   Fontes: Baloo 2 (texto) e Bungee (titulos e numeros do HUD), as mesmas dos jogos de referencia — o <link> e injetado pelo
+   js/telas.js e, sem internet ou em file://, tudo cai na fonte do sistema sem quebrar nada.
+   Tamanhos em clamp() com vh: o alvo e o celular DEITADO (360 a 430 px de altura) ate tablet e desktop; o dedo de crianca de 6 anos
+   precisa de alvo grande (nenhum botao de acao abaixo de 56 px). */
+
+:root {
+  --tinta: #10204a; --creme: #fffaf0; --sol: #ffd23a; --laranja: #ff7a1a; --fogo: #e8321a; --coral: #ff5e57;
+  --verde: #3ad16a; --azul: #3d9be8; --ceu: #2a4fb8; --noite: #0b1630; --roxo: #8a5cff; --rosa: #ff5ad1; --prata: #cfd8e8; --bronze: #e39a5b;
+  --fonte: 'Baloo 2', 'Trebuchet MS', 'Segoe UI', system-ui, -apple-system, Roboto, 'DejaVu Sans', sans-serif;
+  --fonte-titulo: 'Bungee', 'Baloo 2', 'Arial Black', 'Segoe UI Black', system-ui, -apple-system, Roboto, sans-serif;
+  --emoji: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', sans-serif;
+  --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px); --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px);
+  --borda: max(12px, var(--sal)); --borda-dir: max(12px, var(--sar));
+}
+[hidden] { display: none !important; }
+/* font-synthesis none: o Bungee so tem o peso 400 — pedir 900 sem sintese deixa ele como e e faz o fallback do sistema sair GROSSO
+   (sem internet, em file://) em vez de fino */
+#ui, #hud { font-family: var(--fonte); color: var(--creme); font-synthesis: none; }
+#ui button, #hud button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.emo { font-family: var(--emoji); font-style: normal; line-height: 1; }
+#ui .tc-svg { width: 56%; height: 56%; display: block; }
+
+/* ------------------------------------------------------------------ componentes */
+/* botao redondo grande (o .big do Breno) */
+#ui .tc-big { display: grid; place-items: center; border-radius: 50%; border: 5px solid var(--creme); width: clamp(64px, 19vh, 112px); height: clamp(64px, 19vh, 112px);
+  font-size: clamp(30px, 9vh, 54px); box-shadow: 0 7px 0 rgba(0,0,0,.28), inset 0 -8px 0 rgba(0,0,0,.14); transition: transform .08s; flex: none; }
+#ui .tc-big:active, #ui .tc-big.down { transform: translateY(4px) scale(.95); box-shadow: 0 3px 0 rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
+#ui .tc-verde { background: radial-gradient(circle at 40% 30%, #8ef0a5, var(--verde) 60%, #22a24a); }
+#ui .tc-azul { background: radial-gradient(circle at 40% 30%, #9fd8ff, var(--azul) 60%, #2270c0); }
+#ui .tc-ouro { background: radial-gradient(circle at 40% 30%, #fff1a6, var(--sol) 55%, #e8a21a); color: var(--tinta); }
+#ui .tc-coral { background: radial-gradient(circle at 40% 30%, #ffb3a8, var(--coral) 60%, #d63a33); }
+#ui .tc-roxo { background: radial-gradient(circle at 40% 30%, #c9b3ff, var(--roxo) 60%, #5c34c7); }
+/* botao redondo pequeno de canto (o .round do Breno) */
+#ui .tc-redondo { width: clamp(48px, 14vh, 62px); height: clamp(48px, 14vh, 62px); border-radius: 50%; background: var(--creme); border: 4px solid var(--tinta);
+  display: grid; place-items: center; font-size: clamp(22px, 6.8vh, 30px); box-shadow: 0 5px 0 rgba(0,0,0,.28); color: var(--tinta); flex: none; }
+#ui .tc-redondo:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.28); }
+#ui .tc-redondo .tc-svg { width: 58%; height: 58%; }
+/* pilula: botao largo com icone e UMA palavra (modos do menu) */
+#ui .tc-pilula { display: flex; align-items: center; gap: .45em; border-radius: 999px; border: 5px solid var(--creme); padding: .12em .9em .12em .3em;
+  font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(18px, 6.4vh, 34px); letter-spacing: .5px; color: var(--creme);
+  box-shadow: 0 7px 0 rgba(0,0,0,.28), inset 0 -7px 0 rgba(0,0,0,.14); text-shadow: 0 3px 0 rgba(16,32,74,.55); transition: transform .08s; white-space: nowrap; }
+#ui .tc-pilula i { display: grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 50%; background: rgba(255,250,240,.92); font-size: .95em; text-shadow: none; box-shadow: inset 0 -4px 0 rgba(0,0,0,.12); }
+#ui .tc-pilula:active { transform: translateY(4px) scale(.97); box-shadow: 0 3px 0 rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
+#ui .tc-pilula span { -webkit-text-stroke: 3px var(--tinta); paint-order: stroke fill; text-shadow: 0 3px 0 var(--tinta); }
+#ui .tc-pilula.tc-ouro { color: var(--tinta); }
+#ui .tc-pilula.tc-ouro span { -webkit-text-stroke: 0; text-shadow: 0 2px 0 rgba(255,255,255,.55); }
+/* botao miudo de texto (acoes raras: novo campeonato, apagar progresso) */
+#ui .tc-mini { font-weight: 800; font-size: clamp(13px, 3.8vh, 17px); padding: 6px 14px; border-radius: 999px; background: rgba(16,32,74,.55); border: 3px solid rgba(255,250,240,.6); color: var(--creme); }
+#ui .tc-mini:active { transform: translateY(2px); }
+/* painel creme com borda grossa (o .panel do Breno) */
+#ui .tc-painel { background: var(--creme); color: var(--tinta); border: 6px solid var(--tinta); border-radius: clamp(20px, 6vh, 32px); box-shadow: 0 10px 0 rgba(0,0,0,.28);
+  padding: clamp(10px, 3vh, 18px) clamp(12px, 3.4vh, 22px); animation: tc-pop .45s cubic-bezier(.2,1.6,.4,1); }
+#ui .tc-linha { display: flex; gap: clamp(10px, 3vh, 18px); align-items: center; justify-content: center; }
+#ui .tc-titulo { font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(20px, 7vh, 40px); color: var(--sol); -webkit-text-stroke: 3px var(--tinta); paint-order: stroke fill;
+  text-shadow: 0 4px 0 var(--tinta); letter-spacing: 1px; white-space: nowrap; }
+#ui .tc-selo { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: clamp(13px, 4vh, 19px); padding: 2px 12px; border-radius: 999px; border: 3px solid var(--tinta);
+  box-shadow: 0 3px 0 rgba(0,0,0,.2); animation: tc-pop .5s cubic-bezier(.2,1.8,.4,1) both; white-space: nowrap; }
+#ui .tc-selo.recorde { background: var(--sol); }
+#ui .tc-selo.desbloqueio { background: #b8f5c8; }
+#ui .tc-voltar { position: absolute; left: var(--borda); top: calc(var(--sat) + 10px); z-index: 3; }
+#ui .tc-cantos-dir { position: absolute; right: var(--borda-dir); top: calc(var(--sat) + 10px); display: flex; gap: 10px; z-index: 3; }
+
+@keyframes tc-pop { 0% { transform: scale(.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes tc-pulso { 50% { transform: scale(1.07); } }
+@keyframes tc-boia { 50% { transform: translateY(-8px) rotate(-3deg); } }
+@keyframes tc-treme { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+@keyframes tc-gira { to { transform: rotate(360deg); } }
+
+/* ------------------------------------------------------------------ telas */
+#ui .tc-tela { position: absolute; inset: 0; z-index: 10; pointer-events: auto; box-sizing: border-box; overflow: hidden;
+  padding: calc(var(--sat) + 10px) var(--borda-dir) calc(var(--sab) + 10px) var(--borda); }
+#ui .tc-fundo { background: radial-gradient(120% 100% at 50% 0%, #3a63d0 0%, var(--ceu) 35%, var(--noite) 85%); }
+#ui .tc-escuro { background: rgba(11,22,48,.55); }
+
+/* logo: TURBO em cima, CAOS embaixo, gradiente de fogo como a tela de carga */
+#ui .tc-logo { margin: 0; line-height: .86; transform: rotate(-4deg); text-align: center; font-family: var(--fonte-titulo); font-weight: 900; }
+#ui .tc-logo b, #ui .tc-logo span { display: block; background: linear-gradient(180deg, #fff6b0 0%, #ffe45c 30%, #ff7a1a 65%, #e8321a 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 3px 0 var(--tinta)) drop-shadow(0 -2px 0 var(--tinta)) drop-shadow(3px 0 0 var(--tinta)) drop-shadow(-3px 0 0 var(--tinta)) drop-shadow(0 7px 0 rgba(0,0,0,.35)); }
+#ui .tc-logo b { font-size: clamp(46px, 20vh, 112px); }
+#ui .tc-logo span { font-size: clamp(54px, 24vh, 136px); letter-spacing: 4px; }
+
+/* menu */
+#tela-menu { display: flex; align-items: center; }
+#ui .menu-esq { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 3.4vh, 20px); width: 52%; max-width: 560px; }
+#ui .menu-esq .tc-logo { margin-bottom: clamp(2px, 1.5vh, 12px); }
+#ui .menu-esq .tc-pilula { width: min(100%, 23em); justify-content: flex-start; }
+#ui .menu-esq .tc-pilula span { flex: 1; text-align: center; }
+#ui .menu-placar { position: absolute; left: var(--borda); bottom: calc(var(--sab) + 10px); display: flex; gap: 14px; font-weight: 800; font-size: clamp(15px, 4.6vh, 22px);
+  background: rgba(16,32,74,.6); border: 3px solid rgba(255,250,240,.7); border-radius: 999px; padding: 2px 16px; }
+#ui .menu-placar b { font-family: var(--fonte-titulo); font-weight: 900; color: var(--sol); }
+#ui .menu-carro { position: absolute; right: var(--borda-dir); bottom: calc(var(--sab) + 12px); font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(18px, 6vh, 30px);
+  color: var(--creme); -webkit-text-stroke: 2px var(--tinta); paint-order: stroke fill; text-shadow: 0 3px 0 var(--tinta); width: 44%; text-align: center; }
+
+/* selecao de carro: carro 3D a esquerda, ficha a direita */
+#ui .sc-nome { position: absolute; left: 0; width: 56%; top: calc(var(--sat) + 10px); display: flex; justify-content: center; pointer-events: none; }
+#ui .sc-nome span { font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(26px, 10vh, 54px); color: var(--creme); -webkit-text-stroke: 4px var(--tinta); paint-order: stroke fill;
+  text-shadow: 0 5px 0 var(--tinta); letter-spacing: 1px; white-space: nowrap; animation: tc-pop .35s cubic-bezier(.2,1.6,.4,1); }
+#ui .sc-arrasto { position: absolute; left: 0; top: 18%; width: 56%; bottom: 16%; touch-action: none; }
+#ui .tc-seta { position: absolute; top: 50%; margin-top: calc(clamp(56px, 16vh, 92px) / -2); width: clamp(56px, 16vh, 92px); height: clamp(56px, 16vh, 92px); z-index: 2; }
+#ui .tc-seta.esq { left: var(--borda); }
+#ui .tc-seta.dir { left: calc(56% - clamp(56px, 16vh, 92px) - 6px); }
+#ui .sc-painel { position: absolute; right: var(--borda-dir); top: calc(var(--sat) + 10px); bottom: calc(var(--sab) + 10px); width: 41%; max-width: 520px;
+  display: flex; flex-direction: column; gap: clamp(4px, 1.6vh, 10px); box-sizing: border-box; overflow: hidden; }
+#ui .sc-desc { font-weight: 700; font-size: clamp(12px, 3.6vh, 24px); line-height: 1.15; text-align: center; min-height: 2.3em; display: flex; align-items: center; justify-content: center; text-wrap: balance; }
+#ui .sc-atributos { display: flex; flex-direction: column; gap: clamp(2px, .9vh, 12px); }
+#ui .sc-attr { display: grid; grid-template-columns: 1.6em 1fr auto; align-items: center; gap: 6px; font-weight: 800; font-size: clamp(12px, 3.7vh, 24px); line-height: 1; }
+#ui .sc-attr i { font-size: 1.25em; text-align: center; }
+#ui .sc-barra { display: flex; gap: 3px; }
+#ui .sc-barra b { width: clamp(16px, 5vh, 36px); height: clamp(11px, 3.4vh, 24px); border-radius: 5px; background: #d9dfeb; border: 2px solid var(--tinta); box-sizing: border-box; }
+#ui .sc-barra b.on { background: var(--cor, var(--verde)); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); }
+#ui .sc-poder { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; background: #eef2fa; border: 3px solid var(--tinta); border-radius: 18px; padding: 6px 10px; margin-top: auto; }
+#ui .sc-poder-icone { width: clamp(44px, 13vh, 92px); height: clamp(44px, 13vh, 92px); border-radius: 50%; display: grid; place-items: center; font-size: clamp(24px, 7.4vh, 52px);
+  background: var(--cor, var(--sol)); border: 4px solid var(--creme); box-shadow: 0 0 0 3px var(--tinta), 0 4px 0 3px rgba(0,0,0,.2); }
+#ui .sc-poder-nome { font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(14px, 4.4vh, 28px); display: block; line-height: 1.05; }
+#ui .sc-poder p { margin: 2px 0 0; font-weight: 600; font-size: clamp(11px, 3.2vh, 20px); line-height: 1.12; }
+#ui .sc-poder .sc-esquiva { color: #2a5a3a; }
+#ui .sc-pontos { position: absolute; left: 0; width: 56%; bottom: calc(var(--sab) + 14px); display: flex; justify-content: center; gap: 7px; pointer-events: none; }
+#ui .sc-pontos i { width: 13px; height: 13px; border-radius: 50%; background: var(--cor); border: 2px solid var(--creme); opacity: .55; transition: transform .2s, opacity .2s; }
+#ui .sc-pontos i.on { opacity: 1; transform: scale(1.45); box-shadow: 0 0 0 2px var(--tinta); }
+#ui .sc-escolhe { position: absolute; right: calc(var(--borda-dir) + 41% / 2 - clamp(64px, 19vh, 104px) / 2); bottom: calc(var(--sab) + 4px); z-index: 2;
+  width: clamp(64px, 19vh, 104px); height: clamp(64px, 19vh, 104px); animation: tc-pulso 1.3s ease-in-out infinite; }
+#ui .sc-painel.com-botao { padding-bottom: calc(clamp(64px, 19vh, 104px) - 2px); } /* o botao de escolher mora no rodape do painel: o texto nunca passa por baixo dele */
+
+/* selecao de pista: cartoes rolando para o lado */
+#tela-selecao_pista { display: flex; flex-direction: column; align-items: center; }
+#tela-selecao_pista .tc-titulo, #tela-campeonato .tc-titulo, #tela-opcoes .tc-titulo { margin-top: clamp(4px, 1.5vh, 12px); }
+#ui .sp-rolo { position: absolute; left: 0; right: 0; top: calc(var(--sat) + clamp(64px, 19vh, 96px)); bottom: calc(var(--sab) + 6px); overflow-x: auto; overflow-y: hidden;
+  touch-action: pan-x; -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-snap-type: x proximity; }
+#ui .sp-rolo::-webkit-scrollbar { display: none; }
+#ui .sp-trilho { display: flex; gap: clamp(12px, 3.6vh, 22px); height: 100%; align-items: center; padding: 0 max(18px, var(--sar)) 0 max(18px, var(--sal)); box-sizing: border-box; width: max-content; }
+#ui .sp-cartao { position: relative; flex: none; width: clamp(150px, 50vh, 330px); height: min(94%, clamp(190px, 64vh, 460px)); border-radius: 26px; border: 5px solid var(--creme);
+  background: linear-gradient(165deg, var(--c1, #5ac8ff) 0%, var(--c2, #2a4fb8) 100%); box-shadow: 0 8px 0 rgba(0,0,0,.3), inset 0 -10px 0 rgba(0,0,0,.14);
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: clamp(8px, 2.6vh, 14px) 8px clamp(10px, 3vh, 16px);
+  scroll-snap-align: center; box-sizing: border-box; transition: transform .1s; overflow: visible; color: var(--creme); }
+#ui .sp-cartao:active { transform: translateY(4px) scale(.97); }
+#ui .sp-cartao .sp-num { position: absolute; left: -10px; top: -12px; width: clamp(34px, 10vh, 46px); height: clamp(34px, 10vh, 46px); border-radius: 50%; background: var(--tinta); color: var(--sol);
+  border: 4px solid var(--creme); display: grid; place-items: center; font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(16px, 5vh, 22px); }
+#ui .sp-cartao .sp-tema { position: absolute; right: -8px; top: -12px; font-size: clamp(26px, 8vh, 38px); filter: drop-shadow(0 3px 0 rgba(0,0,0,.3)); }
+#ui .sp-desenho { width: 82%; flex: 1; min-height: 0; }
+#ui .sp-desenho path { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+#ui .sp-nome { font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(14px, 4.6vh, 30px); line-height: 1.05; text-align: center; -webkit-text-stroke: 2px var(--tinta); paint-order: stroke fill;
+  text-shadow: 0 3px 0 var(--tinta); text-wrap: balance; }
+#ui .sp-recorde:empty { visibility: hidden; }
+#ui .sp-recorde { font-weight: 800; font-size: clamp(12px, 3.6vh, 16px); background: rgba(16,32,74,.55); border-radius: 999px; padding: 0 10px; margin-top: 4px; min-height: 1.3em; }
+#ui .sp-cartao.bloqueada { filter: grayscale(.85) brightness(.8); }
+#ui .sp-cartao.bloqueada .sp-cadeado { position: absolute; inset: 0; display: grid; place-items: center; font-size: clamp(44px, 14vh, 72px); filter: drop-shadow(0 4px 0 rgba(0,0,0,.35)); }
+#ui .sp-cartao.proxima { animation: tc-pulso 1.2s ease-in-out infinite; box-shadow: 0 0 0 6px var(--sol), 0 8px 0 rgba(0,0,0,.3); }
+#ui .sp-cartao.nao { animation: tc-treme .25s; }
+
+/* carregando a corrida */
+#ui .tc-carga { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(8px, 3vh, 18px); z-index: 20; }
+#ui .cc-carro { font-size: clamp(54px, 20vh, 96px); animation: tc-boia 1s ease-in-out infinite; }
+#ui .cc-pista { font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(22px, 8vh, 44px); color: var(--sol); -webkit-text-stroke: 3px var(--tinta); paint-order: stroke fill; text-shadow: 0 4px 0 var(--tinta); text-align: center; }
+#ui .cc-barra { width: min(60vw, 420px); height: 18px; border-radius: 10px; background: rgba(255,255,255,.18); border: 3px solid var(--creme); overflow: hidden; position: relative; }
+#ui .cc-barra i { position: absolute; top: 0; bottom: 0; width: 35%; background: linear-gradient(90deg, var(--verde), var(--sol)); border-radius: 10px; animation: cc-vai 1.1s ease-in-out infinite; }
+@keyframes cc-vai { 0% { left: -35%; } 100% { left: 100%; } }
+#ui .cc-dica { max-width: min(80vw, 640px); text-align: center; font-weight: 700; font-size: clamp(14px, 4.4vh, 20px); line-height: 1.2; background: rgba(16,32,74,.55); border-radius: 18px; padding: 6px 16px; }
+#ui .cc-dica b { color: var(--sol); }
+
+/* corrida: so o botao de pausa (fica no #ui, por cima dos controles de toque) */
+#tela-corrida { pointer-events: none; background: none; z-index: 5; }
+/* mesmo canto do #btn-pausa da fase 2 e 4 px maior: com os controles de toque na tela, o dela fica inteiro atras deste */
+#ui #tela-corrida .hud-pausa { position: absolute; right: var(--borda-dir); top: calc(var(--sat) + 8px); pointer-events: auto; width: 58px; height: 58px; }
+
+/* pausa e confirmacao */
+#tela-pausa, #tela-confirma { display: flex; align-items: center; justify-content: center; z-index: 30; }
+#ui .tc-pergunta { font-weight: 800; font-size: clamp(18px, 6vh, 26px); text-align: center; line-height: 1.15; display: flex; flex-direction: column; gap: 4px; max-width: 26ch; text-wrap: balance; }
+#ui .tc-pergunta small { font-weight: 600; font-size: clamp(13px, 4vh, 16px); opacity: .75; }
+#ui .tc-painel.coluna { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 2.6vh, 14px); }
+#ui .pz-titulo { font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(20px, 7vh, 34px); color: var(--tinta); letter-spacing: 1px; }
+
+/* resultado / podio: podio 3D a esquerda, tabela a direita */
+#ui .rs-faixa { position: absolute; left: 0; width: 54%; top: calc(var(--sat) + 8px); display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+#ui .rs-titulo { font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(24px, 9.5vh, 52px); color: var(--sol); -webkit-text-stroke: 4px var(--tinta); paint-order: stroke fill; text-shadow: 0 5px 0 var(--tinta);
+  white-space: nowrap; animation: tc-pop .6s cubic-bezier(.2,1.8,.4,1); }
+#ui .rs-titulo.perdeu { color: var(--creme); }
+#ui .rs-estrelas { font-size: clamp(26px, 8.5vh, 46px); letter-spacing: 4px; margin-top: 2px; }
+/* sem animation-delay: estrela atrasada com fill 'both' ficava presa invisivel quando a pagina engasgava (foto do podio com 1 de 3) */
+#ui .rs-estrelas span { display: inline-block; animation: tc-pop .6s cubic-bezier(.2,1.8,.4,1); }
+#ui .rs-estrelas span.off { filter: grayscale(1) opacity(.35); }
+#ui .rs-painel { position: absolute; right: var(--borda-dir); top: calc(var(--sat) + 10px); bottom: calc(var(--sab) + 10px); width: 44%; max-width: 560px; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: clamp(4px, 1.4vh, 10px); }
+#ui .rs-selos { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+#ui .rs-selos:empty { display: none; }
+#ui .rs-tabela { width: 100%; border-collapse: separate; border-spacing: 0 2px; font-weight: 700; font-size: clamp(11px, 3.5vh, 17px); line-height: 1.1; flex: 1; min-height: 0; }
+#ui .rs-tabela td { padding: 1px 4px; white-space: nowrap; }
+#ui .rs-tabela td.pos { font-family: var(--fonte-titulo); font-weight: 900; text-align: center; width: 2.2em; }
+#ui .rs-tabela td.nome { overflow: hidden; text-overflow: ellipsis; max-width: 9em; }
+#ui .rs-tabela td.tempo { text-align: right; font-variant-numeric: tabular-nums; }
+#ui .rs-tabela td.volta { text-align: right; font-variant-numeric: tabular-nums; opacity: .7; font-size: .88em; }
+#ui .rs-tabela tr.eu td { background: var(--sol); }
+#ui .rs-tabela tr.eu td:first-child { border-radius: 10px 0 0 10px; }
+#ui .rs-tabela tr.eu td:last-child { border-radius: 0 10px 10px 0; }
+#ui .rs-tabela thead td { font-size: .78em; opacity: .65; font-weight: 800; }
+#ui .tc-cor { display: inline-block; width: .85em; height: .85em; border-radius: 50%; background: var(--cor); border: 2px solid var(--tinta); vertical-align: -.1em; margin-right: 5px; }
+#ui .rs-botoes .tc-big { width: clamp(58px, 16.5vh, 92px); height: clamp(58px, 16.5vh, 92px); font-size: clamp(26px, 7.5vh, 44px); }
+
+/* campeonato */
+#tela-campeonato { display: flex; flex-direction: column; align-items: center; }
+#ui .cp-trilha { display: flex; gap: clamp(4px, 1.2vh, 8px); margin-top: clamp(4px, 1.4vh, 10px); flex-wrap: wrap; justify-content: center; }
+#ui .cp-etapa { width: clamp(26px, 8vh, 38px); height: clamp(26px, 8vh, 38px); border-radius: 50%; display: grid; place-items: center; font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(12px, 3.8vh, 17px);
+  background: rgba(255,250,240,.25); border: 3px solid rgba(255,250,240,.6); color: var(--creme); }
+#ui .cp-etapa.feita { background: var(--verde); border-color: var(--creme); }
+#ui .cp-etapa.atual { background: var(--sol); color: var(--tinta); border-color: var(--creme); animation: tc-pulso 1.1s ease-in-out infinite; box-shadow: 0 0 0 4px rgba(255,210,58,.4); }
+#ui .cp-corpo { flex: 1; min-height: 0; width: 100%; display: flex; gap: clamp(10px, 3vh, 22px); align-items: center; justify-content: center; margin-top: clamp(6px, 2vh, 12px); }
+#ui .cp-tabela { width: min(48%, 460px); box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; max-height: 100%; }
+#ui .cp-tabela table { width: 100%; border-collapse: separate; border-spacing: 0 2px; font-weight: 700; font-size: clamp(11px, 3.6vh, 17px); line-height: 1.12; }
+#ui .cp-tabela td { padding: 1px 5px; white-space: nowrap; }
+#ui .cp-tabela td.pos { font-family: var(--fonte-titulo); font-weight: 900; width: 2em; text-align: center; }
+#ui .cp-tabela td.pts { text-align: right; font-family: var(--fonte-titulo); font-weight: 900; }
+#ui .cp-tabela tr.eu td { background: var(--sol); }
+#ui .cp-tabela tr.eu td:first-child { border-radius: 10px 0 0 10px; }
+#ui .cp-tabela tr.eu td:last-child { border-radius: 0 10px 10px 0; }
+#ui .cp-proxima { width: min(44%, 420px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(4px, 1.4vh, 10px); }
+#ui .cp-rotulo { font-weight: 800; font-size: clamp(13px, 4vh, 18px); opacity: .85; }
+#ui .cp-nome { font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(18px, 6.6vh, 34px); color: var(--sol); -webkit-text-stroke: 3px var(--tinta); paint-order: stroke fill; text-shadow: 0 4px 0 var(--tinta); text-align: center; line-height: 1.05; }
+#ui .cp-desenho { width: clamp(90px, 30vh, 170px); height: clamp(60px, 20vh, 110px); }
+#ui .cp-campeao { font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(26px, 10vh, 56px); color: var(--sol); -webkit-text-stroke: 4px var(--tinta); paint-order: stroke fill; text-shadow: 0 5px 0 var(--tinta); animation: tc-pulso 1.2s ease-in-out infinite; }
+#ui .cp-rodape { position: absolute; right: var(--borda-dir); bottom: calc(var(--sab) + 10px); }
+
+/* opcoes */
+#tela-opcoes { display: flex; flex-direction: column; align-items: center; }
+#ui .op-painel { margin-top: clamp(6px, 2vh, 12px); width: min(92%, 760px); box-sizing: border-box; flex: 0 1 auto; min-height: 0; overflow-y: auto; touch-action: pan-y; display: flex; flex-direction: column; gap: clamp(4px, 1.6vh, 10px); }
+#ui .op-linha { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: clamp(36px, 10vh, 50px); }
+#ui .op-rotulo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: clamp(14px, 4.4vh, 20px); white-space: nowrap; }
+#ui .op-rotulo i { font-size: 1.3em; }
+#ui .op-escolhas { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+#ui .op-escolhas button { font-weight: 800; font-size: clamp(13px, 3.9vh, 17px); padding: 4px 12px; border-radius: 999px; border: 3px solid var(--tinta);
+  background: #e6ebf5; color: var(--tinta); box-shadow: 0 3px 0 rgba(0,0,0,.2); min-height: clamp(34px, 10vh, 44px); white-space: nowrap; }
+#ui .op-escolhas button.on { background: var(--sol); box-shadow: 0 0 0 3px var(--creme), 0 0 0 6px var(--tinta); }
+#ui .op-escolhas button:active { transform: translateY(2px); }
+#ui .op-chave { width: clamp(62px, 17vh, 78px); height: clamp(34px, 9.5vh, 42px); border-radius: 999px; background: #c9d1e0; border: 3px solid var(--tinta); position: relative; transition: background .15s; flex: none; }
+#ui .op-chave i { position: absolute; top: 2px; left: 2px; width: calc(50% - 4px); height: calc(100% - 4px); border-radius: 50%; background: var(--creme); border: 2px solid var(--tinta); box-sizing: border-box; transition: left .15s; }
+#ui .op-chave[aria-pressed="true"] { background: var(--verde); }
+#ui .op-chave[aria-pressed="true"] i { left: calc(50% + 2px); }
+#ui .op-linha input[type=range] { -webkit-appearance: none; appearance: none; width: min(52vw, 360px); height: 18px; border-radius: 10px; background: #d9dfeb; border: 3px solid var(--tinta); outline: none; touch-action: pan-x; }
+#ui .op-linha input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 34px; height: 34px; border-radius: 50%; background: var(--sol); border: 4px solid var(--tinta); box-shadow: 0 3px 0 rgba(0,0,0,.25); }
+#ui .op-linha input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 50%; background: var(--sol); border: 4px solid var(--tinta); }
+#ui .op-aviso { font-weight: 700; font-size: clamp(12px, 3.6vh, 15px); background: #fff0c2; border: 2px dashed #c58a00; border-radius: 12px; padding: 4px 10px; text-align: center; }
+
+/* ------------------------------------------------------------------ HUD */
+#hud .hud { position: absolute; inset: 0; pointer-events: none; font-family: var(--fonte-titulo); font-weight: 900; color: var(--creme); }
+.hud-contorno { -webkit-text-stroke: 4px var(--tinta); paint-order: stroke fill; text-shadow: 0 4px 0 var(--tinta); }
+.hud-esq { position: absolute; left: var(--borda); top: calc(var(--sat) + 4px); display: flex; flex-direction: column; align-items: flex-start; gap: clamp(2px, .8vh, 6px); }
+.hud-pos { display: flex; align-items: flex-start; line-height: .82; }
+.hud-pos-n { font-size: clamp(54px, 19vh, 118px); color: var(--sol); -webkit-text-stroke: 5px var(--tinta); paint-order: stroke fill; text-shadow: 0 6px 0 var(--tinta); }
+.hud-pos-o { font-size: clamp(22px, 7.5vh, 46px); color: var(--sol); -webkit-text-stroke: 3px var(--tinta); paint-order: stroke fill; margin-top: .1em; }
+.hud-pos-de { font-size: clamp(18px, 6vh, 34px); align-self: flex-end; margin-left: 2px; -webkit-text-stroke: 3px var(--tinta); paint-order: stroke fill; text-shadow: 0 3px 0 var(--tinta); }
+/* subiu de posicao: pulo SO de escala — comecar em opacidade 0 deixava o numero invisivel quando a pagina engasgava (foto do tablet) */
+.hud-pos.subiu .hud-pos-n { animation: hud-sobe .45s cubic-bezier(.2,1.8,.4,1); transform-origin: 50% 70%; }
+@keyframes hud-sobe { 0% { transform: scale(1.45); } 100% { transform: scale(1); } }
+.hud-pos.primeiro .hud-pos-n { color: #fff6b0; filter: drop-shadow(0 0 10px rgba(255,210,58,.9)); }
+.hud-pilula { display: flex; align-items: center; gap: 10px; background: rgba(16,32,74,.62); border: 3px solid rgba(255,250,240,.8); border-radius: 999px; padding: 1px 12px 0;
+  font-size: clamp(15px, 5vh, 26px); line-height: 1.25; }
+.hud-pilula .emo { font-size: .9em; }
+.hud-volta b { color: var(--sol); font-weight: 900; }
+.hud-tempo { font-variant-numeric: tabular-nums; min-width: 4.3em; text-align: right; opacity: .95; }
+.hud-turbo { display: flex; align-items: center; gap: 6px; }
+.hud-turbo .emo { font-size: clamp(18px, 5.8vh, 28px); filter: drop-shadow(0 2px 0 var(--tinta)); }
+.hud-turbo-barra { width: clamp(110px, 30vh, 200px); height: clamp(14px, 4.4vh, 22px); border-radius: 999px; background: rgba(16,32,74,.7); border: 3px solid var(--creme); overflow: hidden; position: relative; box-shadow: 0 3px 0 rgba(0,0,0,.3); }
+.hud-turbo-barra b { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: linear-gradient(90deg, #ff7a1a, #ffd23a); border-radius: 999px; transition: width .12s linear; }
+.hud-turbo.cheio .hud-turbo-barra { box-shadow: 0 0 0 3px var(--sol), 0 0 14px rgba(255,210,58,.9); animation: tc-pulso .7s ease-in-out infinite; }
+.hud-turbo.ativo .hud-turbo-barra b { background: linear-gradient(90deg, #ff3b1a, #ff9a1a, #fff36b); }
+.hud-turbo.vazio .hud-turbo-barra { border-color: #9aa6bd; }
+.hud-efeitos { display: flex; gap: 6px; min-height: 0; }
+.hud-efeitos span { font-size: clamp(20px, 6.4vh, 32px); background: rgba(255,250,240,.88); border: 3px solid var(--tinta); border-radius: 50%; width: 1.5em; height: 1.5em; display: grid; place-items: center;
+  animation: tc-pop .4s cubic-bezier(.2,1.8,.4,1); }
+.hud-mapa { position: absolute; right: var(--borda-dir); top: calc(var(--sat) + 74px); width: clamp(72px, 23vh, 150px); height: clamp(72px, 23vh, 150px);
+  border-radius: 24%; background: rgba(16,32,74,.5); border: 4px solid rgba(255,250,240,.85); box-shadow: 0 4px 0 rgba(0,0,0,.3); }
+.hud-contagem { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-size: clamp(90px, 42vh, 260px); line-height: 1; color: var(--sol);
+  -webkit-text-stroke: 8px var(--tinta); paint-order: stroke fill; text-shadow: 0 10px 0 var(--tinta); pointer-events: none; }
+.hud-contagem.n3 { color: #ff5e57; } .hud-contagem.n2 { color: #ffb03a; } .hud-contagem.n1 { color: #ffe45c; } .hud-contagem.vai { color: #5cf08a; font-size: clamp(70px, 32vh, 200px); }
+.hud-contagem.bate { animation: hud-bate .9s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes hud-bate { 0% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; } 25% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(-50%, -50%) scale(.85); opacity: 0; } }
+.hud-faixa { position: absolute; left: -10%; right: -10%; top: 33%; text-align: center; background: linear-gradient(90deg, transparent, #e8321a 12%, #ff7a1a 50%, #e8321a 88%, transparent);
+  font-size: clamp(30px, 11vh, 66px); padding: .05em 0; transform: rotate(-4deg); color: var(--creme); -webkit-text-stroke: 4px var(--tinta); paint-order: stroke fill;
+  border-top: 5px solid var(--sol); border-bottom: 5px solid var(--sol); animation: hud-faixa 2.6s ease-in-out both; }
+/* com a faixa na tela os avisos descem para baixo dela (a faixa vem antes no DOM) */
+.hud-faixa:not([hidden]) ~ .hud-avisos { top: calc(33% + clamp(52px, 17vh, 96px)); }
+@keyframes hud-faixa { 0% { transform: translateX(-110%) rotate(-4deg); } 15%, 85% { transform: translateX(0) rotate(-4deg); } 100% { transform: translateX(110%) rotate(-4deg); } }
+.hud-avisos { position: absolute; left: 50%; top: calc(var(--sat) + clamp(70px, 22vh, 120px)); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.hud-aviso { display: flex; align-items: center; gap: 8px; font-family: var(--fonte); font-weight: 800; font-size: clamp(17px, 6vh, 30px); padding: 2px 18px; border-radius: 999px; white-space: nowrap;
+  background: rgba(16,32,74,.82); border: 4px solid var(--creme); box-shadow: 0 5px 0 rgba(0,0,0,.3); animation: hud-aviso 1.7s ease-out both; }
+.hud-aviso.bom { background: #1f9e4a; } .hud-aviso.ruim { background: #c8321f; } .hud-aviso.poder { background: #5c34c7; } .hud-aviso.turbo { background: #e8701a; } .hud-aviso.ouro { background: #d99a00; }
+@keyframes hud-aviso { 0% { transform: scale(.3); opacity: 0; } 12% { transform: scale(1.12); opacity: 1; } 22% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: translateY(-14px); opacity: 0; } }
+.hud-fumaca { position: absolute; inset: 0; opacity: 0; transition: opacity .25s;
+  background: radial-gradient(40% 50% at 30% 40%, rgba(225,228,234,.95), transparent 70%), radial-gradient(45% 45% at 70% 55%, rgba(205,210,220,.95), transparent 70%),
+  radial-gradient(60% 50% at 50% 80%, rgba(190,196,206,.9), transparent 75%), radial-gradient(50% 40% at 55% 25%, rgba(235,238,244,.9), transparent 70%), rgba(200,205,214,.35); }
+.hud-flash { position: absolute; inset: 0; opacity: 0; background: radial-gradient(70% 70% at 50% 50%, transparent 45%, rgba(232,50,26,.65) 100%); }
+.hud-flash.on { animation: hud-flash .35s ease-out; }
+@keyframes hud-flash { 0% { opacity: 1; } 100% { opacity: 0; } }
+.hud.tremendo .hud-esq, .hud.tremendo .hud-mapa { animation: tc-treme .12s linear 3; }
+.hud-gelo { position: absolute; inset: 0; opacity: 0; transition: opacity .2s; background: radial-gradient(75% 75% at 50% 50%, transparent 55%, rgba(170,230,255,.75) 100%); border: 10px solid rgba(200,240,255,.6); box-sizing: border-box; }
+
+/* decoracao dos botoes de toque da fase 2 (#btn-turbo / #btn-poder ganham um filho .deco vazio para isto) */
+#btn-turbo .deco, #btn-poder .deco { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; overflow: hidden; display: grid; place-items: center; container-type: size; }
+.deco .tb-carga { position: absolute; left: 0; right: 0; bottom: 0; height: 0%; background: linear-gradient(0deg, #ff6a1a, #ffd23a); opacity: .9; transition: height .12s linear; }
+.deco .tb-icone, .deco .pd-icone { position: relative; font-size: 30px; font-size: 52cqmin; line-height: 1; filter: drop-shadow(0 2px 0 rgba(16,32,74,.6)); }
+.deco.cheio { animation: tc-pulso .7s ease-in-out infinite; box-shadow: inset 0 0 0 4px var(--sol); }
+.deco.ativo .tb-carga { background: linear-gradient(0deg, #ff2a10, #ff9a1a, #fff36b); }
+.deco.ativo .tb-icone { animation: tc-pulso .25s ease-in-out infinite; }
+.deco.vazio .tb-icone { filter: grayscale(1) opacity(.6); }
+.deco .pd-anel { position: absolute; inset: 4%; border-radius: 50%; background: conic-gradient(var(--cor, #ffd23a) calc(var(--p, 0) * 1turn), rgba(16,32,74,.5) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px)); mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px)); }
+.deco.carregando .pd-icone { filter: grayscale(.7) opacity(.55); }
+.deco.pronto { animation: tc-pulso .8s ease-in-out infinite; }
+.deco.pronto .pd-anel { box-shadow: 0 0 12px var(--cor, #ffd23a); }
+
+/* ------------------------------------------------------------------ telas baixas (celular deitado pequeno: 360 px de altura) */
+@media (max-height: 400px) {
+  #ui .tc-painel { border-width: 5px; }
+  /* celular deitado baixo: sai a frase do carro (enfeite) e fica a ESQUIVA do poder (e o que ensina a jogar) */
+  #ui .sc-desc { display: none; }
+  .hud-mapa { width: clamp(64px, 21vh, 150px); height: clamp(64px, 21vh, 150px); }
+}
+@media (max-aspect-ratio: 4/3) {
+  /* tablet de pe ou quase quadrado: a ficha desce para baixo do carro */
+#ui .menu-esq { width: 70%; }
+#ui .menu-carro { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { #ui *, #hud * { animation-duration: .01s !important; } }
