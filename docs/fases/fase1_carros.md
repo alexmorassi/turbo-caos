@@ -1,8 +1,8 @@
 # Fase 1 — Carros (relatório)
 
 Dez carros do Cidade Aberta, visualmente distintos, otimizados para o celular, normalizados e com a configuração gerada.
-Tudo reprodutível por `tools/carros/` (seção 5). Fotos: `docs/fotos/carros.png` (3/4 da frente) e
-`docs/fotos/carros_lado.png` (lateral, frente para a direita), todos na **mesma distância de câmera** (os tamanhos se comparam).
+Tudo reprodutível por `tools/carros/` (seção 5). Fotos: `docs/fotos/carros.jpg` (3/4 da frente) e
+`docs/fotos/carros_lado.jpg` (lateral, frente para a direita), todos na **mesma distância de câmera** (os tamanhos se comparam).
 
 ## 1. Resultado
 
@@ -44,14 +44,14 @@ Olhando as fotos das origens (as sugeridas + 24 alternativas), a lista sugerida 
 - **Fuscão (`fusca.glb`) → Buguinho (`buggy.glb`)**, mesmo poder (`encolhedor`). O Fusca sugerido é **branco** como o seal
   (mesma cor principal). Tentei os dois Fuscas: a `body_lo` do `fusca.glb` tem cacos pretos na lataria (UV do mklod antigo) e
   a do `fusca_teto.glb` (vermelho) tem o **forro claro da porta atravessando a lataria** decimada e furos no pé da porta
-  (`docs/fotos/carros_fusca_descartado.png`: malha cheia × `_lo` original × `_lo` repintada — idênticas, porque o defeito é de
+  (`docs/fotos/carros_fusca_descartado.jpg`: malha cheia × `_lo` original × `_lo` repintada — idênticas, porque o defeito é de
   geometria). A malha cheia do fusca_teto não simplifica: sem `Permissive` o meshopt trava em 103 mil triângulos (costuras de UV
   do Meshy); com `Permissive` a lataria vira mosaico de cartas erradas (fotografado). O bugue entra **laranja** (a única cor
   livre do grid), silhueta única (aberto, santantônio) e mantém a ideia: o bugue de praia brasileiro nasce sobre chassi de Fusca.
 - **Voador: turbinas recolhidas.** O `yarisvoador.glb` guarda os pods **abertos** (modo voo do Cidade Aberta); com eles a
   largura de 3,36 m limita a escala e o carro fica com **2,74 m** (metade dos outros). Recolhidos pelo `slide` de cada pod (o
   mesmo cálculo do `vehicles.js`: `x − side × slide`) ele tem 4,2 m e o brilho azul das turbinas aparece por baixo da carroceria
-  (`docs/fotos/carros_voador_pods.png`). O jogo pode abrir as turbinas como efeito: `pod.position.x += side × slide`.
+  (`docs/fotos/carros_voador_pods.jpg`). O jogo pode abrir as turbinas como efeito: `pod.position.x += side × slide`.
 - Pares que conferi de perto e mantive: Voador (preto/vermelho/branco, chato, com pods) × nenhum outro vermelho; Picolé
   (turquesa/rosa, alto, casquinha no teto) × Faísca (sedã branco baixo); Lagartixa (verde-limão, baixo) × Kombosa (menta, van);
   Tubarão (azul-céu, monstro) × Jatinho (azul royal, kart). Silhueta e tom dominante diferem em todos.
@@ -153,7 +153,7 @@ node tools/carros/otimiza.mjs [id ...]   # origem -> assets/cars/<id>.glb + tool
 node tools/carros/gera_config.mjs        # tabela.mjs + medidas.json -> config/carros.js (confere soma 16, 1 poder por carro)
 node tools/carros/confere.mjs [id ...]   # Chromium/SwiftShader: nós, extras, caixa, frente, eixo, cor; integração (sem ids)
 node tools/carros/valida.mjs             # validador do Khronos (npm install --no-save gltf-validator)
-node tools/carros/folha.mjs              # docs/fotos/carros.png e carros_lado.png (--origem a b c: fotos das ORIGENS)
+node tools/carros/folha.mjs              # docs/fotos/carros.jpg e carros_lado.png (--origem a b c: fotos das ORIGENS)
 ```
 Arquivos: `tabela.mjs` (origem → id e toda decisão de projeto), `otimiza.mjs` (pipeline), `geometria.mjs` (extrai, solda,
 simplifica, eixo da roda), `texturas.mjs` (KTX2 decodifica/codifica em Node), `chapa.mjs`, `comum.mjs` (servidor + Chromium),

@@ -19,8 +19,10 @@ Os contratos entre módulos estão em **`docs/CONTRATOS.md`** — leia antes de 
   `Math.random` na jogabilidade (`G.sorteio`); nada de `Date.now()` na simulação.
 - **Parâmetros de jogo em `config/`**: `carros.js`, `fisica.js`, `turbo.js`, `poderes.js`, `dificuldade.js`, `pistas.js`, `corrida.js`.
   Número de jogabilidade fora de `config/` só com comentário dizendo de onde veio.
-- **HTML único:** nada de `fetch` de arquivo (GLB só por `carregaGLB`), nada de `import.meta`, nada de CDN/fonte/imagem/som externo
-  (textura em canvas, som sintetizado). Se precisar de um arquivo novo em tempo de execução, ele entra na lista do `tools/monta.js`.
+- **HTML único:** nada de `fetch` de arquivo (GLB só por `carregaGLB`), nada de `import.meta`, nada de CDN/imagem/som externo
+  (textura em canvas, som sintetizado). Única exceção: as fontes Baloo 2/Bungee do Google Fonts, como nos jogos de referência — o
+  `<link>` é injetado pelo `telas.inicia()` (fora de `?teste=`/`?foto=`/`?semente=`) e sem internet cai na fonte do sistema.
+  Se precisar de um arquivo novo em tempo de execução, ele entra na lista do `tools/monta.js`.
 - `localStorage` só por `G.save` (tudo em try/catch, cópia em memória).
 - **Estilo:** comentários em português sem acentos explicando o PORQUÊ, cabeçalho em todo módulo, identificadores em português,
   textos visíveis com acento, constantes em MAIÚSCULAS com a origem do valor, nada alocado dentro de `G.passo`.

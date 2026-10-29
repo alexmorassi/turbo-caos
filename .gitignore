@@ -6,3 +6,4 @@ tools/carros/cache/
 .DS_Store
 Thumbs.db
 dist/
+docs/fotos/**/*.png

@@ -19,7 +19,8 @@ própria o arquivo de outra fase.
   como módulo `.glb.js`) e o HTML único `TurboCaos.html`, que abre em `file://`. Por causa dos dois:
   - nada de `fetch`/`XMLHttpRequest` de arquivo local — GLB só por `carregaGLB` (`js/glb.js`), que lê o bloco embutido;
   - nada de `import.meta`, nada de `import()` dinâmico (exceção: `main.js` carregando suíte de teste);
-  - nada de CDN, fonte externa, imagem ou som em arquivo: textura é gerada em canvas/código, som é sintetizado no WebAudio;
+  - nada de CDN, imagem ou som em arquivo: textura é gerada em canvas/código, som é sintetizado no WebAudio (exceção: as fontes
+    Baloo 2/Bungee do Google Fonts, injetadas pelo `telas.inicia()` fora dos testes, com fallback do sistema);
   - CSS em `css/jogo.css` (o `monta.js` embute).
 - `localStorage` sempre em try/catch (em `file://` e no modo privativo ele levanta exceção no simples acesso). Só via `G.save`.
 - Erro no console reprova a suíte de teste.
@@ -82,6 +83,7 @@ Pendências de cada fase vão no relatório `docs/fases/faseN_<nome>.md`; o maes
 | `carro:decolou` / `carro:pouso` [física] | `{ carro, forca }` |
 | `carro:queda` / `carro:volta_pista` [física] | `{ carro }` |
 | `carro:drift` [física] | `{ carro, ligado }` |
+| `carro:largada_turbo` [física] | `{ carro }` (apertou TURBO — ou ACELERA na aceleração manual — bem no VAI: +9 m/s) |
 | `turbo:liga` / `turbo:desliga` / `turbo:vazio` [turbo] | `{ carro }` |
 | `capsula:pega` [cápsulas] | `{ carro, dourada }` |
 | `poder:usa` [poderes] | `{ carro, poder }` |
@@ -117,7 +119,11 @@ API do núcleo (ver o código de `js/pista.js`):
   do lado em que ele saiu, e também quando chega ao fim do atalho (`s >= comprimento - 1`, aí força a troca projetando na principal).
 - `MARCA.LARGADA` na amostra 0 da principal. Atalho nunca cruza a largada.
 
-Visual da pista (fase 3): `export async function montaVisualDaPista(G, pista) -> { grupo, quadro(dt), destroi() }` em
+Campos extras da definição que o núcleo ignora (fase 3): `figuras`, `elevados`, `marcos`, `comprimentoNominal`, `tema { ..., musica }`
+e, nos atalhos, `figuras`, `elevados`, `douradas`/`capsulas` (índice de ponto DO ATALHO). Montagem por peças em `js/pistas/construtor.js`.
+
+Visual da pista (fase 3): `export async function montaVisualDaPista(G, pista) -> { grupo, quadro(dt), destroi() }` (devolve também
+`terreno`, `sol`, `hemi`, `neblina`, `tMontagem`, `conta()`, `aplicaQualidade(p)`; ouve `qualidade:muda`) em
 `js/visual_pista.js` (asfalto, zebras, muros, rampas, loops, pilares, cenário instanciado, céu, luz, neblina). Lista de pistas:
 `config/pistas.js` exporta `PISTAS` (as 10 defs, em ordem) e `pistaPorId(id)`.
 
@@ -152,6 +158,10 @@ class Carro { constructor(G, corrida, { cfg, indice, ehJogador, nome }) }
   efeitos: { rodopio, gelo, levantado }            // segundos restantes (lidos por HUD/visual/IA)
   visual                                          // VisualCarro (fase 2): quadro(dt) sincroniza malha, rodas, inclinação, sombra
 ```
+- `carro.i` = amostra atual em TODO passo (no chão e no ar): é a dica da projeção.
+- `LANCA`: o carro sai com a velocidade que tem, 8° mais para cima (`ANGULO_EXTRA_DA_RAMPA` em config/fisica.js). Quem cai num vão
+  volta à pista DEPOIS do buraco (senão cairia de novo para sempre).
+- Rodas: `wheelN.rotation.order = 'YXZ'`; rolar = `rotation.x`, esterçar = `rotation.y` (só 1 e 2).
 Colisões carro × carro: `js/colisoes.js` → `colide(corrida)` chamado pela corrida depois de todos os `carro.passo`.
 Parâmetros de física por atributo (1–5): `config/fisica.js` (fase 2).
 Câmera: `js/camera.js` → `new CameraCorrida(G, corrida)` com `passo(dt)`, `quadro(dt)`, `treme(intensidade, seg)`, `fov(extra)`.
@@ -161,7 +171,9 @@ Câmera: `js/camera.js` → `new CameraCorrida(G, corrida)` com `passo(dt)`, `qu
 `G.entrada`: `estado { acel, freio, direcao, drift, turbo, poder, pausa }` (0..1 / -1..1), `apertou(acao)` (borda no passo atual),
 `simulada` (o harness escreve `estado` direto), `passo(dt)`, `aplicaNoCarro(carro)`, `mostraControles(bool)`, `esqueceTudo()`,
 `configura({ modo: 'botoes'|'joystick'|'inclinacao', acelAuto: bool })`. Cria o próprio DOM dos controles de toque (`#controles`) e
-lê/grava a configuração por `G.save`. Teclado (desenvolvimento): setas/WASD, espaço = turbo, E/Shift = poder, S/↓ = freio, Ctrl = drift.
+lê/grava a configuração por `G.save` (`opcoes.controle` e `opcoes.acelAuto`, os mesmos campos da tela de opções). O botão FREIO do toque
+liga `freio` e `drift` juntos. `#btn-pausa` só liga `estado.pausa` (a fase 6 põe o botão de pausa dela por cima e lê `apertou('pausa')`).
+Teclado (desenvolvimento): setas/WASD, espaço = turbo, E/Shift = poder, S/↓ = freio, Ctrl = drift.
 
 ## 7. Corrida (`js/corrida.js`, fundação)
 
@@ -203,20 +215,27 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
 
 - `G.telas`: `mostra(nome, dados)`, `passo(dt)`, `quadro(dt)`; telas: carregando, menu, selecao_carro, selecao_pista, corrida
   (pausa), resultado (pódio), campeonato, opcoes. Inicia corrida por `G.jogo.iniciaCorrida`; ouve `corrida:fim`.
-- `G.hud`: `mostra(corrida)`, `esconde()`, `passo(dt)`, `aviso(texto, tipo)`; posição, volta, tempo, barra de turbo, botão de
+- `G.hud`: `mostra(corrida)`, `esconde()`, `passo(dt)`, `aviso(texto, tipo, icone?)` (tipos `info`, `bom`, `ruim`, `poder`, `turbo`,
+  `ouro`); posição, volta, tempo, barra de turbo, botão de
   poder com anel de progresso, minimapa (`js/minimapa.js`), contagem, faixa de última volta, sobreposição de fumaça (`mod.visao`).
-- `G.audio`: `desbloqueia()` (no primeiro toque), `toca(nome, { vol, tom, pos })`, `motor(carro)`, `musica(tema|null)`,
-  `suspende()`/`retoma()`, `volume(geral, musica, efeitos)`, `passo(dt)`; ouve os eventos da seção 3 para os efeitos.
+- `G.audio`: `desbloqueia()` (no primeiro toque), `toca(nome, { vol, tom, pos }) -> bool`, `motor(carro)`, `musica(nome|pista|null)`
+  (devolve o tema; `temaAtual`), `suspende()`/`retoma()`, `volume(geral, musica, efeitos)` em 0..1 (null mantém), `passo(dt)`; ouve os
+  eventos da seção 3 para os efeitos (o som de cada poder toca no `poder:usa`; nomes extras: `gelo_quebra`, `acerto_bom`,
+  `acerto_ruim`, `esquiva`, `escudo_bloqueia`).
 - `G.vibracao.vibra(ms | padrão)` (respeita a opção; `navigator.vibrate` em try/catch).
-- `G.save`: `le(chave, padrao)`, `grava(chave, valor)`, `apaga()` — chaves `turbocaos.*`, tudo em try/catch, cópia em memória se
-  o armazenamento falhar (o jogo continua). `progresso`, `opcoes`, `dda`, `recordes`.
-- `G.qualidade`: `nivel` ('baixa'|'media'|'alta'), `auto`, `p` (pixelRatio, sombras, densidadeCenario, distancia, particulas),
-  `limiteFps` (60|30), `mede(dtReal)` (chamado pelo laço a cada quadro), `define(nivel)`; emite `qualidade:muda`.
+- `G.save`: `le(chave, padrao)`, `grava(chave, valor)`, `apaga()`, `remove(chave)`, `opcoes()`, `mudaOpcoes(parcial)`, `OPCOES_PADRAO`
+  — chaves `turbocaos.*`, tudo em try/catch, cópia em memória se o armazenamento falhar (o jogo continua). Chaves: `progresso`,
+  `opcoes`, `carro`, `dda`, `qualidade_auto`, `campeonato_fim`.
+- `G.qualidade`: `nivel` ('baixa'|'media'|'alta'), `auto`, `escolha`, `p` (pixelRatio, sombras, densidadeCenario, distancia,
+  particulas), `limiteFps` (60|30), `mede(dtReal)` (chamado pelo laço a cada quadro), `define('auto'|nivel, persiste)`; emite
+  `qualidade:muda`.
+- As telas só reagem às corridas que ELAS começaram: suíte que abre corrida por `G.jogo.iniciaCorrida` não ganha HUD nem pódio
+  (para ver o HUD: `G.hud.mostra(c)`).
 
 ## 11. Flags de URL e testes
 
 `?teste=<suite>` (o laço para; o harness chama `G.passo`), `?pista=<id>` + `?carro=<id>` (pula os menus e larga direto),
-`?auto=1` (IA dirige o jogador), `?corredores=n`, `?voltas=n`, `?qualidade=baixa|media|alta`, `?semente=n`, `?mudo=1`, `?foto=1`.
+`?auto=1` (IA dirige o jogador), `?corredores=n`, `?voltas=n`, `?qualidade=baixa|media|alta`, `?semente=n`, `?mudo=1`, `?foto=1`, `?sem_armazenamento=1` (localStorage levanta exceção: para testar).
 Com `?teste=`, `?foto=` ou `?semente=` o `Math.random` e o `G.sorteio` usam semente fixa.
 
 Bateria: `node testes/rodar.js` (todas), `--so <nome>`, `--mobile pixel|iphone` (emulação de aparelho), `--html` (abre o

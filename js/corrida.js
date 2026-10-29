@@ -29,6 +29,8 @@ import { emite, on } from './eventos.js';
 const LUGAR_DO_JOGADOR = (n) => Math.max(0, n - 2);
 /** Segundos de festa depois que o jogador cruza a chegada (o carro segue no piloto automatico) antes do resultado. */
 const FESTA = 3;
+/** Intensidade da luz de preenchimento presa a camera (ver carrega()). */
+const LUZ_DA_CAMERA = 0.45;
 
 export class Corrida {
   constructor(G, opcoes) {
@@ -65,6 +67,13 @@ export class Corrida {
     G.cena = this.cena;
     this.visual = await montaVisualDaPista(G, this.pista);
     this.cena.add(this.visual.grupo);
+    // LUZ DE PREENCHIMENTO presa a camera (sugestao da fase 2): no topo do loop o sol bate nas costas do carro e ele vira um vulto
+    // preto. Fraca (0,45) para nao achatar o volume nas retas; o alvo e filho da camera, senao a luz apontaria para a origem do mundo.
+    this.cena.add(G.camera);
+    const luz = new THREE.DirectionalLight(0xffffff, LUZ_DA_CAMERA);
+    luz.position.set(0, 0, 0); luz.target.position.set(0, -0.35, -1);
+    G.camera.add(luz); G.camera.add(luz.target);
+    this._luzDaCamera = luz;
 
     // carros: jogador + rivais, na grade
     const n = this.opcoes.corredores;
@@ -239,6 +248,7 @@ export class Corrida {
     for (const c of this.carros) if (c.destroi) c.destroi();
     if (this.visual && this.visual.destroi) this.visual.destroi();
     if (this.G.pista === this.pista) this.G.pista = null;
+    if (this._luzDaCamera) { this.G.camera.remove(this._luzDaCamera.target); this.G.camera.remove(this._luzDaCamera); this._luzDaCamera.dispose(); this._luzDaCamera = null; }
     this.estado = 'terminou';
   }
 }
