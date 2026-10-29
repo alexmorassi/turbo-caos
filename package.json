@@ -1,0 +1,21 @@
+{
+  "name": "turbo-caos",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "TURBO CAOS - corrida maluca 3D no navegador do celular (three.js r170, ES modules sem bundler no desenvolvimento). O npm aqui NAO entra no jogo: serve so as ferramentas (otimizar os GLB, montar o HTML unico) e o Playwright dos testes.",
+  "scripts": {
+    "testes": "node testes/rodar.js",
+    "monta": "node tools/monta.js"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "esbuild": "^0.24.2",
+    "ktx2-encoder": "^0.6.0",
+    "meshoptimizer": "^1.3.0",
+    "sharp": "^0.35.5",
+    "three": "^0.170.0"
+  }
+}

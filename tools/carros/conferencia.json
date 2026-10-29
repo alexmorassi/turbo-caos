@@ -1,0 +1,1925 @@
+{
+ "suporte": {
+  "astcSupported": true,
+  "astcHDRSupported": false,
+  "etc1Supported": true,
+  "etc2Supported": true,
+  "dxtSupported": true,
+  "bptcSupported": true,
+  "pvrtcSupported": false
+ },
+ "erros": [],
+ "avisos": [
+  "ERR_ABORTED depois de entregue: /lib/addons/libs/basis/basis_transcoder.js",
+  "ERR_ABORTED depois de entregue: /lib/addons/libs/basis/basis_transcoder.wasm",
+  "ERR_ABORTED depois de entregue: /assets/cars/lagartixa.glb",
+  "ERR_ABORTED depois de entregue: /assets/cars/buguinho.glb",
+  "ERR_ABORTED depois de entregue: /assets/cars/tubarao.glb",
+  "ERR_ABORTED depois de entregue: /assets/cars/faisca.glb"
+ ],
+ "carros": {
+  "vulcao": {
+   "url": "/assets/cars/vulcao.glb",
+   "falhas": [],
+   "avisos": [],
+   "nos": [
+    "body",
+    "body_malha",
+    "carro",
+    "cena",
+    "wheel1",
+    "wheel1_malha",
+    "wheel2",
+    "wheel2_malha",
+    "wheel3",
+    "wheel3_malha",
+    "wheel4",
+    "wheel4_malha"
+   ],
+   "extras": {
+    "name": "carro",
+    "id": "vulcao",
+    "nome": "Vulcão",
+    "origem": "cidadeaberta/assets/vulcao.glb",
+    "rodas": true,
+    "escala": 0.851,
+    "limitadaPor": "largura",
+    "medidas": {
+     "comprimento": 3.745,
+     "largura": 2.3,
+     "altura": 1.189
+    }
+   },
+   "caixa": {
+    "min": [
+     -1.1502,
+     0.0002,
+     -1.8724
+    ],
+    "max": [
+     1.1503,
+     1.1892,
+     1.8724
+    ],
+    "comprimento": 3.745,
+    "largura": 2.301,
+    "altura": 1.189
+   },
+   "rodas": [
+    {
+     "nome": "wheel1",
+     "pos": [
+      0.745,
+      0.352,
+      1.046
+     ],
+     "extras": {
+      "name": "wheel1",
+      "radius": 0.349,
+      "front": true,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 1.55,
+     "setorMinimo": 0.977,
+     "giroDesvioCm": 1.21,
+     "chaoVariaCm": 1.39,
+     "folgaChaoCm": 0.3
+    },
+    {
+     "nome": "wheel2",
+     "pos": [
+      -0.748,
+      0.353,
+      1.045
+     ],
+     "extras": {
+      "name": "wheel2",
+      "radius": 0.35,
+      "front": true,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 1.68,
+     "setorMinimo": 0.971,
+     "giroDesvioCm": 1.46,
+     "chaoVariaCm": 1.61,
+     "folgaChaoCm": 0.3
+    },
+    {
+     "nome": "wheel3",
+     "pos": [
+      0.927,
+      0.364,
+      -0.947
+     ],
+     "extras": {
+      "name": "wheel3",
+      "radius": 0.363,
+      "front": false,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 1.71,
+     "setorMinimo": 0.966,
+     "giroDesvioCm": 0.93,
+     "chaoVariaCm": 1.04,
+     "folgaChaoCm": 0.1
+    },
+    {
+     "nome": "wheel4",
+     "pos": [
+      -0.927,
+      0.364,
+      -0.948
+     ],
+     "extras": {
+      "name": "wheel4",
+      "radius": 0.364,
+      "front": false,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 1.57,
+     "setorMinimo": 0.973,
+     "giroDesvioCm": 0.73,
+     "chaoVariaCm": 0.75,
+     "folgaChaoCm": 0
+    }
+   ],
+   "texturas": {
+    "map": {
+     "w": 2048,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb",
+     "mips": 12,
+     "formato": 36492
+    },
+    "metalnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    },
+    "roughnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    }
+   },
+   "tris": 29596,
+   "malhas": 5,
+   "kb": 672
+  },
+  "dourado": {
+   "url": "/assets/cars/dourado.glb",
+   "falhas": [],
+   "avisos": [],
+   "nos": [
+    "body",
+    "body_malha",
+    "carro",
+    "cena",
+    "wheel1",
+    "wheel1_malha",
+    "wheel2",
+    "wheel2_malha",
+    "wheel3",
+    "wheel3_malha",
+    "wheel4",
+    "wheel4_malha"
+   ],
+   "extras": {
+    "name": "carro",
+    "id": "dourado",
+    "nome": "Dourado B7",
+    "origem": "cidadeaberta/assets/dourado.glb",
+    "rodas": true,
+    "escala": 1.163,
+    "limitadaPor": "largura",
+    "medidas": {
+     "comprimento": 4.188,
+     "largura": 2.3,
+     "altura": 1.684
+    }
+   },
+   "caixa": {
+    "min": [
+     -1.1501,
+     -0.0001,
+     -2.0938
+    ],
+    "max": [
+     1.1501,
+     1.6844,
+     2.0938
+    ],
+    "comprimento": 4.188,
+    "largura": 2.3,
+    "altura": 1.684
+   },
+   "rodas": [
+    {
+     "nome": "wheel1",
+     "pos": [
+      0.946,
+      0.387,
+      0.964
+     ],
+     "extras": {
+      "name": "wheel1",
+      "radius": 0.384,
+      "front": true,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.37,
+     "setorMinimo": 0.992,
+     "giroDesvioCm": 0.16,
+     "chaoVariaCm": 0.35,
+     "folgaChaoCm": 0.3
+    },
+    {
+     "nome": "wheel2",
+     "pos": [
+      -0.944,
+      0.385,
+      0.965
+     ],
+     "extras": {
+      "name": "wheel2",
+      "radius": 0.383,
+      "front": true,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.48,
+     "setorMinimo": 0.992,
+     "giroDesvioCm": 0.42,
+     "chaoVariaCm": 0.57,
+     "folgaChaoCm": 0.2
+    },
+    {
+     "nome": "wheel3",
+     "pos": [
+      0.928,
+      0.429,
+      -1.263
+     ],
+     "extras": {
+      "name": "wheel3",
+      "radius": 0.429,
+      "front": false,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.34,
+     "setorMinimo": 0.997,
+     "giroDesvioCm": 0.23,
+     "chaoVariaCm": 0.45,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel4",
+     "pos": [
+      -0.928,
+      0.429,
+      -1.263
+     ],
+     "extras": {
+      "name": "wheel4",
+      "radius": 0.429,
+      "front": false,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.34,
+     "setorMinimo": 0.997,
+     "giroDesvioCm": 0.23,
+     "chaoVariaCm": 0.45,
+     "folgaChaoCm": 0
+    }
+   ],
+   "texturas": {
+    "map": {
+     "w": 2048,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb",
+     "mips": 12,
+     "formato": 36492
+    },
+    "metalnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    },
+    "roughnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    }
+   },
+   "tris": 22394,
+   "malhas": 5,
+   "kb": 451
+  },
+  "lagartixa": {
+   "url": "/assets/cars/lagartixa.glb",
+   "falhas": [],
+   "avisos": [],
+   "nos": [
+    "body",
+    "body_malha",
+    "carro",
+    "cena",
+    "wheel1",
+    "wheel1_malha",
+    "wheel2",
+    "wheel2_malha",
+    "wheel3",
+    "wheel3_malha",
+    "wheel4",
+    "wheel4_malha"
+   ],
+   "extras": {
+    "name": "carro",
+    "id": "lagartixa",
+    "nome": "Lagartixa",
+    "origem": "cidadeaberta/assets/porsche.glb",
+    "rodas": true,
+    "escala": 0.917,
+    "limitadaPor": "comprimento",
+    "medidas": {
+     "comprimento": 4.2,
+     "largura": 1.909,
+     "altura": 1.255
+    }
+   },
+   "caixa": {
+    "min": [
+     -0.9547,
+     -0.0003,
+     -2.1
+    ],
+    "max": [
+     0.9547,
+     1.2553,
+     2.1
+    ],
+    "comprimento": 4.2,
+    "largura": 1.909,
+    "altura": 1.256
+   },
+   "rodas": [
+    {
+     "nome": "wheel1",
+     "pos": [
+      0.745,
+      0.346,
+      1.096
+     ],
+     "extras": {
+      "name": "wheel1",
+      "radius": 0.345,
+      "front": true,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.43,
+     "setorMinimo": 0.995,
+     "giroDesvioCm": 0.39,
+     "chaoVariaCm": 0.43,
+     "folgaChaoCm": 0.1
+    },
+    {
+     "nome": "wheel2",
+     "pos": [
+      -0.743,
+      0.345,
+      1.098
+     ],
+     "extras": {
+      "name": "wheel2",
+      "radius": 0.345,
+      "front": true,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.33,
+     "setorMinimo": 0.994,
+     "giroDesvioCm": 0.33,
+     "chaoVariaCm": 0.45,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel3",
+     "pos": [
+      0.725,
+      0.351,
+      -1.157
+     ],
+     "extras": {
+      "name": "wheel3",
+      "radius": 0.35,
+      "front": false,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.22,
+     "setorMinimo": 0.995,
+     "giroDesvioCm": 0.1,
+     "chaoVariaCm": 0.2,
+     "folgaChaoCm": 0.1
+    },
+    {
+     "nome": "wheel4",
+     "pos": [
+      -0.722,
+      0.351,
+      -1.156
+     ],
+     "extras": {
+      "name": "wheel4",
+      "radius": 0.351,
+      "front": false,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.38,
+     "setorMinimo": 0.993,
+     "giroDesvioCm": 0.22,
+     "chaoVariaCm": 0.3,
+     "folgaChaoCm": 0
+    }
+   ],
+   "texturas": {
+    "map": {
+     "w": 2048,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb",
+     "mips": 12,
+     "formato": 36492
+    },
+    "metalnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    },
+    "roughnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    }
+   },
+   "tris": 23198,
+   "malhas": 5,
+   "kb": 484.3
+  },
+  "picole": {
+   "url": "/assets/cars/picole.glb",
+   "falhas": [],
+   "avisos": [],
+   "nos": [
+    "body",
+    "body_malha",
+    "carro",
+    "cena",
+    "wheel1",
+    "wheel1_malha",
+    "wheel2",
+    "wheel2_malha",
+    "wheel3",
+    "wheel3_malha",
+    "wheel4",
+    "wheel4_malha"
+   ],
+   "extras": {
+    "name": "carro",
+    "id": "picole",
+    "nome": "Picolé",
+    "origem": "cidadeaberta/assets/sorvete.glb",
+    "rodas": true,
+    "escala": 0.622,
+    "limitadaPor": "largura",
+    "medidas": {
+     "comprimento": 3.251,
+     "largura": 2.3,
+     "altura": 2.308
+    }
+   },
+   "caixa": {
+    "min": [
+     -1.15,
+     0,
+     -1.6257
+    ],
+    "max": [
+     1.15,
+     2.3079,
+     1.6257
+    ],
+    "comprimento": 3.251,
+    "largura": 2.3,
+    "altura": 2.308
+   },
+   "rodas": [
+    {
+     "nome": "wheel1",
+     "pos": [
+      0.578,
+      0.234,
+      1.169
+     ],
+     "extras": {
+      "name": "wheel1",
+      "radius": 0.234,
+      "front": true,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.15,
+     "setorMinimo": 0.997,
+     "giroDesvioCm": 0.21,
+     "chaoVariaCm": 0.31,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel2",
+     "pos": [
+      -0.608,
+      0.233,
+      1.169
+     ],
+     "extras": {
+      "name": "wheel2",
+      "radius": 0.233,
+      "front": true,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.17,
+     "setorMinimo": 0.996,
+     "giroDesvioCm": 0.23,
+     "chaoVariaCm": 0.36,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel3",
+     "pos": [
+      0.576,
+      0.226,
+      -0.736
+     ],
+     "extras": {
+      "name": "wheel3",
+      "radius": 0.225,
+      "front": false,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0.02,
+     "ovalCm": 0.55,
+     "setorMinimo": 0.978,
+     "giroDesvioCm": 0.36,
+     "chaoVariaCm": 0.45,
+     "folgaChaoCm": 0.1
+    },
+    {
+     "nome": "wheel4",
+     "pos": [
+      -0.599,
+      0.225,
+      -0.739
+     ],
+     "extras": {
+      "name": "wheel4",
+      "radius": 0.224,
+      "front": false,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.33,
+     "setorMinimo": 0.989,
+     "giroDesvioCm": 0.35,
+     "chaoVariaCm": 0.49,
+     "folgaChaoCm": 0.1
+    }
+   ],
+   "texturas": {
+    "map": {
+     "w": 2048,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb",
+     "mips": 12,
+     "formato": 36492
+    },
+    "metalnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    },
+    "roughnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    }
+   },
+   "tris": 18597,
+   "malhas": 5,
+   "kb": 464.9
+  },
+  "buguinho": {
+   "url": "/assets/cars/buguinho.glb",
+   "falhas": [],
+   "avisos": [],
+   "nos": [
+    "body",
+    "body_malha",
+    "carro",
+    "cena",
+    "wheel1",
+    "wheel1_malha",
+    "wheel2",
+    "wheel2_malha",
+    "wheel3",
+    "wheel3_malha",
+    "wheel4",
+    "wheel4_malha"
+   ],
+   "extras": {
+    "name": "carro",
+    "id": "buguinho",
+    "nome": "Buguinho",
+    "origem": "cidadeaberta/assets/buggy.glb",
+    "rodas": true,
+    "escala": 1.172,
+    "limitadaPor": "comprimento",
+    "medidas": {
+     "comprimento": 4.2,
+     "largura": 2.234,
+     "altura": 1.741
+    }
+   },
+   "caixa": {
+    "min": [
+     -1.1175,
+     -0.0005,
+     -2.1
+    ],
+    "max": [
+     1.1172,
+     1.7408,
+     2.1
+    ],
+    "comprimento": 4.2,
+    "largura": 2.235,
+    "altura": 1.741
+   },
+   "rodas": [
+    {
+     "nome": "wheel1",
+     "pos": [
+      0.961,
+      0.419,
+      1.368
+     ],
+     "extras": {
+      "name": "wheel1",
+      "radius": 0.419,
+      "front": true,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 2.21,
+     "setorMinimo": 0.976,
+     "giroDesvioCm": 1.39,
+     "chaoVariaCm": 2.48,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel2",
+     "pos": [
+      -0.961,
+      0.42,
+      1.368
+     ],
+     "extras": {
+      "name": "wheel2",
+      "radius": 0.42,
+      "front": true,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 2.13,
+     "setorMinimo": 0.973,
+     "giroDesvioCm": 1.22,
+     "chaoVariaCm": 2.13,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel3",
+     "pos": [
+      0.949,
+      0.454,
+      -1.271
+     ],
+     "extras": {
+      "name": "wheel3",
+      "radius": 0.445,
+      "front": false,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 1.96,
+     "setorMinimo": 0.975,
+     "giroDesvioCm": 0.66,
+     "chaoVariaCm": 1.74,
+     "folgaChaoCm": 0.9
+    },
+    {
+     "nome": "wheel4",
+     "pos": [
+      -0.946,
+      0.453,
+      -1.272
+     ],
+     "extras": {
+      "name": "wheel4",
+      "radius": 0.446,
+      "front": false,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 2,
+     "setorMinimo": 0.98,
+     "giroDesvioCm": 0.87,
+     "chaoVariaCm": 1.81,
+     "folgaChaoCm": 0.7
+    }
+   ],
+   "texturas": {
+    "map": {
+     "w": 2048,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb",
+     "mips": 12,
+     "formato": 36492
+    },
+    "metalnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    },
+    "roughnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    }
+   },
+   "tris": 22395,
+   "malhas": 5,
+   "kb": 588.3
+  },
+  "kombosa": {
+   "url": "/assets/cars/kombosa.glb",
+   "falhas": [],
+   "avisos": [],
+   "nos": [
+    "body",
+    "body_malha",
+    "carro",
+    "cena",
+    "wheel1",
+    "wheel1_malha",
+    "wheel2",
+    "wheel2_malha",
+    "wheel3",
+    "wheel3_malha",
+    "wheel4",
+    "wheel4_malha"
+   ],
+   "extras": {
+    "name": "carro",
+    "id": "kombosa",
+    "nome": "Kombosa",
+    "origem": "cidadeaberta/assets/kombi.glb",
+    "rodas": true,
+    "escala": 0.961,
+    "limitadaPor": "comprimento",
+    "medidas": {
+     "comprimento": 4.2,
+     "largura": 1.707,
+     "altura": 1.922
+    }
+   },
+   "caixa": {
+    "min": [
+     -0.8532,
+     -0.0013,
+     -2.1
+    ],
+    "max": [
+     0.8532,
+     1.921,
+     2.1
+    ],
+    "comprimento": 4.2,
+    "largura": 1.706,
+    "altura": 1.922
+   },
+   "rodas": [
+    {
+     "nome": "wheel1",
+     "pos": [
+      0.606,
+      0.307,
+      1.006
+     ],
+     "extras": {
+      "name": "wheel1",
+      "radius": 0.307,
+      "front": true,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.48,
+     "setorMinimo": 0.988,
+     "giroDesvioCm": 0.26,
+     "chaoVariaCm": 0.46,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel2",
+     "pos": [
+      -0.604,
+      0.306,
+      1.006
+     ],
+     "extras": {
+      "name": "wheel2",
+      "radius": 0.305,
+      "front": true,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.6,
+     "setorMinimo": 0.983,
+     "giroDesvioCm": 0.44,
+     "chaoVariaCm": 0.6,
+     "folgaChaoCm": 0.1
+    },
+    {
+     "nome": "wheel3",
+     "pos": [
+      0.606,
+      0.307,
+      -1.3
+     ],
+     "extras": {
+      "name": "wheel3",
+      "radius": 0.307,
+      "front": false,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.48,
+     "setorMinimo": 0.988,
+     "giroDesvioCm": 0.26,
+     "chaoVariaCm": 0.46,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel4",
+     "pos": [
+      -0.604,
+      0.306,
+      -1.3
+     ],
+     "extras": {
+      "name": "wheel4",
+      "radius": 0.305,
+      "front": false,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.6,
+     "setorMinimo": 0.983,
+     "giroDesvioCm": 0.44,
+     "chaoVariaCm": 0.6,
+     "folgaChaoCm": 0.1
+    }
+   ],
+   "texturas": {
+    "map": {
+     "w": 2048,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb",
+     "mips": 12,
+     "formato": 36492
+    },
+    "metalnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    },
+    "roughnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    }
+   },
+   "tris": 18992,
+   "malhas": 5,
+   "kb": 403.9
+  },
+  "tubarao": {
+   "url": "/assets/cars/tubarao.glb",
+   "falhas": [],
+   "avisos": [],
+   "nos": [
+    "body",
+    "body_malha",
+    "carro",
+    "cena",
+    "wheel1",
+    "wheel1_malha",
+    "wheel2",
+    "wheel2_malha",
+    "wheel3",
+    "wheel3_malha",
+    "wheel4",
+    "wheel4_malha"
+   ],
+   "extras": {
+    "name": "carro",
+    "id": "tubarao",
+    "nome": "Tubarão",
+    "origem": "cidadeaberta/assets/shark.glb",
+    "rodas": true,
+    "escala": 0.516,
+    "limitadaPor": "altura",
+    "medidas": {
+     "comprimento": 3.338,
+     "largura": 1.57,
+     "altura": 2.6
+    }
+   },
+   "caixa": {
+    "min": [
+     -0.785,
+     -0.0004,
+     -1.6689
+    ],
+    "max": [
+     0.785,
+     2.6,
+     1.6689
+    ],
+    "comprimento": 3.338,
+    "largura": 1.57,
+    "altura": 2.6
+   },
+   "rodas": [
+    {
+     "nome": "wheel1",
+     "pos": [
+      0.586,
+      0.494,
+      0.744
+     ],
+     "extras": {
+      "name": "wheel1",
+      "radius": 0.494,
+      "front": true,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0.07,
+     "ovalCm": 4.45,
+     "setorMinimo": 0.967,
+     "giroDesvioCm": 2.52,
+     "chaoVariaCm": 4.37,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel2",
+     "pos": [
+      -0.585,
+      0.496,
+      0.742
+     ],
+     "extras": {
+      "name": "wheel2",
+      "radius": 0.496,
+      "front": true,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0.03,
+     "ovalCm": 4.67,
+     "setorMinimo": 0.955,
+     "giroDesvioCm": 2.94,
+     "chaoVariaCm": 4.13,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel3",
+     "pos": [
+      0.584,
+      0.491,
+      -0.633
+     ],
+     "extras": {
+      "name": "wheel3",
+      "radius": 0.487,
+      "front": false,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 4.83,
+     "setorMinimo": 0.948,
+     "giroDesvioCm": 2.77,
+     "chaoVariaCm": 3.92,
+     "folgaChaoCm": 0.4
+    },
+    {
+     "nome": "wheel4",
+     "pos": [
+      -0.584,
+      0.491,
+      -0.637
+     ],
+     "extras": {
+      "name": "wheel4",
+      "radius": 0.488,
+      "front": false,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0.05,
+     "ovalCm": 4.31,
+     "setorMinimo": 0.959,
+     "giroDesvioCm": 2.8,
+     "chaoVariaCm": 3.8,
+     "folgaChaoCm": 0.3
+    }
+   ],
+   "texturas": {
+    "map": {
+     "w": 1024,
+     "h": 1024,
+     "comprimida": true,
+     "colorSpace": "srgb",
+     "mips": 11,
+     "formato": 36492
+    },
+    "metalnessMap": {
+     "w": 256,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 9,
+     "formato": 37808
+    },
+    "roughnessMap": {
+     "w": 256,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 9,
+     "formato": 37808
+    },
+    "normalMap": {
+     "w": 512,
+     "h": 512,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    }
+   },
+   "tris": 34779,
+   "malhas": 5,
+   "kb": 827.6
+  },
+  "voador": {
+   "url": "/assets/cars/voador.glb",
+   "falhas": [],
+   "avisos": [],
+   "nos": [
+    "body",
+    "body_malha",
+    "carro",
+    "cena",
+    "pod0",
+    "pod0_malha",
+    "pod1",
+    "pod1_malha",
+    "pod2",
+    "pod2_malha",
+    "pod3",
+    "pod3_malha"
+   ],
+   "extras": {
+    "name": "carro",
+    "id": "voador",
+    "nome": "Voador",
+    "origem": "cidadeaberta/assets/yarisvoador.glb",
+    "rodas": false,
+    "escala": 1.049,
+    "limitadaPor": "comprimento",
+    "medidas": {
+     "comprimento": 4.2,
+     "largura": 2.219,
+     "altura": 1.34
+    },
+    "flutua": 0.205,
+    "pods": "recolhidos"
+   },
+   "caixa": {
+    "min": [
+     -1.109,
+     0.0001,
+     -2.1
+    ],
+    "max": [
+     1.1093,
+     1.3404,
+     2.1
+    ],
+    "comprimento": 4.2,
+    "largura": 2.218,
+    "altura": 1.34
+   },
+   "rodas": [
+    {
+     "nome": "pod0",
+     "pos": [
+      0.515,
+      0.369,
+      1.198
+     ],
+     "extras": {
+      "name": "pod0",
+      "side": 1,
+      "slide": 0.692,
+      "aberto": false
+     },
+     "pai": "body"
+    },
+    {
+     "nome": "pod1",
+     "pos": [
+      -0.524,
+      0.369,
+      1.2
+     ],
+     "extras": {
+      "name": "pod1",
+      "side": -1,
+      "slide": 0.689,
+      "aberto": false
+     },
+     "pai": "body"
+    },
+    {
+     "nome": "pod2",
+     "pos": [
+      0.562,
+      0.369,
+      -1.401
+     ],
+     "extras": {
+      "name": "pod2",
+      "side": 1,
+      "slide": 0.654,
+      "aberto": false
+     },
+     "pai": "body"
+    },
+    {
+     "nome": "pod3",
+     "pos": [
+      -0.564,
+      0.372,
+      -1.403
+     ],
+     "extras": {
+      "name": "pod3",
+      "side": -1,
+      "slide": 0.651,
+      "aberto": false
+     },
+     "pai": "body"
+    }
+   ],
+   "texturas": {
+    "map": {
+     "w": 2048,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb",
+     "mips": 12,
+     "formato": 36492
+    },
+    "metalnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    },
+    "roughnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    }
+   },
+   "tris": 24796,
+   "malhas": 5,
+   "kb": 555.6
+  },
+  "faisca": {
+   "url": "/assets/cars/faisca.glb",
+   "falhas": [],
+   "avisos": [],
+   "nos": [
+    "body",
+    "body_malha",
+    "carro",
+    "cena",
+    "wheel1",
+    "wheel1_malha",
+    "wheel2",
+    "wheel2_malha",
+    "wheel3",
+    "wheel3_malha",
+    "wheel4",
+    "wheel4_malha"
+   ],
+   "extras": {
+    "name": "carro",
+    "id": "faisca",
+    "nome": "Faísca",
+    "origem": "cidadeaberta/assets/seal.glb",
+    "rodas": true,
+    "escala": 0.885,
+    "limitadaPor": "comprimento",
+    "medidas": {
+     "comprimento": 4.2,
+     "largura": 1.918,
+     "altura": 1.301
+    }
+   },
+   "caixa": {
+    "min": [
+     -0.9591,
+     0.0004,
+     -2.1
+    ],
+    "max": [
+     0.9591,
+     1.3014,
+     2.1
+    ],
+    "comprimento": 4.2,
+    "largura": 1.918,
+    "altura": 1.301
+   },
+   "rodas": [
+    {
+     "nome": "wheel1",
+     "pos": [
+      0.724,
+      0.312,
+      1.312
+     ],
+     "extras": {
+      "name": "wheel1",
+      "radius": 0.312,
+      "front": true,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.4,
+     "setorMinimo": 0.992,
+     "giroDesvioCm": 0.17,
+     "chaoVariaCm": 0.37,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel2",
+     "pos": [
+      -0.721,
+      0.312,
+      1.311
+     ],
+     "extras": {
+      "name": "wheel2",
+      "radius": 0.312,
+      "front": true,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.33,
+     "setorMinimo": 0.993,
+     "giroDesvioCm": 0.21,
+     "chaoVariaCm": 0.27,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel3",
+     "pos": [
+      0.725,
+      0.317,
+      -1.272
+     ],
+     "extras": {
+      "name": "wheel3",
+      "radius": 0.317,
+      "front": false,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.38,
+     "setorMinimo": 0.991,
+     "giroDesvioCm": 0.16,
+     "chaoVariaCm": 0.24,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel4",
+     "pos": [
+      -0.732,
+      0.316,
+      -1.272
+     ],
+     "extras": {
+      "name": "wheel4",
+      "radius": 0.315,
+      "front": false,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.36,
+     "setorMinimo": 0.991,
+     "giroDesvioCm": 0.22,
+     "chaoVariaCm": 0.26,
+     "folgaChaoCm": 0.1
+    }
+   ],
+   "texturas": {
+    "map": {
+     "w": 2048,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb",
+     "mips": 12,
+     "formato": 36492
+    },
+    "metalnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    },
+    "roughnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    }
+   },
+   "tris": 22395,
+   "malhas": 5,
+   "kb": 515.5
+  },
+  "jatinho": {
+   "url": "/assets/cars/jatinho.glb",
+   "falhas": [],
+   "avisos": [],
+   "nos": [
+    "body",
+    "body_malha",
+    "carro",
+    "cena",
+    "wheel1",
+    "wheel1_malha",
+    "wheel2",
+    "wheel2_malha",
+    "wheel3",
+    "wheel3_malha",
+    "wheel4",
+    "wheel4_malha"
+   ],
+   "extras": {
+    "name": "carro",
+    "id": "jatinho",
+    "nome": "Jatinho",
+    "origem": "cidadeaberta/assets/kart_jato.glb",
+    "rodas": true,
+    "escala": 1.846,
+    "limitadaPor": "largura",
+    "medidas": {
+     "comprimento": 3.5,
+     "largura": 2.3,
+     "altura": 1.123
+    }
+   },
+   "caixa": {
+    "min": [
+     -1.1503,
+     -0.0001,
+     -1.75
+    ],
+    "max": [
+     1.1504,
+     1.1226,
+     1.75
+    ],
+    "comprimento": 3.5,
+    "largura": 2.301,
+    "altura": 1.123
+   },
+   "rodas": [
+    {
+     "nome": "wheel1",
+     "pos": [
+      0.914,
+      0.246,
+      0.844
+     ],
+     "extras": {
+      "name": "wheel1",
+      "radius": 0.244,
+      "front": true,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.35,
+     "setorMinimo": 0.992,
+     "giroDesvioCm": 0.18,
+     "chaoVariaCm": 0.34,
+     "folgaChaoCm": 0.2
+    },
+    {
+     "nome": "wheel2",
+     "pos": [
+      -0.917,
+      0.245,
+      0.847
+     ],
+     "extras": {
+      "name": "wheel2",
+      "radius": 0.245,
+      "front": true,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.17,
+     "setorMinimo": 0.996,
+     "giroDesvioCm": 0.22,
+     "chaoVariaCm": 0.24,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel3",
+     "pos": [
+      0.946,
+      0.27,
+      -1.074
+     ],
+     "extras": {
+      "name": "wheel3",
+      "radius": 0.27,
+      "front": false,
+      "side": 1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.39,
+     "setorMinimo": 0.988,
+     "giroDesvioCm": 0.18,
+     "chaoVariaCm": 0.19,
+     "folgaChaoCm": 0
+    },
+    {
+     "nome": "wheel4",
+     "pos": [
+      -0.952,
+      0.271,
+      -1.077
+     ],
+     "extras": {
+      "name": "wheel4",
+      "radius": 0.269,
+      "front": false,
+      "side": -1
+     },
+     "pai": "carro",
+     "excentricidadeCm": 0,
+     "ovalCm": 0.33,
+     "setorMinimo": 0.992,
+     "giroDesvioCm": 0.35,
+     "chaoVariaCm": 0.37,
+     "folgaChaoCm": 0.2
+    }
+   ],
+   "texturas": {
+    "map": {
+     "w": 2048,
+     "h": 256,
+     "comprimida": true,
+     "colorSpace": "srgb",
+     "mips": 12,
+     "formato": 36492
+    },
+    "metalnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    },
+    "roughnessMap": {
+     "w": 512,
+     "h": 64,
+     "comprimida": true,
+     "colorSpace": "srgb-linear",
+     "mips": 10,
+     "formato": 37808
+    }
+   },
+   "tris": 26797,
+   "malhas": 5,
+   "kb": 662
+  }
+ },
+ "integracao": [
+  {
+   "id": "vulcao",
+   "falhas": [],
+   "carroceria": "body",
+   "rodas": [
+    {
+     "n": 1,
+     "raio": 0.349,
+     "frente": true,
+     "lado": 1
+    },
+    {
+     "n": 2,
+     "raio": 0.35,
+     "frente": true,
+     "lado": -1
+    },
+    {
+     "n": 3,
+     "raio": 0.363,
+     "frente": false,
+     "lado": 1
+    },
+    {
+     "n": 4,
+     "raio": 0.364,
+     "frente": false,
+     "lado": -1
+    }
+   ]
+  },
+  {
+   "id": "dourado",
+   "falhas": [],
+   "carroceria": "body",
+   "rodas": [
+    {
+     "n": 1,
+     "raio": 0.384,
+     "frente": true,
+     "lado": 1
+    },
+    {
+     "n": 2,
+     "raio": 0.383,
+     "frente": true,
+     "lado": -1
+    },
+    {
+     "n": 3,
+     "raio": 0.429,
+     "frente": false,
+     "lado": 1
+    },
+    {
+     "n": 4,
+     "raio": 0.429,
+     "frente": false,
+     "lado": -1
+    }
+   ]
+  },
+  {
+   "id": "lagartixa",
+   "falhas": [],
+   "carroceria": "body",
+   "rodas": [
+    {
+     "n": 1,
+     "raio": 0.345,
+     "frente": true,
+     "lado": 1
+    },
+    {
+     "n": 2,
+     "raio": 0.345,
+     "frente": true,
+     "lado": -1
+    },
+    {
+     "n": 3,
+     "raio": 0.35,
+     "frente": false,
+     "lado": 1
+    },
+    {
+     "n": 4,
+     "raio": 0.351,
+     "frente": false,
+     "lado": -1
+    }
+   ]
+  },
+  {
+   "id": "picole",
+   "falhas": [],
+   "carroceria": "body",
+   "rodas": [
+    {
+     "n": 1,
+     "raio": 0.234,
+     "frente": true,
+     "lado": 1
+    },
+    {
+     "n": 2,
+     "raio": 0.233,
+     "frente": true,
+     "lado": -1
+    },
+    {
+     "n": 3,
+     "raio": 0.225,
+     "frente": false,
+     "lado": 1
+    },
+    {
+     "n": 4,
+     "raio": 0.224,
+     "frente": false,
+     "lado": -1
+    }
+   ]
+  },
+  {
+   "id": "buguinho",
+   "falhas": [],
+   "carroceria": "body",
+   "rodas": [
+    {
+     "n": 1,
+     "raio": 0.419,
+     "frente": true,
+     "lado": 1
+    },
+    {
+     "n": 2,
+     "raio": 0.42,
+     "frente": true,
+     "lado": -1
+    },
+    {
+     "n": 3,
+     "raio": 0.445,
+     "frente": false,
+     "lado": 1
+    },
+    {
+     "n": 4,
+     "raio": 0.446,
+     "frente": false,
+     "lado": -1
+    }
+   ]
+  },
+  {
+   "id": "kombosa",
+   "falhas": [],
+   "carroceria": "body",
+   "rodas": [
+    {
+     "n": 1,
+     "raio": 0.307,
+     "frente": true,
+     "lado": 1
+    },
+    {
+     "n": 2,
+     "raio": 0.305,
+     "frente": true,
+     "lado": -1
+    },
+    {
+     "n": 3,
+     "raio": 0.307,
+     "frente": false,
+     "lado": 1
+    },
+    {
+     "n": 4,
+     "raio": 0.305,
+     "frente": false,
+     "lado": -1
+    }
+   ]
+  },
+  {
+   "id": "tubarao",
+   "falhas": [],
+   "carroceria": "body",
+   "rodas": [
+    {
+     "n": 1,
+     "raio": 0.494,
+     "frente": true,
+     "lado": 1
+    },
+    {
+     "n": 2,
+     "raio": 0.496,
+     "frente": true,
+     "lado": -1
+    },
+    {
+     "n": 3,
+     "raio": 0.487,
+     "frente": false,
+     "lado": 1
+    },
+    {
+     "n": 4,
+     "raio": 0.488,
+     "frente": false,
+     "lado": -1
+    }
+   ]
+  },
+  {
+   "id": "voador",
+   "falhas": [],
+   "carroceria": "body",
+   "rodas": []
+  },
+  {
+   "id": "faisca",
+   "falhas": [],
+   "carroceria": "body",
+   "rodas": [
+    {
+     "n": 1,
+     "raio": 0.312,
+     "frente": true,
+     "lado": 1
+    },
+    {
+     "n": 2,
+     "raio": 0.312,
+     "frente": true,
+     "lado": -1
+    },
+    {
+     "n": 3,
+     "raio": 0.317,
+     "frente": false,
+     "lado": 1
+    },
+    {
+     "n": 4,
+     "raio": 0.315,
+     "frente": false,
+     "lado": -1
+    }
+   ]
+  },
+  {
+   "id": "jatinho",
+   "falhas": [],
+   "carroceria": "body",
+   "rodas": [
+    {
+     "n": 1,
+     "raio": 0.244,
+     "frente": true,
+     "lado": 1
+    },
+    {
+     "n": 2,
+     "raio": 0.245,
+     "frente": true,
+     "lado": -1
+    },
+    {
+     "n": 3,
+     "raio": 0.27,
+     "frente": false,
+     "lado": 1
+    },
+    {
+     "n": 4,
+     "raio": 0.269,
+     "frente": false,
+     "lado": -1
+    }
+   ]
+  }
+ ]
+}

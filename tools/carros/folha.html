@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Turbo Caos - folha dos carros (ferramenta)</title>
+<!-- FOLHA DE CONTATO E CONFERENCIA DOS CARROS (fase 1). Nao entra no jogo: e a pagina que tools/carros/folha.mjs e
+     tools/carros/confere.mjs abrem no Chromium. Carrega os GLB pelo MESMO caminho que o jogo vai usar (GLTFLoader r170 +
+     KTX2Loader com o transcoder de lib/ + MeshoptDecoder), entao um erro aqui e um erro no jogo. -->
+<script type="importmap">
+{ "imports": { "three": "/lib/three.module.js", "three/addons/": "/lib/addons/" } }
+</script>
+<style>html, body { margin: 0; background: #222; } canvas { display: block; }</style>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.outputColorSpace = THREE.SRGBColorSpace;          // pedido da fase: foto em sRGB, igual ao jogo
+renderer.toneMapping = THREE.ACESFilmicToneMapping;         // so para a foto nao estourar o branco do sol
+renderer.setPixelRatio(1);
+document.body.appendChild(renderer.domElement);
+
+// detectSupport ANTES do primeiro GLB: sem ele o KTX2Loader recusa (ou a textura sai preta, armadilha do DinoTrails)
+const ktx2 = new KTX2Loader().setTranscoderPath('/lib/addons/libs/basis/').detectSupport(renderer);
+const loader = new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
+
+// ambiente simples (caixa com teto claro e paineis): sem ele toda peca metalica do mapa metal/rugosidade sai PRETA na
+// foto e a conferencia de "textura preta" daria alarme falso
+function ambiente() {
+  const cena = new THREE.Scene();
+  const sala = new THREE.Mesh(new THREE.BoxGeometry(20, 10, 20), new THREE.MeshBasicMaterial({ color: 0x6b7078, side: THREE.BackSide }));
+  cena.add(sala);
+  const painel = (x, y, z, sx, sz, c) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(sx, sz), new THREE.MeshBasicMaterial({ color: c, side: THREE.DoubleSide })); m.position.set(x, y, z); m.rotation.x = Math.PI / 2; cena.add(m); };
+  painel(0, 4.9, 0, 12, 12, 0xffffff); painel(-6, 4.5, 6, 4, 4, 0xfff2dd); painel(7, 4.5, -5, 4, 6, 0xdde8ff);
+  const chao = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshBasicMaterial({ color: 0x3a3d42 })); chao.rotation.x = -Math.PI / 2; chao.position.y = -4.9; cena.add(chao);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  return pmrem.fromScene(cena, 0.04).texture;
+}
+const ENV = ambiente();
+
+function cenaDoCarro(obj, { chao = true } = {}) {
+  const cena = new THREE.Scene();
+  cena.background = new THREE.Color(0xa9aeb5);                // fundo neutro: nem branco (esconde carro branco) nem preto
+  cena.environment = ENV;
+  cena.add(new THREE.HemisphereLight(0xffffff, 0x5a5f66, 1.1));
+  const sol = new THREE.DirectionalLight(0xffffff, 2.2); sol.position.set(4, 8, 6); cena.add(sol);
+  if (chao) {                                                  // chao em y = 0: mostra se o pneu encosta (pivo y certo)
+    const g = new THREE.Mesh(new THREE.CircleGeometry(4.2, 48), new THREE.MeshStandardMaterial({ color: 0x8d9299, roughness: 1 }));
+    g.rotation.x = -Math.PI / 2; g.position.y = -0.002; cena.add(g);
+  }
+  cena.add(obj);
+  return cena;
+}
+
+function contaTris(obj) { let t = 0; obj.traverse((o) => { if (o.isMesh) t += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; }); return t; }
+
+function texturas(obj) {
+  const out = {}; obj.traverse((o) => { if (!o.isMesh) return; const m = o.material;
+    for (const k of ['map', 'metalnessMap', 'roughnessMap', 'normalMap', 'aoMap', 'emissiveMap']) if (m[k]) out[k] = { w: m[k].image?.width, h: m[k].image?.height, cs: m[k].colorSpace, comprimida: !!m[k].isCompressedTexture, formato: m[k].format, mips: m[k].mipmaps?.length || 0 }; });
+  return out;
+}
+
+// cor media da textura de cor (ja transcodificada nao da para ler; entao media dos PIXELS do carro na foto)
+function mediaDaCelula(x, y, w, h, fundo) {
+  const gl = renderer.getContext(); const px = new Uint8Array(w * h * 4);
+  gl.readPixels(x, y, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px);
+  let n = 0, r = 0, g = 0, b = 0, escuros = 0, claros = 0, rosa = 0;
+  for (let i = 0; i < px.length; i += 4) {
+    const d = Math.abs(px[i] - fundo[0]) + Math.abs(px[i + 1] - fundo[1]) + Math.abs(px[i + 2] - fundo[2]);
+    if (d < 12) continue;                                       // pixel de fundo/chao: fora da media
+    n++; r += px[i]; g += px[i + 1]; b += px[i + 2];
+    if (px[i] + px[i + 1] + px[i + 2] < 30) escuros++;
+    if (px[i] > 245 && px[i + 1] > 245 && px[i + 2] > 245) claros++;
+    if (px[i] > 200 && px[i + 1] < 60 && px[i + 2] > 200) rosa++;  // magenta = textura que faltou
+  }
+  return n ? { pixels: n, media: [r / n, g / n, b / n].map(Math.round), fracPreto: +(escuros / n).toFixed(3), fracBranco: +(claros / n).toFixed(3), fracRosa: +(rosa / n).toFixed(3) } : { pixels: 0 };
+}
+
+// FOLHA: celulas lado a lado, uma camera por carro. vista '34' = 3/4 da frente pelo lado +X; 'lado' = lateral vista
+// do lado -X (assim a frente +Z aponta para a DIREITA da foto); 'tras' = de tras. distancia fixa (escalaFixa) deixa os
+// carros normalizados comparaveis entre si; sem ela cada um e enquadrado sozinho (para ver as ORIGENS de tamanhos variados).
+window.desenhaFolha = async function ({ itens, colunas = 5, celula = [420, 300], vista = '34', distanciaFixa = 0, rotuloAltura = 26 }) {
+  const linhas = Math.ceil(itens.length / colunas), [cw, ch] = celula, W = cw * colunas, H = (ch + rotuloAltura) * linhas;
+  renderer.setSize(W, H, false); renderer.domElement.style.width = W + 'px'; renderer.domElement.style.height = H + 'px';
+  renderer.setScissorTest(true); renderer.autoClear = true;
+  renderer.setClearColor(0x202326, 1); renderer.setViewport(0, 0, W, H); renderer.setScissor(0, 0, W, H); renderer.clear();
+  const relatorio = [];
+  for (let i = 0; i < itens.length; i++) {
+    const it = itens[i], col = i % colunas, lin = Math.floor(i / colunas);
+    const x = col * cw, y = H - (lin + 1) * (ch + rotuloAltura) ; // viewport conta de baixo; rotulo fica embaixo da celula
+    let gltf;
+    try { gltf = await loader.loadAsync(it.url); } catch (e) { relatorio.push({ url: it.url, erro: String(e) }); continue; }
+    const obj = gltf.scene;
+    if (it.esconder) obj.traverse((o) => { if (it.esconder.some((re) => new RegExp(re).test(o.name))) o.visible = false; });
+    obj.updateMatrixWorld(true);
+    const caixa = new THREE.Box3().setFromObject(obj, true), centro = caixa.getCenter(new THREE.Vector3()), tam = caixa.getSize(new THREE.Vector3());
+    const raio = tam.length() / 2;
+    const cam = new THREE.PerspectiveCamera(30, cw / ch, 0.05, 200);
+    const dir = vista === 'lado' ? new THREE.Vector3(-1, 0.06, 0) : vista === 'tras' ? new THREE.Vector3(-0.6, 0.35, -0.75) : new THREE.Vector3(0.62, 0.36, 0.72);
+    const dist = distanciaFixa || (raio / Math.sin(THREE.MathUtils.degToRad(15))) * 0.92;
+    const alvo = distanciaFixa ? new THREE.Vector3(0, Math.max(0.6, centro.y * 0.9), 0) : centro;
+    cam.position.copy(alvo).addScaledVector(dir.normalize(), dist); cam.lookAt(alvo);
+    const cena = cenaDoCarro(obj, { chao: it.chao !== false });
+    renderer.setViewport(x, y + rotuloAltura, cw, ch); renderer.setScissor(x, y + rotuloAltura, cw, ch);
+    renderer.render(cena, cam);
+    const fundo = [169, 174, 181];
+    const amostra = mediaDaCelula(x, y + rotuloAltura, cw, ch, fundo);
+    relatorio.push({ url: it.url, rotulo: it.rotulo, tris: contaTris(obj), caixa: { min: caixa.min.toArray().map((v) => +v.toFixed(3)), max: caixa.max.toArray().map((v) => +v.toFixed(3)) }, texturas: texturas(obj), amostra });
+    obj.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); for (const k in o.material) if (o.material[k]?.isTexture) o.material[k].dispose(); o.material.dispose(); } });
+  }
+  renderer.setScissorTest(false);
+  // rotulos num canvas 2D por cima da imagem do WebGL (o readPixels acima ja foi feito, entao nao contamina a amostra)
+  const c2 = document.createElement('canvas'); c2.width = W; c2.height = H; const g = c2.getContext('2d');
+  g.drawImage(renderer.domElement, 0, 0);
+  g.font = 'bold 17px sans-serif'; g.fillStyle = '#f2f2f2'; g.textBaseline = 'middle';
+  itens.forEach((it, i) => { const col = i % colunas, lin = Math.floor(i / colunas); g.fillText(it.rotulo || it.url, col * cw + 10, lin * (ch + rotuloAltura) + ch + rotuloAltura / 2); });
+  return { png: c2.toDataURL('image/png'), relatorio, suporte: ktx2.workerConfig };
+};
+
+// CONFERENCIA de um GLB (tools/carros/confere.mjs): o que o jogo vai encontrar, medido no proprio three r170.
+window.confere = async function (url) {
+  const r = { url, falhas: [], avisos: [] };
+  const falha = (m) => r.falhas.push(m), aviso = (m) => r.avisos.push(m);
+  let gltf; try { gltf = await loader.loadAsync(url); } catch (e) { falha('nao abriu: ' + e); return r; }
+  const raiz = gltf.scene; raiz.updateMatrixWorld(true);
+  const porNome = {}; raiz.traverse((o) => { if (o.name) (porNome[o.name] ||= []).push(o); });
+  r.nos = Object.keys(porNome).sort();
+  for (const [n, l] of Object.entries(porNome)) if (l.length > 1) falha(`no ${n} repetido ${l.length} vezes`);
+  const carro = porNome.carro?.[0], body = porNome.body?.[0];
+  if (!carro) falha('falta o no raiz "carro"');
+  if (!body) falha('falta o no "body"');
+  const extras = carro?.userData || {}; r.extras = extras;
+  const voador = extras.rodas === false;
+  if (body) { if (body.isMesh) falha('body tem malha (o pivo tem de ser no sem malha)'); if (!body.children.some((c) => c.isMesh)) falha('body sem malha filha'); }
+  // caixa do carro inteiro
+  const cx = new THREE.Box3().setFromObject(raiz, true), tam = cx.getSize(new THREE.Vector3()), cen = cx.getCenter(new THREE.Vector3());
+  r.caixa = { min: cx.min.toArray().map((v) => +v.toFixed(4)), max: cx.max.toArray().map((v) => +v.toFixed(4)), comprimento: +tam.z.toFixed(3), largura: +tam.x.toFixed(3), altura: +tam.y.toFixed(3) };
+  if (Math.abs(cx.min.y) > 0.01) falha(`y minimo ${cx.min.y.toFixed(4)} (devia ser 0)`);
+  if (Math.abs(cen.x) > 0.01 || Math.abs(cen.z) > 0.01) falha(`centro x/z (${cen.x.toFixed(3)}, ${cen.z.toFixed(3)}) longe de 0`);
+  const LIM = { comprimento: 4.2, largura: 2.3, altura: 2.6 };
+  for (const [k, v] of Object.entries(LIM)) if (r.caixa[k] > v + 0.005) falha(`${k} ${r.caixa[k]} passa de ${v}`);
+  if (!Object.entries(LIM).some(([k, v]) => Math.abs(r.caixa[k] - v) < 0.005)) falha('nenhuma medida bate no limite: a escala nao e a da regra min(4,2/C, 2,3/L, 2,6/A)');
+  // rodas
+  r.rodas = [];
+  const pecas = voador ? [0, 1, 2, 3].map((i) => 'pod' + i) : [1, 2, 3, 4].map((i) => 'wheel' + i);
+  for (const nome of pecas) {
+    const no = porNome[nome]?.[0]; if (!no) { falha(`falta ${nome}`); continue; }
+    if (no.isMesh) falha(`${nome} tem malha (o pivo tem de ser no sem malha)`);
+    const malha = no.children.find((c) => c.isMesh); if (!malha) { falha(`${nome} sem malha filha`); continue; }
+    const u = no.userData || {}, p = no.position;
+    const info = { nome, pos: p.toArray().map((v) => +v.toFixed(3)), extras: u, pai: no.parent?.name };
+    if (voador) {
+      if (no.parent !== body) falha(`${nome} devia ser filho do body (inclina junto)`);
+      if (!(u.side === 1 || u.side === -1) || !(u.slide > 0)) falha(`${nome} sem extras side/slide`);
+      if (Math.sign(p.x) !== u.side) falha(`${nome}: side ${u.side} mas x = ${p.x.toFixed(3)}`);
+    } else {
+      if (no.parent !== carro) falha(`${nome} devia ser filho direto do carro (a roda nao inclina com a carroceria)`);
+      const n = +nome.slice(5), frenteEsperada = n <= 2;
+      if (u.front !== frenteEsperada) falha(`${nome}: front ${u.front}, esperado ${frenteEsperada}`);
+      if (!(u.radius > 0.1 && u.radius < 1)) falha(`${nome}: radius ${u.radius}`);
+      if (u.side !== (p.x > 0 ? 1 : -1)) falha(`${nome}: side ${u.side} mas x = ${p.x.toFixed(3)}`);
+      if (frenteEsperada !== (p.z > 0)) falha(`${nome}: ${frenteEsperada ? 'frente' : 'tras'} mas z = ${p.z.toFixed(3)} (frente tem de ser +Z)`);
+      // EIXO: circulo ajustado na banda de rodagem no espaco do PIVO (Kasa, 4 voltas, banda = vertices a >= 85 % do raio
+      // maximo). Centro do circulo longe da origem do pivo = a roda gira em volta do ponto errado (excentricidade).
+      // Perfil: raio maximo em 24 setores de 15 graus; setor muito menor que a mediana = pedaco de pneu faltando (a *_lo
+      // corta o topo escondido no para-lama) e, girando, esse buraco passa embaixo.
+      const pos = malha.geometry.attributes.position, mm = malha.matrix, v = new THREE.Vector3(), pts = [];
+      for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(mm); pts.push([v.y, v.z]); }
+      let cy = 0, cz = 0;
+      for (let volta = 0; volta < 4; volta++) {
+        const rs = pts.map(([y, z]) => Math.hypot(y - cy, z - cz)), rmax = Math.max(...rs);
+        let A = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], b = [0, 0, 0];
+        pts.forEach(([y0, z0], i) => { if (rs[i] < 0.85 * rmax) return; const y = y0 - cy, z = z0 - cz, q = y * y + z * z, l = [y, z, 1];
+          for (let a = 0; a < 3; a++) { for (let c = 0; c < 3; c++) A[a][c] += l[a] * l[c]; b[a] -= l[a] * q; } });
+        const M3 = new THREE.Matrix3().set(A[0][0], A[0][1], A[0][2], A[1][0], A[1][1], A[1][2], A[2][0], A[2][1], A[2][2]).invert();
+        const sol = new THREE.Vector3(...b).applyMatrix3(M3); cy += -sol.x / 2; cz += -sol.y / 2;
+      }
+      const setores = new Array(24).fill(0);
+      for (const [y, z] of pts) { const k = Math.floor(((Math.atan2(y - cy, z - cz) + Math.PI) / (2 * Math.PI)) * 24) % 24; setores[k] = Math.max(setores[k], Math.hypot(y - cy, z - cz)); }
+      const ord = [...setores].sort((a, b) => a - b), mediana = ord[12], ovalCm = (ord[23] - ord[0]) * 100;
+      info.excentricidadeCm = +(Math.hypot(cy, cz) * 100).toFixed(2); info.ovalCm = +ovalCm.toFixed(2); info.setorMinimo = +(ord[0] / mediana).toFixed(3);
+      if (Math.hypot(cy, cz) > 0.006) falha(`${nome}: o eixo do pneu esta a ${(Math.hypot(cy, cz) * 100).toFixed(1)} cm do pivo (gira torto)`);
+      if (ord[0] < 0.92 * mediana) falha(`${nome}: falta pedaco do pneu (setor com ${(100 * ord[0] / mediana).toFixed(0)} % do raio)`);
+      // GIRO de verdade, 12 angulos: o pe do pneu so pode subir/descer o que o proprio perfil explica (cravo, pneu oval)
+      const c0 = new THREE.Box3().setFromObject(malha, true).getCenter(new THREE.Vector3());
+      let desvio = 0, chaoMin = Infinity, chaoMax = -Infinity;
+      for (let k = 0; k < 12; k++) {
+        no.rotation.x = (k / 12) * Math.PI * 2; no.updateMatrixWorld(true);
+        const bx = new THREE.Box3().setFromObject(malha, true), c = bx.getCenter(new THREE.Vector3());
+        desvio = Math.max(desvio, Math.hypot(c.y - c0.y, c.z - c0.z)); chaoMin = Math.min(chaoMin, bx.min.y); chaoMax = Math.max(chaoMax, bx.min.y);
+      }
+      no.rotation.x = 0; no.updateMatrixWorld(true);
+      info.giroDesvioCm = +(desvio * 100).toFixed(2); info.chaoVariaCm = +((chaoMax - chaoMin) * 100).toFixed(2);
+      info.folgaChaoCm = +((p.y - u.radius) * 100).toFixed(2);   // eixo - raio: 0 = encosta no chao
+      if ((chaoMax - chaoMin) * 100 > ovalCm + 1.0) falha(`${nome}: girando, o pe do pneu sobe/desce ${((chaoMax - chaoMin) * 100).toFixed(1)} cm (o perfil so explica ${ovalCm.toFixed(1)})`);
+      if (Math.abs(p.y - u.radius) > 0.015) falha(`${nome}: eixo a ${p.y.toFixed(3)} e raio ${u.radius}: folga de ${((p.y - u.radius) * 100).toFixed(1)} cm do chao`);
+    }
+    r.rodas.push(info);
+  }
+  // texturas e espaco de cor (o que o KTX2Loader entregou)
+  r.texturas = {}; let tris = 0, malhas = 0;
+  raiz.traverse((o) => {
+    if (!o.isMesh) return; malhas++;
+    tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3;
+    const m = o.material;
+    for (const k of ['map', 'metalnessMap', 'roughnessMap', 'normalMap']) if (m[k] && !r.texturas[k]) r.texturas[k] = { w: m[k].image?.width, h: m[k].image?.height, comprimida: !!m[k].isCompressedTexture, colorSpace: m[k].colorSpace, mips: m[k].mipmaps?.length || 0, formato: m[k].format };
+  });
+  r.tris = tris; r.malhas = malhas;
+  const t = r.texturas;
+  if (!t.map) falha('sem textura de cor'); else { if (t.map.colorSpace !== THREE.SRGBColorSpace) falha(`cor em ${t.map.colorSpace}, devia ser srgb`); if (!t.map.comprimida) falha('cor nao veio comprimida (KTX2)'); if (t.map.mips < 2) falha('cor sem mipmaps'); }
+  if (t.roughnessMap && t.roughnessMap.colorSpace === THREE.SRGBColorSpace) falha('metal/rugosidade marcada como sRGB');
+  if (t.normalMap && t.normalMap.colorSpace === THREE.SRGBColorSpace) falha('normal marcada como sRGB');
+  // limpa
+  raiz.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); for (const k in o.material) if (o.material[k]?.isTexture) o.material[k].dispose(); o.material.dispose(); } });
+  return r;
+};
+window.suporteKTX2 = () => ktx2.workerConfig;
+
+// INTEGRACAO com o codigo da fundacao: carrega pelo js/glb.js + js/modelo_carro.js de verdade (pagina servida na raiz, ver
+// comum.mjs) e devolve o que criaModeloCarro entregou, para o confere.mjs comparar com o config/carros.js.
+window.integracao = async function () {
+  const { CARROS } = await import('/config/carros.js');
+  const { iniciaGLB } = await import('/js/glb.js');
+  const { criaModeloCarro } = await import('/js/modelo_carro.js');
+  iniciaGLB(renderer);
+  const out = [];
+  for (const cfg of CARROS) {
+    const r = { id: cfg.id, falhas: [] };
+    try {
+      const m = await criaModeloCarro({}, cfg);
+      r.carroceria = m.carroceria.name; r.rodas = m.rodas.map((w) => ({ n: w.n, raio: w.raio, frente: w.frente, lado: w.lado }));
+      if (m.carroceria.name !== 'body') r.falhas.push('carroceria nao e o no body');
+      if (cfg.rodas.tem ? m.rodas.length !== 4 : m.rodas.length !== 0) r.falhas.push(`${m.rodas.length} rodas, esperado ${cfg.rodas.tem ? 4 : 0}`);
+      for (const w of m.rodas) {
+        const esperado = w.frente ? cfg.rodas.raioFrente : cfg.rodas.raioTras;
+        if (Math.abs(w.raio - esperado) > 0.02) r.falhas.push(`roda ${w.n}: raio ${w.raio} longe do config ${esperado}`);
+        if (w.frente !== (w.n <= 2)) r.falhas.push(`roda ${w.n}: frente ${w.frente}`);
+      }
+      let semMapa = 0; m.grupo.traverse((o) => { if (o.isMesh && !o.material.map) semMapa++; });
+      if (semMapa) r.falhas.push(`${semMapa} malha(s) sem textura (caiu na cor de reserva)`);
+    } catch (e) { r.falhas.push('criaModeloCarro falhou: ' + e); }
+    out.push(r);
+  }
+  return out;
+};
+
+window.PRONTO = true;
+</script>
+</body>
+</html>

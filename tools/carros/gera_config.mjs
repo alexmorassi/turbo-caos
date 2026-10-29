@@ -1,0 +1,82 @@
+// GERA config/carros.js (fase 1) juntando tools/carros/tabela.mjs (decisoes: nome, poder, atributos, cor, frase) com
+// tools/carros/medidas.json (o que o otimiza.mjs MEDIU nos GLB: tris, KB, medidas, raio das rodas). Gerado para os numeros
+// nunca desencontrarem do GLB: mudou um carro, roda `node tools/carros/otimiza.mjs <id>` e depois este.
+//   node tools/carros/gera_config.mjs
+import fs from 'node:fs';
+import path from 'node:path';
+import { RAIZ, AQUI } from './comum.mjs';
+import { TABELA, CARRO_PADRAO } from './tabela.mjs';
+
+const medidas = JSON.parse(fs.readFileSync(path.join(AQUI, 'medidas.json'), 'utf8'));
+const PODERES = ['oleo', 'emp', 'congelante', 'ima', 'trocatroca', 'encolhedor', 'fumaca', 'tornado', 'escudo', 'terremoto'];
+
+// conferencias que reprovam a geracao (melhor falhar aqui do que o jogo abrir com carro torto)
+const erros = [];
+const poderes = TABELA.map((c) => c.poder);
+for (const p of PODERES) if (poderes.filter((x) => x === p).length !== 1) erros.push(`poder ${p} aparece ${poderes.filter((x) => x === p).length} vez(es): tem de ser 1 por carro`);
+for (const c of TABELA) {
+  const a = c.atributos, soma = a.velocidade + a.aceleracao + a.controle + a.peso + a.turbo;
+  if (soma !== 16) erros.push(`${c.id}: soma dos atributos ${soma}, tem de ser 16`);
+  for (const [k, v] of Object.entries(a)) if (!(v >= 1 && v <= 5 && Number.isInteger(v))) erros.push(`${c.id}: ${k} = ${v} fora de 1..5`);
+  if (!medidas[c.id]) erros.push(`${c.id}: sem medidas (rode node tools/carros/otimiza.mjs ${c.id})`);
+  if (!/^#[0-9a-f]{6}$/.test(c.cor)) erros.push(`${c.id}: cor ${c.cor} invalida`);
+  if (!fs.existsSync(path.join(RAIZ, 'assets', 'cars', c.id + '.glb'))) erros.push(`${c.id}: falta assets/cars/${c.id}.glb`);
+}
+if (!TABELA.some((c) => c.id === CARRO_PADRAO)) erros.push(`CARRO_PADRAO ${CARRO_PADRAO} nao esta na tabela`);
+if (erros.length) { console.error('NAO GEROU:\n  ' + erros.join('\n  ')); process.exit(1); }
+
+const q = (s) => `'${String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+const n2 = (v) => +v.toFixed(2), n3 = (v) => +v.toFixed(3);
+const quebra = (txt, largura = 120, prefixo = '  // ') => {   // comentario longo em varias linhas
+  const linhas = []; let l = '';
+  for (const p of txt.split(/\s+/)) { if ((prefixo + l + ' ' + p).length > largura && l) { linhas.push(prefixo + l); l = p; } else l = l ? l + ' ' + p : p; }
+  if (l) linhas.push(prefixo + l); return linhas.join('\n');
+};
+
+const entradas = TABELA.map((c) => {
+  const m = medidas[c.id], a = c.atributos;
+  const rodas = m.rodas.tem ? `{ tem: true, raioFrente: ${n3(m.rodas.raioFrente)}, raioTras: ${n3(m.rodas.raioTras)} }`
+    : `{ tem: false, flutua: ${n3(m.flutua || 0)}, pods: ${q(m.pods || 'recolhidos')} }`;
+  return [
+    quebra(`${c.nome.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()}: ${c.porque}`),
+    `  { id: ${q(c.id)}, nome: ${q(c.nome)}, modelo: ${q(`assets/cars/${c.id}.glb`)}, origem: ${q(`cidadeaberta/assets/${c.origem}`)},`,
+    `    cor: ${q(c.cor)},            // ${c.porqueCor}`,
+    `    atributos: { velocidade: ${a.velocidade}, aceleracao: ${a.aceleracao}, controle: ${a.controle}, peso: ${a.peso}, turbo: ${a.turbo} },`,
+    `    poder: ${q(c.poder)},`,
+    `    medidas: { comprimento: ${n2(m.medidas.comprimento)}, largura: ${n2(m.medidas.largura)}, altura: ${n2(m.medidas.altura)} },  // escala ${m.escala} (limitada ${m.limitadaPor === 'comprimento' ? 'pelo' : 'pela'} ${m.limitadaPor})`,
+    `    rodas: ${rodas},`,
+    `    descricao: ${q(c.descricao)},`,
+    `    kb: ${Math.round(m.kb)}, tris: ${m.tris} },`,
+  ].join('\n');
+});
+
+const texto = `// CARROS DO TURBO CAOS (fase 1). ARQUIVO GERADO por tools/carros/gera_config.mjs a partir de tools/carros/tabela.mjs
+// (decisoes) e tools/carros/medidas.json (medido nos GLB pelo tools/carros/otimiza.mjs): nao edite a mao, edite a tabela.
+//
+// DE ONDE VEM CADA MODELO: os GLB do Cidade Aberta (Meshy, 12-22 MB, feitos para PC) viraram assets/cars/<id>.glb de 0,4 a
+// 0,85 MB: malha leve *_lo do proprio Cidade Aberta (o Tubarao, que nao tem, e a malha cheia simplificada com meshopt), textura
+// recortada da faixa do LOD em KTX2 (cor ETC1S sRGB, metal/rugosidade UASTC linear), geometria EXT_meshopt_compression.
+// Todos normalizados: frente +Z, cima +Y, metros, x e z no centro da caixa, y = 0 no ponto mais baixo das rodas, escala
+// uniforme s = min(4,2/comprimento, 2,3/largura, 2,6/altura) - cabem todos na mesma caixa de 4,2 x 2,3 x 2,6 m, entao a
+// largura da pista e a colisao valem para qualquer um. Detalhe e fotos: docs/fases/fase1_carros.md, docs/fotos/carros*.png.
+//
+// HIERARQUIA DO GLB (o js/modelo_carro.js le assim): carro -> body (sem malha) -> body_malha; carro -> wheel1..4 (pivo sem
+// malha no EIXO da roda, extras { radius, front, side }; 1/2 frente, 3/4 tras, side 1 = +X) -> wheelN_malha. Girar
+// wheelN.rotation.x gira a roda no proprio eixo. Voador: sem wheel; pod0..3 filhos do body (extras { side, slide, aberto }).
+//
+// REGRA DOS ATRIBUTOS: 1 a 5 em velocidade, aceleracao, controle, peso e turbo, SOMA 16 em todos - nenhum carro e melhor em
+// tudo, a escolha vira estilo de corrida. Cada atributo tem pelo menos um carro com 5 (velocidade: Dourado; aceleracao:
+// Faisca; controle: Lagartixa e Jatinho; peso: Picole e Tubarao; turbo: Voador). O peso decide quem empurra quem na batida.
+// Um poder por carro (os 10 de config/poderes.js). cor = destaque do carro na interface, minimapa e rastro, tirada da pintura.
+// rodas.raio* = raio de CONTATO (do eixo ao ponto mais baixo do pneu, media das duas rodas do eixo), em metros.
+// rodas.tem false = o jogo so inclina a carroceria; flutua = quanto ele pairava no Cidade Aberta (ja na escala nova).
+
+export const CARROS = [
+${entradas.join('\n')}
+];
+
+export const CARRO_PADRAO = ${q(CARRO_PADRAO)};
+`;
+const destino = path.join(RAIZ, 'config', 'carros.js');
+fs.writeFileSync(destino, texto);
+console.log(`${destino}: ${TABELA.length} carros, padrao ${CARRO_PADRAO}`);

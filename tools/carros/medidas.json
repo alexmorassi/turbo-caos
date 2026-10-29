@@ -1,0 +1,1505 @@
+{
+ "vulcao": {
+  "id": "vulcao",
+  "arquivo": "assets/cars/vulcao.glb",
+  "kb": 672,
+  "tris": 29596,
+  "verts": 47049,
+  "trisOrigem": 29596,
+  "escala": 0.851,
+  "limitadaPor": "largura",
+  "medidas": {
+   "comprimento": 3.745,
+   "largura": 2.3,
+   "altura": 1.189
+  },
+  "janelaUV": [
+   0.875,
+   1
+  ],
+  "simplificacao": {},
+  "chapas": [],
+  "rodas": {
+   "tem": true,
+   "raioFrente": 0.349,
+   "raioTras": 0.364
+  },
+  "pecas": [
+   {
+    "nome": "wheel1",
+    "centro": [
+     0.745,
+     0.352,
+     1.046
+    ],
+    "raio": 0.349,
+    "difEixoOrigemCm": 1.2,
+    "difCaixaCm": 0.5
+   },
+   {
+    "nome": "wheel2",
+    "centro": [
+     -0.748,
+     0.353,
+     1.045
+    ],
+    "raio": 0.35,
+    "difEixoOrigemCm": 1.2,
+    "difCaixaCm": 0.6
+   },
+   {
+    "nome": "wheel3",
+    "centro": [
+     0.927,
+     0.364,
+     -0.947
+    ],
+    "raio": 0.363,
+    "difEixoOrigemCm": 0.2,
+    "difCaixaCm": 0.5
+   },
+   {
+    "nome": "wheel4",
+    "centro": [
+     -0.927,
+     0.364,
+     -0.948
+    ],
+    "raio": 0.364,
+    "difEixoOrigemCm": 0.3,
+    "difCaixaCm": 0.3
+   }
+  ],
+  "texturas": {
+   "normal": {
+    "descartada": "faixa do LOD plana no mapa de normais"
+   },
+   "cor": {
+    "w": 2048,
+    "h": 256,
+    "kb": 131.5,
+    "modo": "etc1s",
+    "oetf": "srgb",
+    "niveis": 12,
+    "psnr": 30.86,
+    "origem": "2048x2048 UASTC"
+   },
+   "mr": {
+    "w": 512,
+    "h": 64,
+    "kb": 34.7,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 10,
+    "psnr": 32.85,
+    "origem": "1024x1024 UASTC"
+   }
+  },
+  "paleta": {
+   "principais": [
+    {
+     "hex": "#392924",
+     "pct": 12.2
+    },
+    {
+     "hex": "#271916",
+     "pct": 10.9
+    },
+    {
+     "hex": "#4a3933",
+     "pct": 9
+    },
+    {
+     "hex": "#45332c",
+     "pct": 8.5
+    },
+    {
+     "hex": "#160b09",
+     "pct": 8.2
+    },
+    {
+     "hex": "#54423b",
+     "pct": 7.4
+    }
+   ],
+   "vivas": [
+    {
+     "hex": "#c7230e",
+     "pct": 0.4
+    },
+    {
+     "hex": "#c82614",
+     "pct": 1.4
+    },
+    {
+     "hex": "#ba2615",
+     "pct": 0.6
+    },
+    {
+     "hex": "#a82718",
+     "pct": 0.4
+    },
+    {
+     "hex": "#db7855",
+     "pct": 0.4
+    }
+   ]
+  }
+ },
+ "dourado": {
+  "id": "dourado",
+  "arquivo": "assets/cars/dourado.glb",
+  "kb": 451,
+  "tris": 22394,
+  "verts": 29166,
+  "trisOrigem": 22394,
+  "escala": 1.163,
+  "limitadaPor": "largura",
+  "medidas": {
+   "comprimento": 4.188,
+   "largura": 2.3,
+   "altura": 1.684
+  },
+  "janelaUV": [
+   0.875,
+   1
+  ],
+  "simplificacao": {},
+  "chapas": [],
+  "rodas": {
+   "tem": true,
+   "raioFrente": 0.384,
+   "raioTras": 0.429
+  },
+  "pecas": [
+   {
+    "nome": "wheel1",
+    "centro": [
+     0.946,
+     0.387,
+     0.964
+    ],
+    "raio": 0.384,
+    "difEixoOrigemCm": 1.8,
+    "difCaixaCm": 0
+   },
+   {
+    "nome": "wheel2",
+    "centro": [
+     -0.944,
+     0.385,
+     0.965
+    ],
+    "raio": 0.383,
+    "difEixoOrigemCm": 1.7,
+    "difCaixaCm": 0.2
+   },
+   {
+    "nome": "wheel3",
+    "centro": [
+     0.928,
+     0.429,
+     -1.263
+    ],
+    "raio": 0.429,
+    "difEixoOrigemCm": 1.3,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel4",
+    "centro": [
+     -0.928,
+     0.429,
+     -1.263
+    ],
+    "raio": 0.429,
+    "difEixoOrigemCm": 1.3,
+    "difCaixaCm": 0.1
+   }
+  ],
+  "texturas": {
+   "normal": {
+    "descartada": "faixa do LOD plana no mapa de normais"
+   },
+   "cor": {
+    "w": 2048,
+    "h": 256,
+    "kb": 97.9,
+    "modo": "etc1s",
+    "oetf": "srgb",
+    "niveis": 12,
+    "psnr": 30.7,
+    "origem": "2048x2048 UASTC"
+   },
+   "mr": {
+    "w": 512,
+    "h": 64,
+    "kb": 32.7,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 10,
+    "psnr": 33.26,
+    "origem": "1024x1024 UASTC"
+   }
+  },
+  "paleta": {
+   "principais": [
+    {
+     "hex": "#dd9c29",
+     "pct": 33.6
+    },
+    {
+     "hex": "#e2a328",
+     "pct": 19.9
+    },
+    {
+     "hex": "#e29e26",
+     "pct": 13.9
+    },
+    {
+     "hex": "#15120b",
+     "pct": 5.7
+    },
+    {
+     "hex": "#462b05",
+     "pct": 3.5
+    },
+    {
+     "hex": "#dea129",
+     "pct": 3.2
+    }
+   ],
+   "vivas": [
+    {
+     "hex": "#e29e26",
+     "pct": 13.9
+    },
+    {
+     "hex": "#e2a328",
+     "pct": 19.9
+    },
+    {
+     "hex": "#dea129",
+     "pct": 3.2
+    },
+    {
+     "hex": "#dd9c29",
+     "pct": 33.6
+    },
+    {
+     "hex": "#e4a634",
+     "pct": 0.6
+    }
+   ]
+  }
+ },
+ "lagartixa": {
+  "id": "lagartixa",
+  "arquivo": "assets/cars/lagartixa.glb",
+  "kb": 484.3,
+  "tris": 23198,
+  "verts": 30837,
+  "trisOrigem": 23198,
+  "escala": 0.917,
+  "limitadaPor": "comprimento",
+  "medidas": {
+   "comprimento": 4.2,
+   "largura": 1.909,
+   "altura": 1.255
+  },
+  "janelaUV": [
+   0.875,
+   1
+  ],
+  "simplificacao": {},
+  "chapas": [],
+  "rodas": {
+   "tem": true,
+   "raioFrente": 0.345,
+   "raioTras": 0.35
+  },
+  "pecas": [
+   {
+    "nome": "wheel1",
+    "centro": [
+     0.745,
+     0.346,
+     1.096
+    ],
+    "raio": 0.345,
+    "difEixoOrigemCm": 0.5,
+    "difCaixaCm": 0.2
+   },
+   {
+    "nome": "wheel2",
+    "centro": [
+     -0.743,
+     0.345,
+     1.098
+    ],
+    "raio": 0.345,
+    "difEixoOrigemCm": 0.5,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel3",
+    "centro": [
+     0.725,
+     0.351,
+     -1.157
+    ],
+    "raio": 0.35,
+    "difEixoOrigemCm": 1.5,
+    "difCaixaCm": 0
+   },
+   {
+    "nome": "wheel4",
+    "centro": [
+     -0.722,
+     0.351,
+     -1.156
+    ],
+    "raio": 0.351,
+    "difEixoOrigemCm": 1.3,
+    "difCaixaCm": 0.1
+   }
+  ],
+  "texturas": {
+   "normal": {
+    "descartada": "faixa do LOD plana no mapa de normais"
+   },
+   "cor": {
+    "w": 2048,
+    "h": 256,
+    "kb": 113.5,
+    "modo": "etc1s",
+    "oetf": "srgb",
+    "niveis": 12,
+    "psnr": 28.72,
+    "origem": "2048x2048 UASTC"
+   },
+   "mr": {
+    "w": 512,
+    "h": 64,
+    "kb": 34.2,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 10,
+    "psnr": 32.13,
+    "origem": "1024x1024 UASTC"
+   }
+  },
+  "paleta": {
+   "principais": [
+    {
+     "hex": "#141515",
+     "pct": 21.6
+    },
+    {
+     "hex": "#57c61c",
+     "pct": 14.8
+    },
+    {
+     "hex": "#0d0e0d",
+     "pct": 14.5
+    },
+    {
+     "hex": "#0d110e",
+     "pct": 14
+    },
+    {
+     "hex": "#5ac422",
+     "pct": 4.9
+    },
+    {
+     "hex": "#0d0e11",
+     "pct": 2.4
+    }
+   ],
+   "vivas": [
+    {
+     "hex": "#57c61c",
+     "pct": 14.8
+    },
+    {
+     "hex": "#5ac422",
+     "pct": 4.9
+    },
+    {
+     "hex": "#56bd1b",
+     "pct": 0.5
+    },
+    {
+     "hex": "#62c629",
+     "pct": 0.4
+    },
+    {
+     "hex": "#59bb26",
+     "pct": 1.9
+    }
+   ]
+  }
+ },
+ "picole": {
+  "id": "picole",
+  "arquivo": "assets/cars/picole.glb",
+  "kb": 464.9,
+  "tris": 18597,
+  "verts": 27664,
+  "trisOrigem": 18597,
+  "escala": 0.622,
+  "limitadaPor": "largura",
+  "medidas": {
+   "comprimento": 3.251,
+   "largura": 2.3,
+   "altura": 2.308
+  },
+  "janelaUV": [
+   0.875,
+   1
+  ],
+  "simplificacao": {},
+  "chapas": [],
+  "rodas": {
+   "tem": true,
+   "raioFrente": 0.233,
+   "raioTras": 0.225
+  },
+  "pecas": [
+   {
+    "nome": "wheel1",
+    "centro": [
+     0.578,
+     0.234,
+     1.169
+    ],
+    "raio": 0.234,
+    "difEixoOrigemCm": 1.3,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel2",
+    "centro": [
+     -0.608,
+     0.233,
+     1.169
+    ],
+    "raio": 0.233,
+    "difEixoOrigemCm": 0.1,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel3",
+    "centro": [
+     0.576,
+     0.226,
+     -0.736
+    ],
+    "raio": 0.225,
+    "difEixoOrigemCm": 1.3,
+    "difCaixaCm": 0.2
+   },
+   {
+    "nome": "wheel4",
+    "centro": [
+     -0.599,
+     0.225,
+     -0.739
+    ],
+    "raio": 0.224,
+    "difEixoOrigemCm": 1.6,
+    "difCaixaCm": 0.2
+   }
+  ],
+  "texturas": {
+   "normal": {
+    "descartada": "faixa do LOD plana no mapa de normais"
+   },
+   "cor": {
+    "w": 2048,
+    "h": 256,
+    "kb": 129,
+    "modo": "etc1s",
+    "oetf": "srgb",
+    "niveis": 12,
+    "psnr": 26.08,
+    "origem": "2048x2048 UASTC"
+   },
+   "mr": {
+    "w": 512,
+    "h": 64,
+    "kb": 32.8,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 10,
+    "psnr": 34.23,
+    "origem": "1024x1024 UASTC"
+   }
+  },
+  "paleta": {
+   "principais": [
+    {
+     "hex": "#161616",
+     "pct": 15.7
+    },
+    {
+     "hex": "#f7f7f6",
+     "pct": 13.6
+    },
+    {
+     "hex": "#05acbd",
+     "pct": 7
+    },
+    {
+     "hex": "#f8b559",
+     "pct": 6.2
+    },
+    {
+     "hex": "#0b0b0b",
+     "pct": 5.7
+    },
+    {
+     "hex": "#777578",
+     "pct": 4.4
+    }
+   ],
+   "vivas": [
+    {
+     "hex": "#05b4c5",
+     "pct": 2.7
+    },
+    {
+     "hex": "#05aec1",
+     "pct": 1.2
+    },
+    {
+     "hex": "#04b1be",
+     "pct": 0.6
+    },
+    {
+     "hex": "#05acbd",
+     "pct": 7
+    },
+    {
+     "hex": "#fd4d91",
+     "pct": 1.4
+    }
+   ]
+  }
+ },
+ "buguinho": {
+  "id": "buguinho",
+  "arquivo": "assets/cars/buguinho.glb",
+  "kb": 588.3,
+  "tris": 22395,
+  "verts": 38473,
+  "trisOrigem": 22395,
+  "escala": 1.172,
+  "limitadaPor": "comprimento",
+  "medidas": {
+   "comprimento": 4.2,
+   "largura": 2.234,
+   "altura": 1.741
+  },
+  "janelaUV": [
+   0.875,
+   1
+  ],
+  "simplificacao": {},
+  "chapas": [],
+  "rodas": {
+   "tem": true,
+   "raioFrente": 0.42,
+   "raioTras": 0.445
+  },
+  "pecas": [
+   {
+    "nome": "wheel1",
+    "centro": [
+     0.961,
+     0.419,
+     1.368
+    ],
+    "raio": 0.419,
+    "difEixoOrigemCm": 1.3,
+    "difCaixaCm": 0.5
+   },
+   {
+    "nome": "wheel2",
+    "centro": [
+     -0.961,
+     0.42,
+     1.368
+    ],
+    "raio": 0.42,
+    "difEixoOrigemCm": 1.1,
+    "difCaixaCm": 0.5
+   },
+   {
+    "nome": "wheel3",
+    "centro": [
+     0.949,
+     0.454,
+     -1.271
+    ],
+    "raio": 0.445,
+    "difEixoOrigemCm": 1.2,
+    "difCaixaCm": 0.3
+   },
+   {
+    "nome": "wheel4",
+    "centro": [
+     -0.946,
+     0.453,
+     -1.272
+    ],
+    "raio": 0.446,
+    "difEixoOrigemCm": 0.9,
+    "difCaixaCm": 0.4
+   }
+  ],
+  "texturas": {
+   "normal": {
+    "descartada": "faixa do LOD plana no mapa de normais"
+   },
+   "cor": {
+    "w": 2048,
+    "h": 256,
+    "kb": 128.1,
+    "modo": "etc1s",
+    "oetf": "srgb",
+    "niveis": 12,
+    "psnr": 28.72,
+    "origem": "2048x2048 UASTC"
+   },
+   "mr": {
+    "w": 512,
+    "h": 64,
+    "kb": 40.1,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 10,
+    "psnr": 29.52,
+    "origem": "1024x1024 UASTC"
+   }
+  },
+  "paleta": {
+   "principais": [
+    {
+     "hex": "#141414",
+     "pct": 30.1
+    },
+    {
+     "hex": "#b46234",
+     "pct": 8.8
+    },
+    {
+     "hex": "#a7592d",
+     "pct": 7.1
+    },
+    {
+     "hex": "#0d0d0d",
+     "pct": 6.7
+    },
+    {
+     "hex": "#e7e7e6",
+     "pct": 5.9
+    },
+    {
+     "hex": "#a95c32",
+     "pct": 5.8
+    }
+   ],
+   "vivas": [
+    {
+     "hex": "#b3602c",
+     "pct": 0.5
+    },
+    {
+     "hex": "#b25d2e",
+     "pct": 3.9
+    },
+    {
+     "hex": "#b35f31",
+     "pct": 2.1
+    },
+    {
+     "hex": "#b46234",
+     "pct": 8.8
+    },
+    {
+     "hex": "#a7592d",
+     "pct": 7.1
+    }
+   ]
+  }
+ },
+ "kombosa": {
+  "id": "kombosa",
+  "arquivo": "assets/cars/kombosa.glb",
+  "kb": 403.9,
+  "tris": 18992,
+  "verts": 24480,
+  "trisOrigem": 18992,
+  "escala": 0.961,
+  "limitadaPor": "comprimento",
+  "medidas": {
+   "comprimento": 4.2,
+   "largura": 1.707,
+   "altura": 1.922
+  },
+  "janelaUV": [
+   0.875,
+   1
+  ],
+  "simplificacao": {},
+  "chapas": [],
+  "rodas": {
+   "tem": true,
+   "raioFrente": 0.306,
+   "raioTras": 0.306
+  },
+  "pecas": [
+   {
+    "nome": "wheel1",
+    "centro": [
+     0.606,
+     0.307,
+     1.006
+    ],
+    "raio": 0.307,
+    "difEixoOrigemCm": 0.9,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel2",
+    "centro": [
+     -0.604,
+     0.306,
+     1.006
+    ],
+    "raio": 0.305,
+    "difEixoOrigemCm": 0.5,
+    "difCaixaCm": 0.2
+   },
+   {
+    "nome": "wheel3",
+    "centro": [
+     0.606,
+     0.307,
+     -1.3
+    ],
+    "raio": 0.307,
+    "difEixoOrigemCm": 0.9,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel4",
+    "centro": [
+     -0.604,
+     0.306,
+     -1.3
+    ],
+    "raio": 0.305,
+    "difEixoOrigemCm": 0.5,
+    "difCaixaCm": 0.2
+   }
+  ],
+  "texturas": {
+   "normal": {
+    "descartada": "faixa do LOD plana no mapa de normais"
+   },
+   "cor": {
+    "w": 2048,
+    "h": 256,
+    "kb": 128.9,
+    "modo": "etc1s",
+    "oetf": "srgb",
+    "niveis": 12,
+    "psnr": 24.71,
+    "origem": "2048x2048 UASTC"
+   },
+   "mr": {
+    "w": 512,
+    "h": 64,
+    "kb": 22.2,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 10,
+    "psnr": 38.09,
+    "origem": "1024x1024 UASTC"
+   }
+  },
+  "paleta": {
+   "principais": [
+    {
+     "hex": "#323335",
+     "pct": 25.1
+    },
+    {
+     "hex": "#39eba3",
+     "pct": 8.3
+    },
+    {
+     "hex": "#050404",
+     "pct": 7.1
+    },
+    {
+     "hex": "#2c3435",
+     "pct": 6.6
+    },
+    {
+     "hex": "#37e99d",
+     "pct": 5.5
+    },
+    {
+     "hex": "#27292a",
+     "pct": 3.5
+    }
+   ],
+   "vivas": [
+    {
+     "hex": "#fde701",
+     "pct": 0.8
+    },
+    {
+     "hex": "#fdac05",
+     "pct": 0.3
+    },
+    {
+     "hex": "#f9c706",
+     "pct": 0.3
+    },
+    {
+     "hex": "#fc3a49",
+     "pct": 0.4
+    },
+    {
+     "hex": "#3bf1a6",
+     "pct": 0.8
+    }
+   ]
+  }
+ },
+ "tubarao": {
+  "id": "tubarao",
+  "arquivo": "assets/cars/tubarao.glb",
+  "kb": 827.6,
+  "tris": 34779,
+  "verts": 38034,
+  "trisOrigem": 399999,
+  "escala": 0.516,
+  "limitadaPor": "altura",
+  "medidas": {
+   "comprimento": 3.338,
+   "largura": 1.57,
+   "altura": 2.6
+  },
+  "janelaUV": [
+   0,
+   0.875
+  ],
+  "simplificacao": {
+   "body": {
+    "de": 128156,
+    "para": 17990,
+    "erro_m": 0.008
+   },
+   "wheel1": {
+    "de": 78565,
+    "para": 4486,
+    "erro_m": 0.1
+   },
+   "wheel2": {
+    "de": 80369,
+    "para": 4696,
+    "erro_m": 0.099
+   },
+   "wheel3": {
+    "de": 55954,
+    "para": 3748,
+    "erro_m": 0.095
+   },
+   "wheel4": {
+    "de": 56955,
+    "para": 3859,
+    "erro_m": 0.096
+   }
+  },
+  "chapas": [],
+  "rodas": {
+   "tem": true,
+   "raioFrente": 0.495,
+   "raioTras": 0.487
+  },
+  "pecas": [
+   {
+    "nome": "wheel1",
+    "centro": [
+     0.586,
+     0.494,
+     0.744
+    ],
+    "raio": 0.494,
+    "difEixoOrigemCm": 0.5,
+    "difCaixaCm": 1.3
+   },
+   {
+    "nome": "wheel2",
+    "centro": [
+     -0.585,
+     0.496,
+     0.742
+    ],
+    "raio": 0.496,
+    "difEixoOrigemCm": 1,
+    "difCaixaCm": 1.5
+   },
+   {
+    "nome": "wheel3",
+    "centro": [
+     0.584,
+     0.491,
+     -0.633
+    ],
+    "raio": 0.487,
+    "difEixoOrigemCm": 1.1,
+    "difCaixaCm": 1.4
+   },
+   {
+    "nome": "wheel4",
+    "centro": [
+     -0.584,
+     0.491,
+     -0.637
+    ],
+    "raio": 0.488,
+    "difEixoOrigemCm": 1,
+    "difCaixaCm": 1.1
+   }
+  ],
+  "texturas": {
+   "cor": {
+    "w": 1024,
+    "h": 1024,
+    "kb": 229.8,
+    "modo": "etc1s",
+    "oetf": "srgb",
+    "niveis": 11,
+    "psnr": 30.95,
+    "origem": "2048x2048 UASTC"
+   },
+   "mr": {
+    "w": 256,
+    "h": 256,
+    "kb": 52.7,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 9,
+    "psnr": 38.32,
+    "origem": "1024x1024 UASTC"
+   },
+   "normal": {
+    "w": 512,
+    "h": 512,
+    "kb": 128.1,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 10,
+    "psnr": 42.89,
+    "origem": "2048x2048 UASTC"
+   }
+  },
+  "paleta": {
+   "principais": [
+    {
+     "hex": "#393839",
+     "pct": 14
+    },
+    {
+     "hex": "#171717",
+     "pct": 9.7
+    },
+    {
+     "hex": "#464646",
+     "pct": 9.3
+    },
+    {
+     "hex": "#272728",
+     "pct": 9.1
+    },
+    {
+     "hex": "#0a0a0b",
+     "pct": 7.5
+    },
+    {
+     "hex": "#4495ca",
+     "pct": 4.7
+    }
+   ],
+   "vivas": [
+    {
+     "hex": "#3d98d3",
+     "pct": 0.9
+    },
+    {
+     "hex": "#439ad2",
+     "pct": 1.3
+    },
+    {
+     "hex": "#3c93ca",
+     "pct": 3.1
+    },
+    {
+     "hex": "#388cc5",
+     "pct": 4
+    },
+    {
+     "hex": "#2e83b9",
+     "pct": 0.4
+    }
+   ]
+  }
+ },
+ "voador": {
+  "id": "voador",
+  "arquivo": "assets/cars/voador.glb",
+  "kb": 555.6,
+  "tris": 24796,
+  "verts": 36438,
+  "trisOrigem": 24796,
+  "escala": 1.049,
+  "limitadaPor": "comprimento",
+  "medidas": {
+   "comprimento": 4.2,
+   "largura": 2.219,
+   "altura": 1.34
+  },
+  "janelaUV": [
+   0.875,
+   1
+  ],
+  "simplificacao": {},
+  "chapas": [],
+  "rodas": {
+   "tem": false
+  },
+  "pecas": [
+   {
+    "nome": "pod0",
+    "centro": [
+     0.515,
+     0.369,
+     1.198
+    ],
+    "raio": 0.342,
+    "difEixoOrigemCm": 89.4,
+    "difCaixaCm": 0
+   },
+   {
+    "nome": "pod1",
+    "centro": [
+     -0.524,
+     0.369,
+     1.2
+    ],
+    "raio": 0.343,
+    "difEixoOrigemCm": 88.1,
+    "difCaixaCm": 0
+   },
+   {
+    "nome": "pod2",
+    "centro": [
+     0.562,
+     0.369,
+     -1.401
+    ],
+    "raio": 0.333,
+    "difEixoOrigemCm": 83.7,
+    "difCaixaCm": 0
+   },
+   {
+    "nome": "pod3",
+    "centro": [
+     -0.564,
+     0.372,
+     -1.403
+    ],
+    "raio": 0.334,
+    "difEixoOrigemCm": 84.3,
+    "difCaixaCm": 0
+   }
+  ],
+  "flutua": 0.205,
+  "pods": "recolhidos",
+  "texturas": {
+   "normal": {
+    "descartada": "faixa do LOD plana no mapa de normais"
+   },
+   "cor": {
+    "w": 2048,
+    "h": 256,
+    "kb": 130.8,
+    "modo": "etc1s",
+    "oetf": "srgb",
+    "niveis": 12,
+    "psnr": 28.59,
+    "origem": "2048x2048 UASTC"
+   },
+   "mr": {
+    "w": 512,
+    "h": 64,
+    "kb": 34.3,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 10,
+    "psnr": 32.91,
+    "origem": "1024x1024 UASTC"
+   }
+  },
+  "paleta": {
+   "principais": [
+    {
+     "hex": "#151616",
+     "pct": 32.3
+    },
+    {
+     "hex": "#0c0c0c",
+     "pct": 10.8
+    },
+    {
+     "hex": "#262728",
+     "pct": 5.1
+    },
+    {
+     "hex": "#363739",
+     "pct": 4.6
+    },
+    {
+     "hex": "#454648",
+     "pct": 2.9
+    },
+    {
+     "hex": "#d71517",
+     "pct": 2.5
+    }
+   ],
+   "vivas": [
+    {
+     "hex": "#d71517",
+     "pct": 2.5
+    },
+    {
+     "hex": "#c81719",
+     "pct": 1.8
+    },
+    {
+     "hex": "#b9171a",
+     "pct": 1.2
+    },
+    {
+     "hex": "#b81c22",
+     "pct": 0.4
+    },
+    {
+     "hex": "#b92427",
+     "pct": 0.3
+    }
+   ]
+  }
+ },
+ "faisca": {
+  "id": "faisca",
+  "arquivo": "assets/cars/faisca.glb",
+  "kb": 515.5,
+  "tris": 22395,
+  "verts": 34263,
+  "trisOrigem": 22395,
+  "escala": 0.885,
+  "limitadaPor": "comprimento",
+  "medidas": {
+   "comprimento": 4.2,
+   "largura": 1.918,
+   "altura": 1.301
+  },
+  "janelaUV": [
+   0.875,
+   1
+  ],
+  "simplificacao": {},
+  "chapas": [],
+  "rodas": {
+   "tem": true,
+   "raioFrente": 0.312,
+   "raioTras": 0.316
+  },
+  "pecas": [
+   {
+    "nome": "wheel1",
+    "centro": [
+     0.724,
+     0.312,
+     1.312
+    ],
+    "raio": 0.312,
+    "difEixoOrigemCm": 0.7,
+    "difCaixaCm": 0
+   },
+   {
+    "nome": "wheel2",
+    "centro": [
+     -0.721,
+     0.312,
+     1.311
+    ],
+    "raio": 0.312,
+    "difEixoOrigemCm": 0.1,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel3",
+    "centro": [
+     0.725,
+     0.317,
+     -1.272
+    ],
+    "raio": 0.317,
+    "difEixoOrigemCm": 0.8,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel4",
+    "centro": [
+     -0.732,
+     0.316,
+     -1.272
+    ],
+    "raio": 0.315,
+    "difEixoOrigemCm": 1.2,
+    "difCaixaCm": 0.1
+   }
+  ],
+  "texturas": {
+   "normal": {
+    "descartada": "faixa do LOD plana no mapa de normais"
+   },
+   "cor": {
+    "w": 2048,
+    "h": 256,
+    "kb": 107.6,
+    "modo": "etc1s",
+    "oetf": "srgb",
+    "niveis": 12,
+    "psnr": 29.49,
+    "origem": "2048x2048 UASTC"
+   },
+   "mr": {
+    "w": 512,
+    "h": 64,
+    "kb": 32.2,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 10,
+    "psnr": 32.55,
+    "origem": "1024x1024 UASTC"
+   }
+  },
+  "paleta": {
+   "principais": [
+    {
+     "hex": "#151616",
+     "pct": 46.7
+    },
+    {
+     "hex": "#d7d6d3",
+     "pct": 22.3
+    },
+    {
+     "hex": "#0a0b0b",
+     "pct": 7.5
+    },
+    {
+     "hex": "#191c22",
+     "pct": 3.6
+    },
+    {
+     "hex": "#1c2026",
+     "pct": 2.6
+    },
+    {
+     "hex": "#d3d2ce",
+     "pct": 2.4
+    }
+   ],
+   "vivas": [
+    {
+     "hex": "#1c2026",
+     "pct": 2.6
+    },
+    {
+     "hex": "#191c22",
+     "pct": 3.6
+    },
+    {
+     "hex": "#0e1114",
+     "pct": 1.8
+    },
+    {
+     "hex": "#0c0e11",
+     "pct": 1.5
+    },
+    {
+     "hex": "#d3d2ce",
+     "pct": 2.4
+    }
+   ]
+  }
+ },
+ "jatinho": {
+  "id": "jatinho",
+  "arquivo": "assets/cars/jatinho.glb",
+  "kb": 662,
+  "tris": 26797,
+  "verts": 45977,
+  "trisOrigem": 26797,
+  "escala": 1.846,
+  "limitadaPor": "largura",
+  "medidas": {
+   "comprimento": 3.5,
+   "largura": 2.3,
+   "altura": 1.123
+  },
+  "janelaUV": [
+   0.875,
+   1
+  ],
+  "simplificacao": {},
+  "chapas": [],
+  "rodas": {
+   "tem": true,
+   "raioFrente": 0.244,
+   "raioTras": 0.27
+  },
+  "pecas": [
+   {
+    "nome": "wheel1",
+    "centro": [
+     0.914,
+     0.246,
+     0.844
+    ],
+    "raio": 0.244,
+    "difEixoOrigemCm": 0.1,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel2",
+    "centro": [
+     -0.917,
+     0.245,
+     0.847
+    ],
+    "raio": 0.245,
+    "difEixoOrigemCm": 0.3,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel3",
+    "centro": [
+     0.946,
+     0.27,
+     -1.074
+    ],
+    "raio": 0.27,
+    "difEixoOrigemCm": 0.6,
+    "difCaixaCm": 0.1
+   },
+   {
+    "nome": "wheel4",
+    "centro": [
+     -0.952,
+     0.271,
+     -1.077
+    ],
+    "raio": 0.269,
+    "difEixoOrigemCm": 1,
+    "difCaixaCm": 0.2
+   }
+  ],
+  "texturas": {
+   "normal": {
+    "descartada": "faixa do LOD plana no mapa de normais"
+   },
+   "cor": {
+    "w": 2048,
+    "h": 256,
+    "kb": 134.8,
+    "modo": "etc1s",
+    "oetf": "srgb",
+    "niveis": 12,
+    "psnr": 29.66,
+    "origem": "2048x2048 UASTC"
+   },
+   "mr": {
+    "w": 512,
+    "h": 64,
+    "kb": 37.5,
+    "modo": "uastc",
+    "oetf": "linear",
+    "niveis": 10,
+    "psnr": 31.67,
+    "origem": "1024x1024 UASTC"
+   }
+  },
+  "paleta": {
+   "principais": [
+    {
+     "hex": "#171816",
+     "pct": 18.5
+    },
+    {
+     "hex": "#262623",
+     "pct": 9
+    },
+    {
+     "hex": "#0d0d0d",
+     "pct": 6.6
+    },
+    {
+     "hex": "#bbb599",
+     "pct": 5.9
+    },
+    {
+     "hex": "#162349",
+     "pct": 4.6
+    },
+    {
+     "hex": "#21211e",
+     "pct": 3.6
+    }
+   ],
+   "vivas": [
+    {
+     "hex": "#a30a17",
+     "pct": 0.3
+    },
+    {
+     "hex": "#9c0b17",
+     "pct": 0.4
+    },
+    {
+     "hex": "#0e2276",
+     "pct": 1.2
+    },
+    {
+     "hex": "#122377",
+     "pct": 2.4
+    },
+    {
+     "hex": "#0e2269",
+     "pct": 0.9
+    }
+   ]
+  }
+ }
+}

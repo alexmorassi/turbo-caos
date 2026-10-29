@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<!-- sem zoom de pinca e sem rolagem: o jogo ocupa a tela inteira, inclusive atras do entalhe (viewport-fit=cover + safe-area no CSS) -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1630">
+<meta name="format-detection" content="telephone=no">
+<title>Turbo Caos — corrida maluca</title>
+<style>
+  /* BASE (fundacao). O resto do visual das telas e do HUD fica em css/jogo.css (fase 6). */
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #0b1630; color: #fff;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overscroll-behavior: none;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: none; }
+  /* 100dvh: no Safari do iPhone o 100vh conta a barra de endereco e corta o rodape do jogo */
+  #jogo { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; }
+  canvas#tela3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  #ui, #hud, #controles { position: absolute; inset: 0; pointer-events: none;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); box-sizing: border-box; }
+  #carregando { position: absolute; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px; background: radial-gradient(circle at 50% 35%, #2a4fb8 0%, #0b1630 70%); }
+  #carregando h1 { margin: 0; font-size: min(14vw, 15vh); font-weight: 900; letter-spacing: 2px; font-style: italic;
+    background: linear-gradient(180deg, #ffe45c, #ff7a1a 60%, #e8321a); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 6px 0 #10204a); }
+  #carga-moldura { width: min(70vw, 520px); height: 22px; border-radius: 12px; background: rgba(255,255,255,.15); border: 3px solid #fff; overflow: hidden; }
+  #carga-barra { height: 100%; width: 0%; background: linear-gradient(90deg, #39d96a, #ffe45c); transition: width .2s; }
+  #carga-texto { font-size: 18px; font-weight: 700; opacity: .9; min-height: 1.3em; text-align: center; padding: 0 16px; }
+  #carregando.erro #carga-texto { color: #ffb4a8; }
+  /* celular em pe: pede para girar (no iPhone a pagina nao consegue travar a orientacao) */
+  #gire { position: absolute; inset: 0; z-index: 60; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    background: #0b1630; font-size: 22px; font-weight: 800; text-align: center; padding: 24px; box-sizing: border-box; }
+  #gire .icone { font-size: 72px; animation: gira 1.6s ease-in-out infinite; }
+  @keyframes gira { 0%, 30% { transform: rotate(0deg); } 60%, 100% { transform: rotate(90deg); } }
+  @media (orientation: portrait) and (pointer: coarse) { #gire { display: flex; } }
+</style>
+<link rel="stylesheet" href="css/jogo.css">
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js", "three/addons/": "./lib/addons/" } }
+</script>
+</head>
+<body>
+<div id="jogo">
+  <canvas id="tela3d"></canvas>
+  <div id="hud"></div>
+  <div id="controles"></div>
+  <div id="ui"></div>
+  <div id="carregando">
+    <h1>TURBO CAOS</h1>
+    <div id="carga-moldura"><div id="carga-barra"></div></div>
+    <div id="carga-texto">Carregando…</div>
+  </div>
+  <div id="gire"><div class="icone">📱</div><div>Gire o celular para jogar deitado</div></div>
+</div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
