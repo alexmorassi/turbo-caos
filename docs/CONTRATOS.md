@@ -200,6 +200,10 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
 
 ## 8. Turbo, cápsulas e poderes (fase 4)
 
+- **`controle.turbo` é "ligado neste passo"** (a IA segura: liga na reta, solta antes da curva). **O jogador é de UM TOQUE** (pedido do
+  Morassi, 30/10/2026): `entrada.aplicaNoCarro` acende no toque e mantém `controle.turbo` ligado sem o dedo até o `js/turbo.js` apagar
+  (barra vazia, EMP, gelo, rodopio) — nunca reacende sozinho. Toque rápido (desce e sobe entre dois passos) vale um passo apertado em
+  TURBO, PODER e PAUSA.
 - `carro.turbo = { carga 0..1, capacidade (s de turbo cheio), ativo }`. Turbo ativo → `mod.velMax *=`, `mod.empurrao +=`
   (valores em `config/turbo.js`, objetos `TURBO` e `CAPSULAS`). `mod.semTurbo` (EMP), gelo e rodopio impedem ligar. Extras:
   `turbo.soma(carro, fracao)`, `turbo.bloqueado(carro)`, `capacidadeDoTurbo(cfg)`. A faixa IMPULSO leva a 1,3 × a vMax do carro e

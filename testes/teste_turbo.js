@@ -1,5 +1,6 @@
-// SUITE DO TURBO E DAS CAPSULAS (fase 4): js/turbo.js e js/capsulas.js. A barra (capacidade pelo atributo, gasta so segurando, sem carga
-// nao liga, EMP/gelo/rodopio impedem, eventos), o efeito na fisica (vMax sobe ~30 % no oval de retas de 900 m), as capsulas (normal soma,
+// SUITE DO TURBO E DAS CAPSULAS (fase 4): js/turbo.js e js/capsulas.js. A barra (capacidade pelo atributo, gasta so com o controle ligado,
+// sem carga nao liga, EMP/gelo/rodopio impedem, eventos), o TURBO DE UM TOQUE do jogador (pedido de 30/10/2026: o toque acende e gasta a
+// barra inteira sozinho, com o dedo de volta no acelerador), o efeito na fisica (vMax sobe ~30 % no oval de retas de 900 m), as capsulas (normal soma,
 // dourada enche, reaparece no tempo, encolhido volta ao normal, Ima puxa, proximas() no formato da IA) e ONDE elas ficam em TODAS as
 // pistas (fileiras na principal, mais nos atalhos, linha na beira sem muro, terra e pouso de salto, 1 a 3 douradas, nunca em loop/vao/
 // crista/boca). Por fim a IA (a de verdade, fase 5) pegando capsula numa corrida.
@@ -33,7 +34,19 @@ function lateral(x, alvoD) {
   const psiDes = Math.max(-0.35, Math.min(0.35, -0.12 * (x.d - alvoD)));
   return Math.max(-1, Math.min(1, (kh * v + 3 * (psiDes - x.psi)) / (v / raio)));
 }
-/** O jogador pelo controle de verdade (entrada simulada), dirigindo na faixa d. */
+/** O PILOTO DA SUITE escreve o `controle` do carro direto, como a IA: turbo SEGURADO liga e solto apaga (a regra do js/turbo.js). Com
+ *  `G.flags.auto` a corrida nao chama `aplicaNoCarro` (o jogador de verdade e de um toque: esse caminho e o `dirige`, abaixo). */
+function pilota(G, j, n, { acel = 1, turbo = false, d = 0, cada = null } = {}) {
+  const auto = G.flags.auto; G.flags.auto = true;
+  for (let k = 0; k < n; k++) {
+    const ct = j.controle;
+    ct.acel = acel; ct.freio = 0; ct.drift = false; ct.poder = false; ct.turbo = !!turbo; ct.direcao = lateral(j, d);
+    quadros(1);
+    if (cada) cada(k);
+  }
+  G.flags.auto = auto;
+}
+/** O jogador pelo controle de verdade (entrada simulada), dirigindo na faixa d. `turbo: true` = botao apertado neste passo. */
 function dirige(j, n, { acel = 1, turbo = false, d = 0, cada = null } = {}) {
   for (let k = 0; k < n; k++) {
     segura('acel', acel); segura('turbo', turbo ? 1 : 0); segura('direcao', lateral(j, d));
@@ -70,10 +83,11 @@ suite('turbo', async (G) => {
     ok(capacidadeDoTurbo(voador) > capacidadeDoTurbo(faisca), 'Voador (turbo 5) dura mais que Faísca (turbo 2)');
   }
 
-  // =============================================================================================== gasta so segurando; vazio nao liga; eventos
+  // =============================================================================================== o sistema (como a IA usa): gasta so ligado
   {
     const c = await nova(G);
     const j = c.jogador, cap = j.turbo.capacidade;
+    const dirige = (jj, n, o) => pilota(G, jj, n, o);                         // neste bloco o controle e o da IA (segurado)
     for (const x of c.capsulas.lista) { x.ativa = false; x.espera = 1e9; }   // sem capsula no caminho: so a barra
     j.colocaNaPista(0, 20, 0, 0, 20);
     j.turbo.carga = 0.8;
@@ -111,10 +125,70 @@ suite('turbo', async (G) => {
     nans += j.nans;
   }
 
+  // =============================================================================================== o JOGADOR: turbo de UM TOQUE
+  // pedido do Morassi (30/10/2026): "o jogador aperta e o turbo gasta ate o fim enquanto o usuario continua acelerando o carro"
+  {
+    const c = await nova(G);
+    const j = c.jogador, cap = j.turbo.capacidade;
+    for (const x of c.capsulas.lista) { x.ativa = false; x.espera = 1e9; }
+    j.colocaNaPista(0, 20, 0, 0, j.p.vMax * 0.95);
+    j.turbo.carga = 0.5; zera();
+    dirige(j, 1, { turbo: true });                         // o toque: UM passo apertado e solta
+    let aceso = 0, vMax = 0;
+    dirige(j, Math.round(cap * 60 * 0.5) + 30, { cada: () => { if (j.turbo.ativo) aceso++; vMax = Math.max(vMax, j.vf); } });
+    perto(aceso / 60, 0.5 * cap, 0.06, `um toque gasta a barra INTEIRA sozinho, sem segurar (${(aceso / 60).toFixed(2)} s de ${(0.5 * cap).toFixed(2)} s)`);
+    ok(j.turbo.carga === 0 && !j.turbo.ativo && ev.liga.length === 1 && ev.vazio.length === 1 && ev.desliga.length === 1, 'e apaga sozinho no fim: turbo:liga uma vez, turbo:vazio e turbo:desliga');
+    ok(vMax > j.p.vMax * 1.08, `acelerando junto, o carro passa da vMax enquanto o turbo queima (${(vMax / j.p.vMax).toFixed(2)}x)`);
+    // tocar de novo com ele aceso nao muda nada; capsula no meio: soma e segue ate o fim
+    j.turbo.carga = 0.3; zera();
+    dirige(j, 1, { turbo: true }); dirige(j, 20);
+    dirige(j, 1, { turbo: true }); dirige(j, 5);
+    ok(j.turbo.ativo && ev.liga.length === 1 && ev.desliga.length === 0, 'tocar de novo com ele aceso: continua (não apaga nem religa)');
+    c.turbo.soma(j, CAPSULAS.RECARGA);
+    const comCapsula = j.turbo.carga;
+    let mais = 0;
+    dirige(j, Math.round(cap * 60 * comCapsula) + 30, { cada: () => { if (j.turbo.ativo) mais++; } });
+    ok(j.turbo.carga === 0 && !j.turbo.ativo && mais / 60 > comCapsula * cap - 0.1, `cápsula no meio: soma e ele segue até a barra acabar (${(mais / 60).toFixed(2)} s)`);
+    // barra vazia: o toque so avisa; segurar o botao vazio nao vira metralhadora de aviso
+    zera();
+    dirige(j, 1, { turbo: true }); dirige(j, 30);
+    ok(!j.turbo.ativo && ev.liga.length === 0 && ev.vazio.length === 1, 'barra vazia: o toque não acende e avisa uma vez (turbo:vazio)');
+    zera(); dirige(j, 40, { turbo: true });
+    ok(ev.vazio.length === 1 && !j.turbo.ativo, 'segurando o botão com a barra vazia: um aviso só');
+    // algo apaga no meio (EMP): o toque acabou — nao reacende sozinho quando o EMP passa (a sobra fica para o proximo toque)
+    dirige(j, 5);                                          // solta o botao (o toque e a BORDA: sem soltar nao ha toque novo)
+    j.turbo.carga = 1; zera();
+    dirige(j, 1, { turbo: true }); dirige(j, 20);
+    const acendeu = j.turbo.ativo;
+    c.poderes.mods.emp.aplicaEm(j);
+    dirige(j, Math.round(PODERES.emp.duracao * 60) + 30);
+    const sobra = j.turbo.carga;
+    ok(acendeu && !j.turbo.ativo && sobra > 0.3 && ev.liga.length === 1 && ev.desliga.length === 1, `EMP no meio apaga e ele NÃO reacende sozinho depois (sobra ${Math.round(sobra * 100)}%)`);
+    dirige(j, 1, { turbo: true }); dirige(j, 10);
+    ok(j.turbo.ativo && j.turbo.carga < sobra, 'o próximo toque acende o que sobrou');
+    nans += j.nans;
+  }
+  // na contagem o toque nao gasta a barra parado na grade (ali vale so a largada turbo da entrada)
+  {
+    G.sorteio.semente(13);
+    const c = await corridaDeTeste({ def: OVAL, carro: 'vulcao', corredores: 6, voltas: 9, rivais: RIVAIS });
+    const j = c.jogador;
+    simulaAte(() => c.estado === 'contagem' && c.contagem <= 2, 6);
+    const naContagem = c.estado === 'contagem';
+    segura('turbo', 1); quadros(1); solta('turbo');
+    // a carga pode SUBIR (a grade larga em cima de uma fileira de capsulas): o que nao pode e acender nem descer
+    let acendeu = false, desceu = false, antes = j.turbo.carga;
+    const vigia = () => { if (j.turbo.ativo) acendeu = true; if (j.turbo.carga < antes - 1e-9) desceu = true; antes = j.turbo.carga; return false; };
+    simulaAte(() => { vigia(); return c.estado === 'correndo'; }, 6);
+    for (let k = 0; k < 30; k++) { quadros(1); vigia(); }
+    ok(naContagem && !acendeu && !desceu, `toque no TURBO durante a contagem não acende nem gasta a barra na grade (tocou na contagem: ${naContagem})`);
+  }
+
   // =============================================================================================== vMax sobe com o turbo (oval)
   {
     const c = await nova(G);
     const j = c.jogador;
+    const dirige = (jj, n, o) => pilota(G, jj, n, o);                         // efeito na fisica: turbo segurado e solto
     j.colocaNaPista(0, 5, 0, 0, 0);
     dirige(j, 60 * 11);
     const vSem = j.vf;

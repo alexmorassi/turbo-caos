@@ -51,6 +51,11 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
 - **Física** (fase 2): crista da rampa lança 8° mais para cima (sem isso a rampa da pista de teste virava lombada); quem cai num vão
   volta DEPOIS do buraco; parede invisível no ar acima dos muros; FREIO e DRIFT num botão só; loop nunca derruba (mínimo 18 m/s).
 - **Turbo × faixa de impulso não empilham** (maestro): os dois juntos davam 1,69 × a vMax (66 m/s antes do loop da Neon).
+- **Turbo e poder de um toque** (pedido do Morassi, 30/10/2026): o toque acende o turbo e ele gasta a barra inteira sozinho; o EMP, o
+  gelo e o rodopio apagam e ele não reacende sozinho (a sobra fica para o próximo toque — escolha mais simples e previsível). **A IA
+  continua segurando**: liga o turbo na reta e solta antes da curva, então gasta melhor que o jogador (que pode entrar numa curva
+  com o turbo aceso). O DDA compensa; se nos testes com a criança os rivais parecerem espertos demais no turbo, dá para fazer a IA
+  também de um toque (só acende quando a reta à frente comporta a barra inteira).
 - **Poderes** (fase 4): o Troca-Troca devolvido pelo Escudo faz quem mandou trocar com quem vem atrás dele; o dono não sofre com a
   própria poça/nuvem; quem já chegou não é alvo; no máximo 3 cápsulas douradas por volta. Números ajustados para a esquiva escrita
   funcionar de verdade (óleo 10 s, EMP 24 m, raio congelante 80 m/s, tornado 2,4 m).

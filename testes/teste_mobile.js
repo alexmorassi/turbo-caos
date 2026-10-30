@@ -5,6 +5,7 @@
 // FPS AQUI E SWIFTSHADER (renderizacao por software, sem placa): o numero serve para comparar niveis e pegar regressao grande; os
 // 60 fps de verdade sao do celular (docs/PENDENCIAS.md). Por isso a assercao e so de piso.
 import { suite, ok, mede, simulaAte, apagaProgresso, quadros } from './harness.js';
+import { on } from '../js/eventos.js';
 
 /** Piso de fps no SwiftShader (800x450 ou tela emulada): abaixo disso algo explodiu (ex.: cenario inteiro sem culling). */
 const PISO_FPS_SOFTWARE = 3;
@@ -142,8 +143,33 @@ suite('mobile', async (G) => {
   }
   G.flags.auto = true;
 
-  // --- fps com o laco de verdade, por nivel
+  // --- TURBO E PODER DE UM TOQUE com o dedo (pedido de 30/10/2026: "o jogador aperta e o turbo/poder gastam ate o fim enquanto continua
+  // acelerando"). Toque RAPIDO (desce e sobe sem nenhum passo no meio, como no celular engasgado) e o dedo volta para o ACELERADOR
   simulaAte(() => c.estado === 'correndo', 10);
+  if (bt) {
+    G.flags.auto = false;
+    const j = c.jogador, pa = document.querySelector('#btn-acel'), bp = document.querySelector('#btn-poder');
+    j.turbo.carga = 0.5;
+    toque(bt, 'pointerdown', 20); toque(bt, 'pointerup', 20);
+    toque(pa, 'pointerdown', 21);
+    let aceso = 0;
+    for (let k = 0; k < 60 * 8 && (k < 3 || j.turbo.ativo); k++) { quadros(1); if (j.turbo.ativo) aceso++; }
+    const acelerou = G.entrada.estado.acel === 1;
+    toque(pa, 'pointerup', 21); quadros(2);
+    ok(acelerou && j.turbo.carga === 0 && aceso / 60 > 0.5 * j.turbo.capacidade - 0.1,
+      `um toque rápido no TURBO, com o dedo de volta no ACELERADOR, gasta a barra inteira sozinho (${(aceso / 60).toFixed(1)} s aceso)`);
+    if (bp && j.poder) {
+      let usou = 0;
+      const desliga = on('poder:usa', (e) => { if (e.carro === j) usou++; });
+      j.poder.restante = 0;
+      toque(bp, 'pointerdown', 22); toque(bp, 'pointerup', 22); quadros(2);
+      desliga();
+      ok(usou === 1, 'um toque rápido no PODER (pronto) dispara o poder uma vez');
+    }
+    G.flags.auto = true;
+  }
+
+  // --- fps com o laco de verdade, por nivel
   const fps = {};
   for (const nivel of ['baixa', 'media', 'alta']) {
     G.qualidade.define(nivel, false);

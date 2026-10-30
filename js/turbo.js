@@ -7,7 +7,9 @@
 //   * liga quando o controle pede E ha carga E nada impede: `mod.semTurbo` (Pulso EMP), congelado ou rodando (sem controle). O
 //     empurrao do turbo NAO passa pelo "sem controle" da fisica (js/carro.js soma mod.empurrao sempre): sem esta trava o turbo
 //     empurrava o carro congelado pelo gelo afora e o Raio Congelante nao valia nada;
-//   * no ar tambem gasta (a crianca segurando o botao no salto ve a barra descer e o fogo acesso — o mesmo de segurar no chao);
+//   * `controle.turbo` e "ligado neste passo": a IA segura e solta; o JOGADOR e de um toque (js/entrada.js aplicaNoCarro mantem o
+//     controle ligado do toque ate este sistema apagar o turbo — barra vazia, EMP, gelo, rodopio);
+//   * no ar tambem gasta (o turbo aceso no salto segue com a barra descendo e o fogo acesso — o mesmo do chao);
 //   * eventos: turbo:liga ao acender, turbo:desliga ao apagar, turbo:vazio quando a barra acaba ligada e quando aperta com a barra
 //     vazia (so na borda do botao: a IA segurando o botao vazio nao vira metralhadora de aviso);
 //   * a chama do escapamento e o desenho barato do pedido: 2 cones aditivos por carro (UM InstancedMesh para a corrida, js/efeitos.js),

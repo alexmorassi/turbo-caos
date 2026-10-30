@@ -16,12 +16,27 @@
 // de um toque: pedimos no `configura` (botao da tela de opcoes) e de novo no primeiro toque nos controles.
 // TECLADO (desenvolvimento): setas/WASD, espaco = turbo, E/Shift = poder, S/seta para baixo = freio, Ctrl = derrapagem, Esc/P = pausa.
 //
+// TURBO E PODER DE UM TOQUE (pedido do Morassi, 30/10/2026: "o jogador aperta e o turbo/poder gastam ate o fim enquanto o usuario
+// continua acelerando o carro"). Com os pedais na tela o polegar direito nao segura o ACELERADOR e o TURBO ao mesmo tempo (o FREIO
+// fica entre os dois), entao:
+//   * TURBO: o toque ACENDE e `aplicaNoCarro` mantem `controle.turbo` ligado sozinho ate a barra acabar — o dedo volta para o
+//     acelerador. Tocar de novo com ele aceso nao muda nada; capsula pega no meio soma e ele continua ate o fim. Se algo o APAGA no
+//     meio (EMP, gelo, rodopio) o toque acabou: ele nunca reacende sozinho (o resto da barra fica para o proximo toque). Barra vazia:
+//     o toque so chega ao turbo para o aviso "Turbo vazio!". Vale para o teclado tambem (espaco). A IA continua segurando: liga na reta
+//     e desliga antes da curva (js/ia.js; docs/PENDENCIAS.md);
+//   * PODER: ja era de um toque (borda) e o efeito dura o tempo do poder, sem depender do dedo;
+//   * TOQUE RAPIDO NUNCA SE PERDE: num celular fraco o quadro engasga e o pointerdown e o pointerup do toque chegam juntos ANTES do
+//     proximo passo — o contador volta a zero e o passo nunca ve o botao descer. Turbo, poder e pausa guardam "foi tocado desde o
+//     ultimo passo" (`_toqueRapido`): o passo seguinte ve a acao apertada por um passo, e `apertou()` dispara.
+//
 // `apertou(acao)` = borda NESTE passo. O retrato `_ultimo` do fim do passo anterior existe por causa do modo `simulada` (o harness
 // escreve `estado` entre dois passos; copiar `estado` no comeco do passo perderia o valor antigo — armadilha do dinotrails-web).
 import { emite } from './eventos.js';
 import { FISICA } from '../config/fisica.js';
 
 const ACOES = ['acel', 'freio', 'direcao', 'drift', 'turbo', 'poder', 'pausa'];
+/** Acoes de UM TOQUE: o toque rapido entre dois passos vale um passo apertado (ver o cabecalho). */
+const UM_TOQUE = ['turbo', 'poder', 'pausa'];
 const MODOS = ['botoes', 'joystick', 'inclinacao'];
 /** Acima disto uma acao conta como "apertada" (direcao: em modulo). */
 const LIMIAR = 0.5;
@@ -163,6 +178,10 @@ export class Entrada {
     this.acelAuto = typeof o.acelAuto === 'boolean' ? o.acelAuto : false;
     // toque: contadores por acao (cada pointerId segura uma)
     this._apertos = { esq: 0, dir: 0, acel: 0, freio: 0, turbo: 0, poder: 0, pausa: 0 };
+    // tocado desde o ultimo passo (turbo, poder, pausa): o toque rapido que o quadro engasgado engoliria
+    this._toqueRapido = { turbo: false, poder: false, pausa: false };
+    // o turbo aceso por um toque: fica ligado ate a barra acabar (ou algo apagar)
+    this._turboPreso = false;
     this._dedos = new Map();               // pointerId -> { acao, el }
     this._joyId = null; this._joyX = 0;
     // le uma lista de teclas (metodo preso aqui uma vez: criar a funcao dentro do passo alocaria a cada passo)
@@ -238,6 +257,7 @@ export class Entrada {
       this._soltaDedo(e.pointerId);
       this._dedos.set(e.pointerId, { acao, el });
       this._apertos[acao]++;
+      if (acao in this._toqueRapido) this._toqueRapido[acao] = true;
       el.classList.add('down');
       try { el.setPointerCapture(e.pointerId); } catch (er) { /* dedo sintetico ou navegador sem captura */ }
       this._gesto();
@@ -320,6 +340,7 @@ export class Entrada {
       if (SEGURA_DO_NAVEGADOR.has(e.code) && this.G.corrida) e.preventDefault();
       if (e.repeat) return;
       this._teclas.add(e.code);
+      for (let i = 0; i < UM_TOQUE.length; i++) if (TECLAS[UM_TOQUE[i]].includes(e.code)) this._toqueRapido[UM_TOQUE[i]] = true;
       avisaGesto(this.G);
     });
     window.addEventListener('keyup', (e) => this._teclas.delete(e.code));
@@ -397,10 +418,13 @@ export class Entrada {
       // FREIO/DRIFT e UM botao no toque: andando e virando a fisica derrapa, senao freia (js/carro.js). No teclado sao dois
       est.freio = Math.max(tem(TECLAS.freio), ap.freio > 0 ? 1 : 0);
       est.drift = Math.max(tem(TECLAS.drift), ap.freio > 0 ? 1 : 0);
-      est.turbo = Math.max(tem(TECLAS.turbo), ap.turbo > 0 ? 1 : 0);
-      est.poder = Math.max(tem(TECLAS.poder), ap.poder > 0 ? 1 : 0);
-      est.pausa = Math.max(tem(TECLAS.pausa), ap.pausa > 0 ? 1 : 0);
+      const tq = this._toqueRapido;
+      est.turbo = Math.max(tem(TECLAS.turbo), ap.turbo > 0 || tq.turbo ? 1 : 0);
+      est.poder = Math.max(tem(TECLAS.poder), ap.poder > 0 || tq.poder ? 1 : 0);
+      est.pausa = Math.max(tem(TECLAS.pausa), ap.pausa > 0 || tq.pausa ? 1 : 0);
     }
+    // sempre zera (tambem no modo `simulada`: um toque de verdade durante a suite nao pode valer um passo quando ela devolve a entrada)
+    this._toqueRapido.turbo = this._toqueRapido.poder = this._toqueRapido.pausa = false;
     for (let k = 0; k < ACOES.length; k++) ult[ACOES[k]] = est[ACOES[k]];
     this._largada();
   }
@@ -408,7 +432,7 @@ export class Entrada {
   /** LARGADA TURBO: apertar TURBO (ou ACELERA, com a aceleracao manual) bem no VAI da um empurrao (config/fisica.js LARGADA_*). */
   _largada() {
     const c = this.G.corrida;
-    if (c !== this._corrida) { this._corrida = c; this._largadaBoa = false; this._largadaDada = false; }
+    if (c !== this._corrida) { this._corrida = c; this._largadaBoa = false; this._largadaDada = false; this._turboPreso = false; }
     if (!c || this._largadaDada || this._largadaBoa) return;
     const apertouAgora = this.apertou('turbo') || (!this.acelAuto && this.apertou('acel'));
     if (!apertouAgora) return;
@@ -428,7 +452,12 @@ export class Entrada {
     c.freio = Math.max(0, Math.min(1, e.freio || 0));
     c.direcao = Math.max(-1, Math.min(1, e.direcao || 0));
     c.drift = (e.drift || 0) > LIMIAR;
-    c.turbo = (e.turbo || 0) > LIMIAR;
+    // TURBO DE UM TOQUE (cabecalho): o toque acende; aceso, segue ligado sem o dedo ate a barra acabar. O js/turbo.js apagou depois de
+    // acender (barra vazia, EMP, gelo, rodopio) -> o toque acabou. Le `ativo` do passo anterior: este passo ainda nao rodou o turbo
+    const tb = carro.turbo;
+    if (this._turboPreso && !(tb && tb.ativo)) this._turboPreso = false;
+    if (this.apertou('turbo')) this._turboPreso = true;
+    c.turbo = this._turboPreso;
     c.poder = this.apertou('poder');
     if (this._largadaBoa && !this._largadaDada && this._corrida && this._corrida.estado === 'correndo') {
       this._largadaDada = true;
@@ -464,6 +493,8 @@ export class Entrada {
   esqueceTudo() {
     this._teclas.clear();
     this._soltaTodosOsDedos();
+    // o turbo aceso por um toque NAO se apaga aqui: ele nao e um dedo que pode ficar preso — acaba sozinho com a barra
+    this._toqueRapido.turbo = this._toqueRapido.poder = this._toqueRapido.pausa = false;
     if (this.simulada) return;
     for (let k = 0; k < ACOES.length; k++) { const a = ACOES[k]; this.estado[a] = 0; this.anterior[a] = 0; this._ultimo[a] = 0; }
     this._inclinacao = 0;

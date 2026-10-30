@@ -100,6 +100,16 @@ suite('entrada', async (G) => {
   const a1 = e.apertou('poder'); quadros(1); const a2 = e.apertou('poder');
   dedo(poder, 'pointerup', 5); quadros(1);
   ok(a1 && !a2 && !e.apertou('poder'), 'apertou(poder) e verdadeiro SO no passo em que o dedo desceu');
+  // TOQUE RAPIDO entre dois passos (celular engasgado: pointerdown e pointerup chegam juntos antes do proximo passo) — vale um passo
+  for (const [el, acao, id] of [[turbo, 'turbo', 12], [poder, 'poder', 13]]) {
+    dedo(el, 'pointerdown', id); dedo(el, 'pointerup', id);   // nenhum passo no meio
+    quadros(1); const viu = e.estado[acao] === 1 && e.apertou(acao);
+    quadros(1); const depois = e.estado[acao];
+    ok(viu && depois === 0, `toque rápido no ${acao.toUpperCase()} (desce e sobe antes do passo) vale UM passo apertado`);
+  }
+  tecla('keydown', 'Space'); tecla('keyup', 'Space'); quadros(1);
+  const tecRapida = e.apertou('turbo'); quadros(1);
+  ok(tecRapida && e.estado.turbo === 0, 'espaço rápido (desce e sobe antes do passo) também vale');
   dedo(freio, 'pointerdown', 6); quadros(1);
   ok(e.estado.freio === 1 && e.estado.drift === 1, 'FREIO e um botao so para freio e derrapagem (andando e virando a fisica derrapa)');
   dedo(freio, 'pointerup', 6); quadros(1);
@@ -211,6 +221,15 @@ suite('entrada', async (G) => {
   segura('poder', 1); quadros(1); const p1 = j.controle.poder; quadros(1); const p2 = j.controle.poder;
   ok(p1 === true && p2 === false, 'aplicaNoCarro: controle.poder so no passo do toque');
   for (const a of ['direcao', 'freio', 'turbo', 'drift', 'poder']) solta(a);
+  // TURBO DE UM TOQUE (pedido do Morassi, 30/10/2026): o toque acende e o controle segue ligado sem o dedo ate a barra acabar
+  quadros(5);
+  ok(j.controle.turbo === true && j.turbo.ativo, 'TURBO de um toque: soltou o botão e o turbo continua aceso');
+  let passosAceso = 0;
+  for (let k = 0; k < 60 * 8 && j.turbo.ativo; k++) { quadros(1); passosAceso++; }
+  quadros(1);   // o aplicaNoCarro do passo seguinte e que ve o turbo apagado e solta o controle
+  ok(!j.turbo.ativo && j.turbo.carga === 0 && j.controle.turbo === false, `... até a barra acabar (${(passosAceso / 60).toFixed(1)} s depois), e aí desliga (carga ${j.turbo.carga.toFixed(2)}, controle ${j.controle.turbo})`);
+  j.turbo.carga = 1; quadros(3);
+  ok(!j.turbo.ativo && j.controle.turbo === false, 'capsula depois de apagado: não reacende sozinho (precisa de outro toque)');
   entradaDeVolta();
   // largada turbo: TURBO bem no VAI empurra; cedo demais, nao
   const corre = async (antesDoVai) => {
