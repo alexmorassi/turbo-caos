@@ -775,7 +775,7 @@ export class Telas {
     const o = save.opcoes(), e = this.G.entrada || {};
     // a entrada (fase 2) e a dona do controle: o que ela esta usando agora vale mais que o salvo (e o padrao dela e dela)
     const modo = typeof e.modo === 'string' ? e.modo : o.controle || 'botoes';
-    const acel = typeof e.acelAuto === 'boolean' ? e.acelAuto : typeof o.acelAuto === 'boolean' ? o.acelAuto : true;
+    const acel = typeof e.acelAuto === 'boolean' ? e.acelAuto : typeof o.acelAuto === 'boolean' ? o.acelAuto : false; // padrao igual ao da entrada
     return { ...o, controle: modo, acelAuto: acel };
   }
 

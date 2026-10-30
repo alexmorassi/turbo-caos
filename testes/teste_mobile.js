@@ -38,6 +38,8 @@ suite('mobile', async (G) => {
   const W = window.innerWidth, H = window.innerHeight;
   mede('tela (px CSS)', `${W}x${H} @${window.devicePixelRatio}`);
   ok(W > H, 'paisagem (o jogo é jogado deitado)');
+  // a entrada leu as opcoes no boot, ANTES do apagaProgresso (e as suites dividem o localStorage): volta ao padrao do jogo
+  G.entrada.configura({ modo: 'botoes', acelAuto: false });
   G.flags.auto = true;
   const c = await G.telas.mostra('corrida_direta', { pista: 'orla', carro: 'vulcao' });
   ok(!!c, 'corrida aberta pelas telas');
@@ -47,20 +49,40 @@ suite('mobile', async (G) => {
   const deToque = (() => { try { return matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window; } catch (e) { return false; } })();
   mede('aparelho de toque', deToque ? 'sim' : 'nao (desktop: so mede o fps)');
   const t = deToque ? caixa('#btn-turbo') : null, p = deToque ? caixa('#btn-poder') : null, f = deToque ? caixa('#btn-freio') : null;
-  if (deToque) ok(t && p && f, 'botões TURBO, PODER e FREIO visíveis na corrida');
-  if (t && p) {
-    ok(Math.min(t.width, t.height) >= LADO_MINIMO && Math.min(p.width, p.height) >= LADO_MINIMO, `TURBO ${t.width.toFixed(0)} px e PODER ${p.width.toFixed(0)} px (mínimo ${LADO_MINIMO})`);
+  const a = deToque ? caixa('#btn-acel') : null;
+  if (deToque) ok(t && p && f && a, 'ACELERADOR, FREIO, TURBO e PODER visíveis na corrida (padrão: pedais na tela)');
+  /** Confere o grupo inteiro: tamanho, dentro da tela, sem encostar (pedal = retangulo, TURBO/PODER = circulo). `sufixo` = cenario. */
+  const confere = (sufixo) => {
+    const t = caixa('#btn-turbo'), p = caixa('#btn-poder'), f = caixa('#btn-freio'), a = caixa('#btn-acel');
+    const esq = caixa('#btn-esq') || caixa('#stick-base') || caixa('#stick'), dir = caixa('#btn-dir');
+    if (!(t && p && f && a && esq)) { ok(false, `${sufixo}: todos os controles visíveis`); return; }
+    ok(Math.min(t.width, p.width) >= LADO_MINIMO, `${sufixo}: TURBO ${t.width.toFixed(0)} px e PODER ${p.width.toFixed(0)} px (mínimo ${LADO_MINIMO})`);
+    ok(a.width >= 56 && a.height >= 100 && f.height >= 80, `${sufixo}: pedais grandes (acelerador ${a.width.toFixed(0)}x${a.height.toFixed(0)}, freio ${f.width.toFixed(0)}x${f.height.toFixed(0)})`);
     const dentro = (r) => r.left >= 0 && r.top >= 0 && r.right <= W + 0.5 && r.bottom <= H + 0.5;
-    ok(dentro(t) && dentro(p) && (!f || dentro(f)), 'botões inteiros dentro da tela');
-    const folga = Math.min(folgaRedonda(t, p), f ? folgaRedonda(t, f) : 99, f ? folgaRedonda(p, f) : 99);
-    mede('menor folga entre botões (px)', folga);
-    ok(folga >= FOLGA_MINIMA, `botões não se encostam (folga mínima ${folga.toFixed(0)} px >= ${FOLGA_MINIMA})`);
+    ok([t, p, f, a, esq].every(dentro), `${sufixo}: controles inteiros dentro da tela`);
+    const folgaRet = (x, y) => Math.max(y.left - x.right, x.left - y.right, y.top - x.bottom, x.top - y.bottom);
+    const folga = Math.min(folgaRedonda(t, p), folgaRet(t, f), folgaRet(p, f), folgaRet(f, a), folgaRet(t, a), folgaRet(p, a));
+    mede(`${sufixo}: menor folga entre botões (px)`, folga);
+    ok(folga >= FOLGA_MINIMA, `${sufixo}: botões da direita não se encostam (folga ${folga.toFixed(0)} px >= ${FOLGA_MINIMA})`);
+    const vao = Math.min(t.left, p.left) - Math.max(esq.right, dir ? dir.right : esq.right);
+    mede(`${sufixo}: vão entre as setas e os botões (px)`, vao);
+    ok(vao >= 24, `${sufixo}: setas à esquerda e botões à direita com vão para ver o carro (${vao.toFixed(0)} px)`);
+    const mapa = caixa('#hud canvas');
+    if (mapa) ok(![t, p, f, a].some((r) => encosta(mapa, r)), `${sufixo}: minimapa não cobre os botões`);
+  };
+  if (deToque) {
+    confere('pedais');
+    // iPhone de verdade deitado: o entalhe come ~47 px de cada lado (a emulacao do Playwright nao tem safe-area); simula pelas variaveis
+    const ctl = document.querySelector('#controles .tc-ctl');
+    ctl.style.setProperty('--sal', '47px'); ctl.style.setProperty('--sar', '47px'); ctl.style.setProperty('--sab', '21px');
+    confere('com entalhe');
+    ctl.style.removeProperty('--sal'); ctl.style.removeProperty('--sar'); ctl.style.removeProperty('--sab');
+    // aceleracao automatica (opcao): o acelerador some e o resto continua inteiro
+    G.entrada.configura({ acelAuto: true });
+    const t2 = caixa('#btn-turbo'), p2 = caixa('#btn-poder'), f2 = caixa('#btn-freio');
+    ok(!caixa('#btn-acel') && t2 && p2 && f2, 'acelerar sozinho: some o ACELERADOR, ficam FREIO, TURBO e PODER');
+    G.entrada.configura({ acelAuto: false });
   }
-  const esq = deToque ? (caixa('#btn-esq') || caixa('#stick-base') || caixa('#stick')) : null;
-  if (deToque) ok(!!esq, 'direção visível (setas ou joystick)');
-  if (esq && t) ok(esq.right < t.left, 'direção à esquerda, botões à direita');
-  const mapa = caixa('#hud canvas');
-  if (mapa && p) ok(!encosta(mapa, p) && !encosta(mapa, t), 'minimapa não cobre os botões');
 
   // --- toque de verdade (Pointer Events) liga as acoes
   G.flags.auto = false;
@@ -70,6 +92,13 @@ suite('mobile', async (G) => {
     ok(G.entrada.estado.turbo > 0, 'tocar no TURBO liga o turbo');
     toque(bt, 'pointerup'); quadros(2);
     ok(!G.entrada.estado.turbo, 'soltar o TURBO desliga');
+    const pa = document.querySelector('#btn-acel'), pf = document.querySelector('#btn-freio');
+    toque(pa, 'pointerdown', 8); quadros(2);
+    ok(G.entrada.estado.acel === 1, 'pisar no ACELERADOR acelera');
+    toque(pf, 'pointerdown', 9); quadros(2);
+    ok(G.entrada.estado.freio > 0, 'pisar no FREIO junto (dois dedos) freia');
+    toque(pf, 'pointerup', 9); toque(pa, 'pointerup', 8); quadros(2);
+    ok(!G.entrada.estado.acel && !G.entrada.estado.freio, 'soltar os pedais solta acelerador e freio');
   }
   G.flags.auto = true;
 

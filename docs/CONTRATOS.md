@@ -171,8 +171,10 @@ Câmera: `js/camera.js` → `new CameraCorrida(G, corrida)` com `passo(dt)`, `qu
 `G.entrada`: `estado { acel, freio, direcao, drift, turbo, poder, pausa }` (0..1 / -1..1), `apertou(acao)` (borda no passo atual),
 `simulada` (o harness escreve `estado` direto), `passo(dt)`, `aplicaNoCarro(carro)`, `mostraControles(bool)`, `esqueceTudo()`,
 `configura({ modo: 'botoes'|'joystick'|'inclinacao', acelAuto: bool })`. Cria o próprio DOM dos controles de toque (`#controles`) e
-lê/grava a configuração por `G.save` (`opcoes.controle` e `opcoes.acelAuto`, os mesmos campos da tela de opções). O botão FREIO do toque
-liga `freio` e `drift` juntos. `#btn-pausa` só liga `estado.pausa` (a fase 6 põe o botão de pausa dela por cima e lê `apertou('pausa')`).
+lê/grava a configuração por `G.save` (`opcoes.controle` e `opcoes.acelAuto`, os mesmos campos da tela de opções). Layout (pedido do
+Morassi, 29/10/2026, no estilo dos jogos de corrida de celular): setas ◀ ▶ à esquerda; à direita os PEDAIS `#btn-acel` (ACELERADOR,
+na ponta) e `#btn-freio` (FREIO), e a coluna redonda `#btn-turbo` (embaixo) + `#btn-poder` (em cima). **Aceleração automática
+DESLIGADA por padrão** (o acelerador aparece); ligada nas opções, o acelerador some. O pedal FREIO liga `freio` e `drift` juntos. `#btn-pausa` só liga `estado.pausa` (a fase 6 põe o botão de pausa dela por cima e lê `apertou('pausa')`).
 Teclado (desenvolvimento): setas/WASD, espaço = turbo, E/Shift = poder, S/↓ = freio, Ctrl = drift.
 
 ## 7. Corrida (`js/corrida.js`, fundação)

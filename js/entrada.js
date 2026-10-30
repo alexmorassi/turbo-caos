@@ -78,22 +78,34 @@ const ESTILO = `
 #controles .tc-incl-barra { position: relative; width: clamp(150px, 40vh, 200px); height: 26px; border-radius: 14px; background: rgba(255,255,255,.25); border: 4px solid rgba(255,255,255,.75); }
 #controles .tc-incl-ponto { position: absolute; top: 50%; left: 50%; width: 30px; height: 30px; border-radius: 50%; transform: translate(-50%, -50%);
   background: radial-gradient(circle at 35% 30%, #fff, #ffe08a 60%, #f0b830); border: 3px solid #fffaf0; }
-/* direita EM ARCO em volta do polegar: TURBO no canto, PODER na diagonal de cima, FREIO ao lado. Empilhar o PODER em cima do TURBO
-   deixava o topo dele a ~3 px do minimapa da fase 6 no Pixel 7 deitado (foto docs/fotos/fase2_3_reta_voador.png); na diagonal sobra ~35 px */
-#controles .tc-dir-grupo { position: absolute; right: calc(max(14px, var(--sar)) + 4px); bottom: calc(var(--sab) + 16px); width: 1px; height: 1px;
-  --t: clamp(94px, 27vh, 136px); --p: clamp(82px, 23vh, 116px); --f: clamp(74px, 20vh, 104px); --a: clamp(94px, 26vh, 132px); }
-#controles .tc-dir-grupo > .tc-big { position: absolute; }
-#controles #btn-turbo { right: 0; bottom: 0; width: var(--t); height: var(--t); background: radial-gradient(circle at 40% 30%, #ffd07a, #ff7a1a 60%, #e0400f); }
-#controles #btn-poder { width: var(--p); height: var(--p); --r: calc((var(--t) + var(--p)) / 2 + 16px); /* folga de 16 px (maestro, fase 7): com 8 px o dedo da crianca no TURBO pegava o PODER */
-  right: calc(var(--t) / 2 + var(--r) * 0.707 - var(--p) / 2); bottom: calc(var(--t) / 2 + var(--r) * 0.707 - var(--p) / 2);
+/* DIREITA NO ESTILO DOS JOGOS DE CORRIDA DE CELULAR (pedido do Morassi, 29/10/2026, com a foto de referencia): dois PEDAIS em pe no
+   canto — ACELERADOR (o mais alto, na ponta, como no carro de verdade) e FREIO ao lado dele —, e a coluna dos botoes redondos a
+   esquerda dos pedais: TURBO embaixo (o polegar ja esta ali) e PODER em cima. Tudo medido em min(vh, vw): no iPhone deitado, com o
+   entalhe comendo ~47 px de cada lado, o grupo encolhe em vez de encostar nas setas. A coluna redonda fica fora da faixa do minimapa
+   da fase 6 (canto de cima a direita). Na aceleracao automatica (opcao) o ACELERADOR some e o FREIO vai para a ponta. */
+#controles .tc-dir-grupo { position: absolute; right: calc(max(14px, var(--sar)) + 4px); bottom: calc(var(--sab) + 14px); width: 1px; height: 1px;
+  --pw: clamp(58px, min(18vh, 9vw), 92px); --ph: clamp(108px, min(37vh, 18.5vw), 170px); --fh: calc(var(--ph) * 0.74);
+  --t: clamp(70px, min(23vh, 11.5vw), 112px); --p: clamp(64px, min(20vh, 10vw), 100px); --g: clamp(12px, 3.4vh, 20px); }
+#controles .tc-dir-grupo > .tc-big, #controles .tc-dir-grupo > .tc-pedal { position: absolute; }
+#controles .tc-pedal { display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-sizing: border-box; margin: 0;
+  padding: 9px 0 10px; border-radius: 18px; border: 4px solid #fffaf0; pointer-events: auto; touch-action: none; color: #fff; cursor: pointer;
+  outline: none; -webkit-tap-highlight-color: transparent; transform-origin: 50% 100%;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,.13) 0 5px, rgba(0,0,0,.20) 5px 11px), linear-gradient(180deg, #6b7684, #2f3742);
+  box-shadow: 0 7px 0 rgba(0,0,0,.3), inset 0 -8px 0 rgba(0,0,0,.2); transition: transform .06s, box-shadow .06s; }
+#controles .tc-pedal.down { transform: translateY(4px) scaleY(.95); box-shadow: 0 2px 0 rgba(0,0,0,.3), inset 0 -3px 0 rgba(0,0,0,.2); filter: brightness(1.15); }
+#controles .tc-pedal .tc-faixa { width: 68%; height: 9px; border-radius: 5px; background: var(--cor); box-shadow: 0 0 10px var(--cor); flex: none; }
+#controles .tc-pedal svg { width: 62%; height: auto; flex: 1 1 auto; max-height: 46%; pointer-events: none; filter: drop-shadow(0 2px 0 rgba(0,0,0,.35)); }
+#controles .tc-pedal .tc-rotulo { position: static; transform: none; flex: none; font-size: clamp(9px, 2.4vh, 13px); letter-spacing: 0; }
+#controles #btn-acel { --cor: #5dff8a; right: 0; bottom: 0; width: var(--pw); height: var(--ph); }
+#controles #btn-freio { --cor: #ff4d4d; right: calc(var(--pw) + var(--g)); bottom: 0; width: var(--pw); height: var(--fh); }
+#controles #btn-turbo { right: calc(2 * var(--pw) + 2 * var(--g)); bottom: 0; width: var(--t); height: var(--t);
+  background: radial-gradient(circle at 40% 30%, #ffd07a, #ff7a1a 60%, #e0400f); }
+#controles #btn-poder { right: calc(2 * var(--pw) + 2 * var(--g) + (var(--t) - var(--p)) / 2); bottom: calc(var(--t) + var(--g)); width: var(--p); height: var(--p);
   background: radial-gradient(circle at 40% 30%, #e2b8ff, #9b5cf6 60%, #6a3fd0); }
-#controles #btn-freio { right: calc(var(--t) + 20px); bottom: 0; width: var(--f); height: var(--f); background: radial-gradient(circle at 40% 30%, #ffb0a8, #ff4d4d 60%, #c62828); }
-#controles #btn-acel { right: 0; bottom: 0; width: var(--a); height: var(--a); background: radial-gradient(circle at 40% 30%, #8ef09f, #46d16b 60%, #2aa24a); }
-/* aceleracao manual: ACELERA no canto, TURBO em cima dele, FREIO ao lado e PODER em cima do FREIO (2 x 2, um pouco menores) */
-#controles .tc-ctl.tc-manual .tc-dir-grupo { --t: clamp(82px, 23vh, 118px); --p: clamp(76px, 21vh, 108px); }
-#controles .tc-ctl.tc-manual #btn-turbo { right: calc((var(--a) - var(--t)) / 2); bottom: calc(var(--a) + 10px); }
-#controles .tc-ctl.tc-manual #btn-freio { right: calc(var(--a) + 16px); }
-#controles .tc-ctl.tc-manual #btn-poder { right: calc(var(--a) + 16px + (var(--f) - var(--p)) / 2); bottom: calc(var(--f) + 10px); }
+/* aceleracao automatica: sem o ACELERADOR, o FREIO vai para a ponta e a coluna redonda chega junto */
+#controles .tc-ctl:not(.tc-manual) #btn-freio { right: 0; }
+#controles .tc-ctl:not(.tc-manual) #btn-turbo { right: calc(var(--pw) + var(--g)); }
+#controles .tc-ctl:not(.tc-manual) #btn-poder { right: calc(var(--pw) + var(--g) + (var(--t) - var(--p)) / 2); }
 #controles .tc-redondo { position: absolute; top: calc(var(--sat) + 10px); right: calc(max(12px, var(--sar)) + 4px); width: 54px; height: 54px; border-radius: 50%;
   background: rgba(255,250,240,.92); border: 4px solid #23324a; box-shadow: 0 5px 0 rgba(0,0,0,.25); pointer-events: auto; touch-action: none; display: grid;
   place-items: center; padding: 0; color: #23324a; font: 900 22px/1 system-ui, sans-serif; cursor: pointer; box-sizing: border-box; }
@@ -102,6 +114,9 @@ const ESTILO = `
 
 const SETA_ESQ = '<svg viewBox="0 0 24 24"><path d="M16 4 6 12l10 8z" fill="#fff" stroke="#23324a" stroke-width="1.6" stroke-linejoin="round"/></svg>';
 const SETA_DIR = '<svg viewBox="0 0 24 24"><path d="M8 4l10 8-10 8z" fill="#fff" stroke="#23324a" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+/** Pedais: setas duplas para cima (acelera, verde) e para baixo (freia, vermelho) — leem sem texto para quem ainda nao le. */
+const PEDAL_ACEL = '<svg viewBox="0 0 24 24"><path d="M5 13l7-7 7 7M5 20l7-7 7 7" fill="none" stroke="#5dff8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const PEDAL_FREIO = '<svg viewBox="0 0 24 24"><path d="M5 4l7 7 7-7M5 11l7 7 7-7" fill="none" stroke="#ff5a5a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 const HTML = `
 <div class="tc-esq" data-so="botoes">
@@ -113,8 +128,8 @@ const HTML = `
 <div class="tc-dir-grupo">
   <button class="tc-big" id="btn-poder" data-acao="poder" aria-label="Poder"><span class="deco"></span><span class="tc-icone">⚡</span><span class="tc-rotulo">PODER</span></button>
   <button class="tc-big" id="btn-turbo" data-acao="turbo" aria-label="Turbo"><span class="deco"></span><span class="tc-icone">🔥</span><span class="tc-rotulo">TURBO</span></button>
-  <button class="tc-big" id="btn-freio" data-acao="freio" aria-label="Freio e derrapagem"><span class="tc-icone">🛑</span><span class="tc-rotulo">FREIO</span></button>
-  <button class="tc-big" id="btn-acel" data-acao="acel" aria-label="Acelerar"><span class="tc-icone">⏩</span><span class="tc-rotulo">ACELERA</span></button>
+  <button class="tc-pedal" id="btn-freio" data-acao="freio" aria-label="Freio e derrapagem"><span class="tc-faixa"></span>${PEDAL_FREIO}<span class="tc-rotulo">FREIO</span></button>
+  <button class="tc-pedal" id="btn-acel" data-acao="acel" aria-label="Acelerar"><span class="tc-faixa"></span>${PEDAL_ACEL}<span class="tc-rotulo">ACELERA</span></button>
 </div>
 <button class="tc-redondo" id="btn-pausa" data-acao="pausa" aria-label="Pausa">II</button>
 `;
@@ -141,7 +156,9 @@ export class Entrada {
     // configuracao (G.save 'opcoes': { controle, acelAuto } — a tela de opcoes da fase 6 chama configura())
     const o = (G.save && G.save.le && G.save.le('opcoes', null)) || {};
     this.modo = MODOS.includes(o.controle) ? o.controle : 'botoes';
-    this.acelAuto = typeof o.acelAuto === 'boolean' ? o.acelAuto : true; // pedido: padrao LIGADA para crianca
+    // padrao DESLIGADA desde 29/10/2026: o Morassi pediu acelerador e freio na tela, no estilo dos jogos de corrida de celular; quem
+    // preferir liga "acelerar sozinho" nas opcoes
+    this.acelAuto = typeof o.acelAuto === 'boolean' ? o.acelAuto : false;
     // toque: contadores por acao (cada pointerId segura uma)
     this._apertos = { esq: 0, dir: 0, acel: 0, freio: 0, turbo: 0, poder: 0, pausa: 0 };
     this._dedos = new Map();               // pointerId -> { acao, el }
