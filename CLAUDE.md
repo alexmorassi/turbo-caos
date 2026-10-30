@@ -10,6 +10,9 @@ Arquitetura do jogo de referência **Breno e o Tesouro do Pirata Morassi** (arte
 `node tools/monta.js`:
 1. **Artefato do Claude** (a principal, igual ao Breno): `dist/artefato/` = index.html + js/ + config/ + css/ + lib/ + cada GLB como
    módulo `assets/cars/<id>.glb.js` (o artefato não serve `.glb`); publicado pelo maestro, o Morassi abre pelo link no celular.
+   **Publicado em https://claude.ai/artifact/FWWGVVDUhpoUng3w8aTfUZ** (slug `757e8c0b-bd1a-4cb4-bcb7-7d6bdde8b396`): republique com
+   `publish_files` (slug + base_version da última publicação) a lista de `dist/artefato/arquivos.json`. No artefato não há query
+   string (sem flags), o sensor de inclinação é bloqueado pelo iframe (a direção cai para as setas) e fetch a outros hosts é bloqueado.
 2. **`TurboCaos.html`** (extra, commitado): HTML único que abre em `file://` sem internet (dois cliques, Jogar.bat).
 Os contratos entre módulos estão em **`docs/CONTRATOS.md`** — leia antes de mexer.
 

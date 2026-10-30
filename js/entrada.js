@@ -84,7 +84,7 @@ const ESTILO = `
   --t: clamp(94px, 27vh, 136px); --p: clamp(82px, 23vh, 116px); --f: clamp(74px, 20vh, 104px); --a: clamp(94px, 26vh, 132px); }
 #controles .tc-dir-grupo > .tc-big { position: absolute; }
 #controles #btn-turbo { right: 0; bottom: 0; width: var(--t); height: var(--t); background: radial-gradient(circle at 40% 30%, #ffd07a, #ff7a1a 60%, #e0400f); }
-#controles #btn-poder { width: var(--p); height: var(--p); --r: calc((var(--t) + var(--p)) / 2 + 8px);
+#controles #btn-poder { width: var(--p); height: var(--p); --r: calc((var(--t) + var(--p)) / 2 + 16px); /* folga de 16 px (maestro, fase 7): com 8 px o dedo da crianca no TURBO pegava o PODER */
   right: calc(var(--t) / 2 + var(--r) * 0.707 - var(--p) / 2); bottom: calc(var(--t) / 2 + var(--r) * 0.707 - var(--p) / 2);
   background: radial-gradient(circle at 40% 30%, #e2b8ff, #9b5cf6 60%, #6a3fd0); }
 #controles #btn-freio { right: calc(var(--t) + 20px); bottom: 0; width: var(--f); height: var(--f); background: radial-gradient(circle at 40% 30%, #ffb0a8, #ff4d4d 60%, #c62828); }

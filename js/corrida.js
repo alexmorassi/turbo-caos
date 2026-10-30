@@ -87,7 +87,7 @@ export class Corrida {
       const cfg = ehJogador ? cfgDe(this.opcoes.carro) : cfgDe(ids[r++ % ids.length]);
       const carro = new Carro(G, this, { cfg, indice: k, ehJogador, nome: ehJogador ? 'Você' : cfg.nome });
       carro.volta = 0; carro.progresso = 0; carro.posicao = k + 1; carro.chegou = false; carro.tempoChegada = 0;
-      carro.temposDeVolta = []; carro.melhorVolta = 0; carro.batidas = 0; carro._sAnt = null; carro._inicioVolta = 0;
+      carro.temposDeVolta = []; carro.melhorVolta = 0; carro.batidas = 0; carro._sAnt = null; carro._inicioVolta = 0; carro._voltasTiradas = 0;
       this.carros.push(carro);
       if (ehJogador) this.jogador = carro;
     }
@@ -129,7 +129,9 @@ export class Corrida {
   passo(dt) {
     if (this.pausada || this.estado === 'carregando' || this.estado === 'terminou') return;
     const G = this.G;
-    for (const c of this.carros) c.zeraMod();
+    // `modAnterior` = o mod que valeu no passo anterior (encolhido, EMP, terremoto...): a IA roda antes dos poderes e so enxerga o
+    // efeito por ele (pendencia da fase 5). Copia campo a campo num objeto fixo: nada alocado no passo.
+    for (const c of this.carros) { if (!c.modAnterior) c.modAnterior = { ...c.mod }; else Object.assign(c.modAnterior, c.mod); c.zeraMod(); }
 
     if (this.estado === 'contagem') {
       // a largada: 1 s por numero; os carros ficam parados (comando zero) mas a fisica roda (assentam na pista)
@@ -166,8 +168,11 @@ export class Corrida {
     for (const c of this.carros) {
       const s = this.pista.sPrincipal(c.sup, c.s);
       if (c._sAnt !== null && !c.chegou) {
-        if (c._sAnt > L * 0.75 && s < L * 0.25) this._cruzou(c);
-        else if (c._sAnt < L * 0.25 && s > L * 0.75 && c.volta > 0) c.volta--; // de re pela linha: nao vale
+        if (c._sAnt > L * 0.75 && s < L * 0.25) {
+          // cruzar de novo depois de ter voltado de re pela linha so DEVOLVE a volta tirada: nao e volta nova nem tem tempo de volta
+          // (fase 5: o Troca-Troca logo depois da chegada jogava o carro para tras dela e a volta seguinte saia com 1,4 s)
+          if (c._voltasTiradas > 0) { c._voltasTiradas--; c.volta++; } else this._cruzou(c);
+        } else if (c._sAnt < L * 0.25 && s > L * 0.75 && c.volta > 0) { c.volta--; c._voltasTiradas = (c._voltasTiradas || 0) + 1; } // de re pela linha: nao vale
       }
       c._sAnt = s;
       c.progresso = c.chegou ? this.voltas * L : (c.volta <= 0 ? s - L : (c.volta - 1) * L + s);

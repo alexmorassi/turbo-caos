@@ -242,7 +242,9 @@ export class Carro {
     sup.quadro(this.s, _T, _N, _R);
     const frenteY = _T.y * Math.cos(this.psi) + _R.y * Math.sin(this.psi);
     const vMax = p.vMax * m.velMax * (terra ? F.TERRA_VEL : 1);
-    const vImpulso = this._impulso > 0 ? p.vMax * m.velMax * F.IMPULSO_VEL : 0;
+    // a faixa leva a 1,3 x a vMax do CARRO e NAO empilha com o turbo (maestro, fase 7: turbo x impulso dava 1,69 x = 66 m/s antes do
+    // loop da Neon — pendencia das fases 4 e 5); quem esta mais lento por poder (encolhido, ima) continua mais lento na faixa
+    const vImpulso = this._impulso > 0 ? p.vMax * F.IMPULSO_VEL * Math.min(1, m.velMax) : 0;
     const teto = Math.max(vMax, vImpulso);
     const rapidez = Math.hypot(this.vf, this.vr);
     let a = 0;

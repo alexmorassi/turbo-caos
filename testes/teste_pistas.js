@@ -80,6 +80,9 @@ suite('pistas', async (G) => {
         ok(info.calls < META_CHAMADAS && info.triangles < META_TRIANGULOS, `${def.id}: ${nome} desenha ${info.calls} chamadas e ${(info.triangles / 1000).toFixed(0)} mil triangulos (meta < ${META_CHAMADAS} e < ${META_TRIANGULOS / 1000} mil, sem carros)`);
       }
       // qualidade: a BAIXA tem de cortar cenario (contrato secao 10: metade do cenario e neblina mais perto)
+      // parte da ALTA de proposito (maestro, fase 7): no celular emulado a qualidade ja nasce MEDIA, e o corte media -> baixa e de so
+      // ~10 % — a assercao reprovava com --mobile sem nada errado no cenario
+      vis.aplicaQualidade({ densidadeCenario: 1, distancia: 1000 });
       const alta = vis.conta().triangulos, longeAlta = G.cena.fog ? G.cena.fog.far : 0;
       vis.aplicaQualidade({ densidadeCenario: 0.4, distancia: 450 });
       const baixa = vis.conta().triangulos, longeBaixa = G.cena.fog ? G.cena.fog.far : 0;
