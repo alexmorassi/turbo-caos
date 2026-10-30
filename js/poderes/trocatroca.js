@@ -32,7 +32,6 @@ export class TrocaTroca extends PoderBase {
     if (m.feixe < 0) m.feixe = this.ef.feixes.pega();
     if (m.alvo) {
       if (m.anel < 0) m.anel = this.ef.aneis.pega();
-      this.P.aviso(m.alvo, 'Ligue o TURBO!', 'ruim', '🔄');
     }
     return true;
   }

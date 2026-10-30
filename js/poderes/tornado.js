@@ -3,7 +3,8 @@
 // m. O primeiro carro que encostar (3D, `raioAcerto`) e LEVANTADO girando (js/carro.js levanta). ESQUIVA (verdade aqui): "O tornado mira
 // de leve: desvie para o lado na hora certa" — o carro vira de lado a 8-12 m/s e o tornado so acompanha a `mira` m/s; quem esta no ar por
 // cima dele (salto) tambem passa. Quem foi ultrapassado sem ser pego escapou (poder:esquivou) e o tornado mira no proximo.
-// Ele vem POR TRAS do alvo (fora da camera do jogador): o jogador alvo ve "Tornado vindo!" AVISO_TORNADO s antes e ouve o vento.
+// Ele vem POR TRAS do alvo (fora da camera do jogador): o jogador alvo ouve o vento AVISO_TORNADO s antes (a mensagem na tela saiu em
+// 30/10/2026 a pedido do Morassi — docs/PENDENCIAS.md).
 // Visual: funil girando (listras em diagonal, js/efeitos.js Funis), poeira e folhas na base.
 import * as THREE from 'three';
 import { PoderBase, difS, limita } from './comum.js';
@@ -87,7 +88,7 @@ export class Tornado extends PoderBase {
       const b = t.alvo;
       if (b && b.ehJogador && !t.avisou) {
         const falta = P.deltaP(pt, P.progresso(b)), fecha = Math.max(5, cfg.velocidade - (b.velocidade || 0));
-        if (falta > 0 && falta / fecha < PODERES_GERAL.AVISO_TORNADO) { t.avisou = true; P.aviso(b, 'Tornado vindo! Desvie!', 'ruim', '🌪️'); P.som('tornado', t.pos); }
+        if (falta > 0 && falta / fecha < PODERES_GERAL.AVISO_TORNADO) { t.avisou = true; P.som('tornado', t.pos); }
       }
       if (t.percorrido >= cfg.alcance) { t.voando = false; t.some = SOME; }
     }

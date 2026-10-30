@@ -405,7 +405,7 @@ suite('poderes', async (G) => {
     mede('tornado: distancia lateral quando passou pelo alvo que desviou (m)', menor);
     ok(desviou && A.efeitos.levantado === 0 && A.noChao && conta('poder:acerta', alvo(A)) === 1, 'desviou para o lado na hora: o tornado passou');
     ok(conta('poder:esquivou', (e) => e.alvo === A && e.poder === 'tornado') >= 1, 'quem desviou: poder:esquivou');
-    // o jogador alvo e avisado (G.hud.aviso so com o HUD na tela: aqui confere que nao quebra) e sem alvo a IA nao gasta
+    // sem alvo a IA nao gasta
     poe(planos, A, 1300, 0, 0); pronto(j); anda(2);
     ok(!P.iaDeveUsar(j), 'tornado: iaDeveUsar falso sem ninguem a frente');
     confere(c);

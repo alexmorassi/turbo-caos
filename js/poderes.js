@@ -10,9 +10,9 @@
 //   * todo acerto passa por `acerta()`: o ESCUDO bloqueia e DEVOLVE (o efeito vai para quem mandou: `aplicaEm(de, alvo, true)`), e o
 //     devolvido nao volta de novo (dois escudos nao viram pingue-pongue). Nos poderes de AREA o dono do escudo fica imune e quem mandou
 //     leva o efeito;
-//   * todo poder tem efeito visual, som (o audio da fase 6 toca o do poder no `poder:usa`; momentos extras com G.audio.toca), esquiva e
-//     aviso na tela quando o JOGADOR e o alvo (G.hud.aviso — o tornado vem por tras, fora da camera; a mira do Troca-Troca ensina "ligue
-//     o TURBO"): a crianca aprende o poder do outro jogando;
+//   * todo poder tem efeito visual, som (o audio da fase 6 toca o do poder no `poder:usa`; momentos extras com G.audio.toca) e esquiva
+//     que se VE (o feixe, o funil, o circulo, a mira): a crianca aprende o poder do outro jogando. Mensagem no meio da tela, nenhuma
+//     (pedido do Morassi, 30/10/2026: atrapalhava o jogo — js/hud.js);
 //   * determinismo: nada de Math.random/G.sorteio aqui (o visual tem gerador proprio). Nada alocado no passo alem dos objetos dos eventos
 //     (raros) — perigos() e ativosEm() devolvem arrays e objetos reaproveitados.
 import { PODERES, ORDEM_DOS_PODERES, PODERES_GERAL as GERAL } from '../config/poderes.js';
@@ -201,8 +201,6 @@ export class Poderes {
   centro(c, out) { return out.copy(c.pos).addScaledVector(c.cima, GERAL.ALTURA_DO_CENTRO * ((c.mod && c.mod.escala) || 1)); }
   meiaComp(c) { return c.p.comprimento * 0.5 * ((c.mod && c.mod.escala) || 1); }
   meiaLarg(c) { return c.p.largura * 0.5 * ((c.mod && c.mod.escala) || 1); }
-  /** Aviso na tela SO se `c` e o jogador (o HUD so aparece nas corridas que as telas comecaram). */
-  aviso(c, texto, tipo = 'ruim', icone = null) { if (c && c.ehJogador && this.G.hud && this.G.hud.aviso) this.G.hud.aviso(texto, tipo, icone); }
   /** Tremor da camera SO no jogador. */
   treme(c, intensidade, seg) { const cam = this.corrida.camera; if (c && c.ehJogador && cam && cam.treme) cam.treme(intensidade, seg); }
   /** Som de um momento extra (o do disparo o audio ja toca no poder:usa). */

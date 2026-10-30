@@ -260,6 +260,9 @@
   font-size: clamp(15px, 5vh, 26px); line-height: 1.25; }
 .hud-pilula .emo { font-size: .9em; }
 .hud-volta b { color: var(--sol); font-weight: 900; }
+/* ULTIMA VOLTA: a pilula da volta fica vermelha e pulsa 5 vezes (no lugar da faixa que atravessava a pista — js/hud.js) */
+.hud-pilula.ultima { background: #c8321f; border-color: var(--sol); animation: tc-pulso .5s ease-in-out 5; }
+.hud-pilula.ultima .hud-volta b { color: #fff6b0; }
 .hud-tempo { font-variant-numeric: tabular-nums; min-width: 4.3em; text-align: right; opacity: .95; }
 .hud-turbo { display: flex; align-items: center; gap: 6px; }
 .hud-turbo .emo { font-size: clamp(18px, 5.8vh, 28px); filter: drop-shadow(0 2px 0 var(--tinta)); }
@@ -278,17 +281,6 @@
 .hud-contagem.n3 { color: #ff5e57; } .hud-contagem.n2 { color: #ffb03a; } .hud-contagem.n1 { color: #ffe45c; } .hud-contagem.vai { color: #5cf08a; font-size: clamp(70px, 32vh, 200px); }
 .hud-contagem.bate { animation: hud-bate .9s cubic-bezier(.2,1.6,.4,1) both; }
 @keyframes hud-bate { 0% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; } 25% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(-50%, -50%) scale(.85); opacity: 0; } }
-.hud-faixa { position: absolute; left: -10%; right: -10%; top: 33%; text-align: center; background: linear-gradient(90deg, transparent, #e8321a 12%, #ff7a1a 50%, #e8321a 88%, transparent);
-  font-size: clamp(30px, 11vh, 66px); padding: .05em 0; transform: rotate(-4deg); color: var(--creme); -webkit-text-stroke: 4px var(--tinta); paint-order: stroke fill;
-  border-top: 5px solid var(--sol); border-bottom: 5px solid var(--sol); animation: hud-faixa 2.6s ease-in-out both; }
-/* com a faixa na tela os avisos descem para baixo dela (a faixa vem antes no DOM) */
-.hud-faixa:not([hidden]) ~ .hud-avisos { top: calc(33% + clamp(52px, 17vh, 96px)); }
-@keyframes hud-faixa { 0% { transform: translateX(-110%) rotate(-4deg); } 15%, 85% { transform: translateX(0) rotate(-4deg); } 100% { transform: translateX(110%) rotate(-4deg); } }
-.hud-avisos { position: absolute; left: 50%; top: calc(var(--sat) + clamp(70px, 22vh, 120px)); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.hud-aviso { display: flex; align-items: center; gap: 8px; font-family: var(--fonte); font-weight: 800; font-size: clamp(17px, 6vh, 30px); padding: 2px 18px; border-radius: 999px; white-space: nowrap;
-  background: rgba(16,32,74,.82); border: 4px solid var(--creme); box-shadow: 0 5px 0 rgba(0,0,0,.3); animation: hud-aviso 1.7s ease-out both; }
-.hud-aviso.bom { background: #1f9e4a; } .hud-aviso.ruim { background: #c8321f; } .hud-aviso.poder { background: #5c34c7; } .hud-aviso.turbo { background: #e8701a; } .hud-aviso.ouro { background: #d99a00; }
-@keyframes hud-aviso { 0% { transform: scale(.3); opacity: 0; } 12% { transform: scale(1.12); opacity: 1; } 22% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: translateY(-14px); opacity: 0; } }
 .hud-fumaca { position: absolute; inset: 0; opacity: 0; transition: opacity .25s;
   background: radial-gradient(40% 50% at 30% 40%, rgba(225,228,234,.95), transparent 70%), radial-gradient(45% 45% at 70% 55%, rgba(205,210,220,.95), transparent 70%),
   radial-gradient(60% 50% at 50% 80%, rgba(190,196,206,.9), transparent 75%), radial-gradient(50% 40% at 55% 25%, rgba(235,238,244,.9), transparent 70%), rgba(200,205,214,.35); }
@@ -302,15 +294,33 @@
 #btn-turbo .deco, #btn-poder .deco { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; overflow: hidden; display: grid; place-items: center; container-type: size; }
 .deco .tb-carga { position: absolute; left: 0; right: 0; bottom: 0; height: 0%; background: linear-gradient(0deg, #ff6a1a, #ffd23a); opacity: .9; transition: height .12s linear; }
 .deco .tb-icone, .deco .pd-icone { position: relative; font-size: 30px; font-size: 52cqmin; line-height: 1; filter: drop-shadow(0 2px 0 rgba(16,32,74,.6)); }
-.deco.cheio { animation: tc-pulso .7s ease-in-out infinite; box-shadow: inset 0 0 0 4px var(--sol); }
+.deco.cheio { box-shadow: inset 0 0 0 4px var(--sol); }
 .deco.ativo .tb-carga { background: linear-gradient(0deg, #ff2a10, #ff9a1a, #fff36b); }
 .deco.ativo .tb-icone { animation: tc-pulso .25s ease-in-out infinite; }
 .deco.vazio .tb-icone { filter: grayscale(1) opacity(.6); }
 .deco .pd-anel { position: absolute; inset: 4%; border-radius: 50%; background: conic-gradient(var(--cor, #ffd23a) calc(var(--p, 0) * 1turn), rgba(16,32,74,.5) 0);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px)); mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px)); }
 .deco.carregando .pd-icone { filter: grayscale(.7) opacity(.55); }
-.deco.pronto { animation: tc-pulso .8s ease-in-out infinite; }
 .deco.pronto .pd-anel { box-shadow: 0 0 12px var(--cor, #ffd23a); }
+
+/* BOTAO PRONTO (pedido do Morassi, 30/10/2026, no lugar de "Poder pronto!"/"Turbo cheio!" no meio da tela): o botao que um toque faz
+   funcionar AGORA pula, solta uma onda de luz e balanca o icone. O js/hud.js liga `tc-pronto` (TURBO com carga e apagado, sem
+   EMP/gelo/rodopio; PODER recarregado — os dois so correndo). So transform e opacity: o compositor anima sem repintar a tela do
+   celular. Apertado (.down) o pulo para e o afundar do toque continua valendo. */
+#controles #btn-turbo.tc-pronto { --onda: #ffd23a; }
+#controles #btn-poder.tc-pronto { --onda: var(--cor-poder, #ffd23a); }
+#controles #btn-turbo.tc-pronto:not(.down), #controles #btn-poder.tc-pronto:not(.down) { animation: tc-pronto-pula .9s ease-in-out infinite; }
+#controles #btn-turbo.tc-pronto::after, #controles #btn-poder.tc-pronto::after { content: ''; position: absolute; inset: -6px; border-radius: 50%;
+  border: 5px solid var(--onda); box-sizing: border-box; pointer-events: none; animation: tc-pronto-onda 1.1s ease-out infinite; }
+#controles #btn-turbo.tc-pronto .tb-icone, #controles #btn-poder.tc-pronto .pd-icone { animation: tc-pronto-icone .9s ease-in-out infinite; }
+@keyframes tc-pronto-pula { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.14); } 58% { transform: scale(.97); } 72% { transform: scale(1.04); } }
+@keyframes tc-pronto-onda { 0% { transform: scale(.96); opacity: 1; } 100% { transform: scale(1.65); opacity: 0; } }
+@keyframes tc-pronto-icone { 0%, 100% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-14deg) scale(1.15); } 75% { transform: rotate(14deg) scale(1.15); } }
+/* sem movimento: fica a onda parada em volta do botao (a informacao continua na tela) */
+@media (prefers-reduced-motion: reduce) {
+  #controles #btn-turbo.tc-pronto, #controles #btn-poder.tc-pronto, #controles .tc-pronto .tb-icone, #controles .tc-pronto .pd-icone { animation: none !important; }
+  #controles #btn-turbo.tc-pronto::after, #controles #btn-poder.tc-pronto::after { animation: none !important; transform: scale(1.08); opacity: 1; }
+}
 
 /* ------------------------------------------------------------------ telas baixas (celular deitado pequeno: 360 px de altura) */
 @media (max-height: 400px) {

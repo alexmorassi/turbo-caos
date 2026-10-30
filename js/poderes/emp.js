@@ -31,7 +31,6 @@ export class Emp extends PoderBase {
     const r2 = this.cfg.raio * this.cfg.raio;
     for (const x of this.corrida.carros) if (x !== c && !x.chegou && x.pos.distanceToSquared(c.pos) <= r2) {
       p.dentro |= 1 << x.indice;
-      this.P.aviso(x, 'Saia do círculo azul!', 'ruim', '⚡');
     }
     if (p.anel < 0) p.anel = this.ef.aneis.pega();
     if (p.borda < 0) p.borda = this.ef.aneis.pega();

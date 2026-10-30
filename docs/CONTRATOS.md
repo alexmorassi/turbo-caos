@@ -236,9 +236,11 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
 
 - `G.telas`: `mostra(nome, dados)`, `passo(dt)`, `quadro(dt)`; telas: carregando, menu, selecao_carro, selecao_pista, corrida
   (pausa), resultado (pódio), campeonato, opcoes. Inicia corrida por `G.jogo.iniciaCorrida`; ouve `corrida:fim`.
-- `G.hud`: `mostra(corrida)`, `esconde()`, `passo(dt)`, `aviso(texto, tipo, icone?)` (tipos `info`, `bom`, `ruim`, `poder`, `turbo`,
-  `ouro`); posição, volta, tempo, barra de turbo, botão de
-  poder com anel de progresso, minimapa (`js/minimapa.js`), contagem, faixa de última volta, sobreposição de fumaça (`mod.visao`).
+- `G.hud`: `mostra(corrida)`, `esconde()`, `passo(dt)`; posição, volta, tempo, barra de turbo, botão de poder com anel de progresso,
+  minimapa (`js/minimapa.js`), contagem 3-2-1-VAI, sobreposição de fumaça (`mod.visao`). **Nenhuma mensagem no meio da tela durante a
+  corrida** (pedido do Morassi, 30/10/2026: o `aviso()` e a faixa de última volta saíram). No lugar: classe **`tc-pronto`** em
+  `#btn-turbo` (carga, apagado, sem EMP/gelo/rodopio) e `#btn-poder` (recarregado) quando um toque funciona agora — o botão pula, solta
+  uma onda e balança o ícone (`css/jogo.css`); última volta = `.hud-pilula.ultima` (vermelha, pulsa).
 - `G.audio`: `desbloqueia()` (no primeiro toque), `toca(nome, { vol, tom, pos }) -> bool`, `motor(carro)`, `musica(nome|pista|null)`
   (devolve o tema; `temaAtual`), `suspende()`/`retoma()`, `volume(geral, musica, efeitos)` em 0..1 (null mantém), `passo(dt)`; ouve os
   eventos da seção 3 para os efeitos (o som de cada poder toca no `poder:usa`; nomes extras: `gelo_quebra`, `acerto_bom`,

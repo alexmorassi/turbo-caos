@@ -67,7 +67,6 @@ export class Encolhedor extends PoderBase {
     this.encolhido[alvo.indice] = this.cfg.duracao;
     this.P.centro(alvo, _p);
     this.ef.explosao(_p, 26, COR_BRILHO, { vel: 5, sobe: 2, tam: 0.45, vida: 0.6, grav: 1 });
-    this.P.aviso(alvo, 'Pegue uma cápsula!', 'info', '🔻');
     return true;
   }
 

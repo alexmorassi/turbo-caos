@@ -33,7 +33,7 @@ export class Terremoto extends PoderBase {
     if (tr.anel2 < 0) tr.anel2 = this.ef.aneis.pega();
     if (tr.circ < 0) tr.circ = this.ef.circulos.pega();
     const r2 = this.cfg.raio * this.cfg.raio, j = this.corrida.jogador;
-    if (j && j !== c && !j.chegou && j.pos.distanceToSquared(c.pos) <= r2) { this.P.aviso(j, 'Terremoto! Pule!', 'ruim', '🌋'); this.P.treme(j, 0.22, this.cfg.carga); }
+    if (j && j !== c && !j.chegou && j.pos.distanceToSquared(c.pos) <= r2) this.P.treme(j, 0.22, this.cfg.carga);
     return true;
   }
 

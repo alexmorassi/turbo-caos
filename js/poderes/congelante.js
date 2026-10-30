@@ -35,7 +35,6 @@ export class Congelante extends PoderBase {
     r.s0 = c.s + this.P.meiaComp(c); r.d0 = c.d; r.frente = 0; r.acertou = false; r.some = 0;
     r.alcance = sup.fechada ? cfg.alcance : Math.max(0, Math.min(cfg.alcance, sup.comprimento - r.s0));
     r.alvo = this.P.carroAFrente(c, cfg.alcance);
-    if (r.alvo) this.P.aviso(r.alvo, 'Raio de gelo! Mude de faixa!', 'ruim', '❄️');
     if (r.slot < 0) r.slot = this.ef.feixes.pega();
     sup.ponto(r.s0, r.d0, ALTURA, _p);
     this.ef.clarao(_p, 3, COR, 0.15, 0.9);

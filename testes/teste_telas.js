@@ -1,5 +1,6 @@
 // SUITE DAS TELAS (fase 6): o fluxo inteiro CLICANDO no DOM de verdade — menu -> carro (seta e deslizar) -> pista -> carga -> corrida
-// (HUD, contagem, pausa, avisos, fumaca, tremida, minimapa) -> fim com G.flags.auto e passos do harness -> resultado/podio 3D -> menu;
+// (HUD, contagem, pausa, nenhuma mensagem no meio da tela, botoes PRONTOS animados, fumaca, tremida, minimapa) -> fim com G.flags.auto
+// e passos do harness -> resultado/podio 3D -> menu;
 // o campeonato registra pontos e desbloqueia; as opcoes chegam a entrada, ao audio, a qualidade e ao save; a regra do AUTO da qualidade
 // desce um nivel e depois trava em 30 fps; `mostra('corrida_direta')`, reiniciar e sair pela pausa. Erro no console reprova.
 //
@@ -8,7 +9,7 @@
 //   * no campeonato a suite FREIA os rivais (gancho no passo da dificuldade, que roda depois do zeraMod e antes da fisica) para o
 //     jogador chegar no podio — e a regra "podio desbloqueia" que se mede, nao a IA;
 //   * a pagina da bateria nao abre o menu sozinha (?teste= pula o mostra('menu') do main.js): a suite abre.
-import { suite, ok, mede, quadros, simulaAte, apagaProgresso, corridaDeTeste, largada } from './harness.js';
+import { suite, ok, mede, quadros, simulaAte, apagaProgresso, corridaDeTeste, largada, segura, solta, entradaDeVolta } from './harness.js';
 import { on, emite } from '../js/eventos.js';
 import { CARROS } from '../config/carros.js';
 import { PISTAS } from '../config/pistas.js';
@@ -128,19 +129,47 @@ suite('telas', async (G) => {
   const cv = $('.hud-mapa'), px = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data;
   let pintados = 0; for (let i = 3; i < px.length; i += 4) if (px[i] > 0) pintados++;
   ok(pintados > cv.width * cv.height * 0.03, `minimapa desenhado (${(100 * pintados / (cv.width * cv.height)).toFixed(0)}% do canvas)`);
-  // avisos e efeitos
-  G.hud.aviso('Teste!', 'bom', '✅');
-  ok([...document.querySelectorAll('.hud-aviso')].some((a) => a.textContent.includes('Teste!')), 'aviso aparece');
-  quadros(130);
-  ok(![...document.querySelectorAll('.hud-aviso')].some((a) => a.textContent.includes('Teste!')), 'aviso some sozinho em ~1,7 s de simulação');
+  // NENHUMA MENSAGEM NO MEIO DA TELA (pedido do Morassi, 30/10/2026: "estao atrapalhando o jogo")
+  ok(typeof G.hud.aviso !== 'function' && !$('.hud-avisos') && !$('.hud-aviso') && !$('.hud-faixa'), 'sem área de mensagens no meio da tela (nem aviso, nem faixa)');
+  const filhosDoHud = G.hud.raiz.querySelectorAll('*').length;
   emite('poder:acerta', { de: c.carros.find((x) => x !== j), alvo: j, poder: 'congelante' });
-  ok(G.hud.historico.some((a) => a.texto.startsWith('Congelou')), 'poder recebido vira aviso ("Congelou!")');
+  emite('poder:usa', { carro: j, poder: j.cfg.poder });
+  emite('capsula:pega', { carro: j, dourada: true });
+  emite('turbo:vazio', { carro: j });
+  emite('corrida:volta', { carro: j, volta: 2 });
+  quadros(2);
+  const texto = (document.getElementById('hud') || G.hud.raiz).innerText || '';
+  ok(G.hud.raiz.querySelectorAll('*').length === filhosDoHud && !/Congel|Volta 2|dourada|vazio|pronto|!/i.test(texto.replace(/VAI!/g, '')),
+    'poder recebido, poder usado, cápsula dourada, turbo vazio e volta nova: nenhuma mensagem aparece');
+  // BOTAO PRONTO (no lugar de "Poder pronto!" e "Turbo cheio!"): pula e solta uma onda quando um toque funciona AGORA
+  const bTurbo = $('#btn-turbo'), bPoder = $('#btn-poder');
+  if (bTurbo && bPoder && decoTurbo && decoPoder) {
+    const autoAntes = G.flags.auto;
+    G.flags.auto = false;                                   // a IA nao dirige o jogador aqui (ela usaria o poder pronto na hora)
+    j.turbo.carga = 0.5; quadros(2);
+    ok(bTurbo.classList.contains('tc-pronto'), 'TURBO com carga e apagado: o botão fica PRONTO');
+    const animTurbo = getComputedStyle(bTurbo).animationName, ondaTurbo = getComputedStyle(bTurbo, '::after').animationName;
+    ok(/tc-pronto-pula/.test(animTurbo) && /tc-pronto-onda/.test(ondaTurbo), `pronto = o botão pula e solta uma onda de luz (${animTurbo} / ${ondaTurbo})`);
+    segura('turbo', 1); quadros(1); solta('turbo'); quadros(2);
+    ok(j.turbo.ativo && !bTurbo.classList.contains('tc-pronto'), 'turbo aceso: o botão para de pular');
+    j.turbo.carga = 0; quadros(3);
+    ok(!j.turbo.ativo && !bTurbo.classList.contains('tc-pronto'), 'barra vazia: não fica pronto');
+    j.turbo.carga = 0.5; c.poderes.mods.emp.aplicaEm(j); quadros(2);
+    ok(!bTurbo.classList.contains('tc-pronto'), 'Pulso EMP em cima: não fica pronto (o toque não acenderia)');
+    j.poder.restante = 0; quadros(2);
+    ok(bPoder.classList.contains('tc-pronto') && /tc-pronto-pula/.test(getComputedStyle(bPoder).animationName), 'PODER recarregado: o botão fica PRONTO');
+    ok(bPoder.style.getPropertyValue('--cor-poder') === PODERES[j.cfg.poder].cor, 'a onda do PODER sai na cor do poder');
+    c.poderes.usa(j); quadros(2);
+    ok(!bPoder.classList.contains('tc-pronto'), 'usou o poder: o botão para (recarregando)');
+    entradaDeVolta();
+    G.flags.auto = autoAntes;
+  }
   emite('carro:batida', { carro: j, outro: null, forca: 14, tipo: 'muro' });
   ok(G.hud.raiz.classList.contains('tremendo') && G.hud.flash.classList.contains('on'), 'batida forte: HUD treme e acende o clarão');
   quadros(40);
   ok(!G.hud.raiz.classList.contains('tremendo'), 'a tremida passa');
   emite('corrida:ultima_volta', { carro: j });
-  ok(!G.hud.faixa.hidden, 'faixa de ÚLTIMA VOLTA!');
+  ok($('.hud-pilula').classList.contains('ultima') && /tc-pulso/.test(getComputedStyle($('.hud-pilula')).animationName), 'ÚLTIMA VOLTA: a pílula da volta fica vermelha e pulsa (sem faixa atravessando a pista)');
   const passoDosPoderes = c.poderes.passo.bind(c.poderes);
   c.poderes.passo = (dt) => { passoDosPoderes(dt); j.mod.visao = 1; };
   quadros(2);
@@ -152,6 +181,7 @@ suite('telas', async (G) => {
   const seg = simulaAte(() => G.telas.atual === 'resultado', 400);
   ok(seg > 0, `a corrida terminou e o resultado apareceu (${seg.toFixed(1)} s de simulação)`);
   ok(!G.corrida && !G.hud.visivel && controles[controles.length - 1] === false, 'fim: corrida encerrada, HUD e controles escondidos');
+  ok(!document.querySelector('#btn-turbo.tc-pronto, #btn-poder.tc-pronto'), 'fim: nenhum botão fica pulando');
   const linhas = document.querySelectorAll('.rs-tabela tbody tr');
   ok(linhas.length === 6 && document.querySelectorAll('.rs-tabela tr.eu').length === 1, 'tabela com as 6 posições e o jogador destacado');
   ok(G.jogo.progresso().corridas === 1, 'registraResultado contou a corrida uma vez');

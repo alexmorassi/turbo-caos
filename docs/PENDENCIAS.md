@@ -17,6 +17,11 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
      `config/dificuldade.js` (`BASE`, `DDA`, `ELASTICO`).
    - se os **feixes do Raio Congelante e do Troca-Troca** se veem bem da câmera de trás (se não, o próximo passo é pintar a faixa
      de gelo no asfalto).
+   - **sem as mensagens no meio da tela** (pedido de 30/10/2026) a criança perdeu os avisos de "você é o alvo" ("Raio de gelo! Mude
+     de faixa!", "Tornado vindo! Desvie!", "Ligue o TURBO!", "Saia do círculo azul!", "Terremoto! Pule!"). Ficaram o feixe, o
+     círculo, a mira e os sons — mas o **tornado vem por trás, fora da câmera**: só o vento avisa (e o celular costuma estar no
+     mudo). Se ela não conseguir mais desviar, o próximo passo é um sinal sem texto na BEIRA da tela (brilho vermelho embaixo),
+     longe da área que atrapalhava.
    - se as **pistas 1 a 4** parecem repetidas na planta (todas são um retângulo com o bojo do atalho); redesenhar é barato, porque o
      construtor fecha o circuito sozinho.
 3. **No artefato do Claude** o iframe bloqueia o sensor de movimento: a direção por **inclinação** cai sozinha para as setas
