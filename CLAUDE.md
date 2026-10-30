@@ -75,6 +75,10 @@ Flags de URL: `?pista=<id>&carro=<id>` (larga direto), `?auto=1` (IA dirige o jo
   `#tela-corrida { pointer-events: none }` e NENHUM botão da corrida funcionava no celular. Regra de tela dentro do `#ui` usa
   `#ui #id`. E **teste de toque dispara no `elementFromPoint`** do centro do botão, nunca direto no botão: o evento direto passava
   com a camada por cima (`teste_mobile` confere cada controle) (30/10/2026).
+- **Dedo que comanda GIRO + reação humana = zigue-zague.** Nesta física o rumo não volta sozinho e a posição é a integral da integral do
+  dedo: quem corrige com 0,3 s de atraso passa do ponto. O jogador comanda um **ângulo em relação à estrada** (`js/assistencia.js`) e a
+  curva vem sozinha; medido com uma "criança" simulada em `teste_direcao`. Suíte que pilota com controlador próprio desliga
+  `G.entrada.ajuda` (30/10/2026).
 
 ## Fluxo
 

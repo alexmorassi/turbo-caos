@@ -179,6 +179,12 @@ Morassi, 29/10/2026, no estilo dos jogos de corrida de celular): à esquerda o *
 vez. À direita os PEDAIS `#btn-acel` (ACELERADOR,
 na ponta) e `#btn-freio` (FREIO), e a coluna redonda `#btn-turbo` (embaixo) + `#btn-poder` (em cima). **Aceleração automática
 DESLIGADA por padrão** (o acelerador aparece); ligada nas opções, o acelerador some. O pedal FREIO liga `freio` e `drift` juntos. `#btn-pausa` só liga `estado.pausa` (a fase 6 põe o botão de pausa dela por cima e lê `apertou('pausa')`).
+**AJUDA NA DIREÇÃO** (30/10/2026, `js/assistencia.js`, números em `config/fisica.js` `AJUDA`): `aplicaNoCarro` passa a direção pela
+`direcaoAssistida(carro, dedo)` — o dedo pede um **ângulo em relação à estrada** (até `LATERAL_MAX` m/s de lado), solto = paralelo
+à pista, a curva da estrada vem sozinha — e o acelerador/freio pela `pedaisAssistidos` ("tira o pé" na curva que o carro não faz
+naquela velocidade; nunca antes de salto). Só o jogador: a IA e a física não mudam. `G.entrada.ajuda` (padrão ligada;
+`opcoes.ajudaDirecao === false` desliga) — as suítes que pilotam com controlador próprio (física, câmera, IA, turbo) desligam.
+`Entrada.curvaDoArrasto(m)` = a curva do arrastar (zona morta + expoente 1,5).
 **A tela de corrida (`#tela-corrida`, no `#ui`) fica por cima dos controles e é transparente ao toque** (`#ui #tela-corrida {
 pointer-events: none }`; só o `.hud-pausa` recebe toque). Toda camada nova por cima da corrida segue a mesma regra, e o
 `teste_mobile` confere com `elementFromPoint` que o dedo no centro de cada controle acerta o próprio controle.

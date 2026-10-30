@@ -30,6 +30,8 @@ const finita = (cam) => Number.isFinite(cam.position.x + cam.position.y + cam.po
 
 suite('camera', async (G) => {
   apagaProgresso();
+  // o piloto desta suite JA e um controlador (le psi, d e a curva): sem a ajuda na direcao por cima (js/assistencia.js), a fisica crua
+  G.entrada.ajuda = false;
   entradaDeVolta();
   G.sorteio.semente(5);
   const c = await corridaDeTeste({ pista: 'teste', carro: 'vulcao', corredores: 6, voltas: 3 });

@@ -72,6 +72,8 @@ async function solo(G, id, carro, { ref = false, sem = false, precisao = null, s
 
 suite('ia', async (G) => {
   apagaProgresso();
+  // o piloto desta suite JA e um controlador (le psi, d e a curva): sem a ajuda na direcao por cima (js/assistencia.js), a fisica crua
+  G.entrada.ajuda = false;
   let nans = 0;
 
   // ------------------------------------------------------------------ 1. o plano de cada pista (linha, curvatura, saltos)

@@ -36,6 +36,7 @@
 // escreve `estado` entre dois passos; copiar `estado` no comeco do passo perderia o valor antigo — armadilha do dinotrails-web).
 import { emite } from './eventos.js';
 import { FISICA } from '../config/fisica.js';
+import { direcaoAssistida, pedaisAssistidos } from './assistencia.js';
 
 const ACOES = ['acel', 'freio', 'direcao', 'drift', 'turbo', 'poder', 'pausa'];
 /** Acoes de UM TOQUE: o toque rapido entre dois passos vale um passo apertado (ver o cabecalho). */
@@ -49,7 +50,10 @@ const JOY_RAIO = 62;
 /** Curso minimo (px): trilho espremido numa tela minuscula nao vira um interruptor de tudo-ou-nada. */
 const JOY_RAIO_MIN = 44;
 const JOY_ZONA_MORTA = 0.12;
-const JOY_CURVA = 1.15;
+/** Curva do arrastar: direcao = m^1,5 (m = curso depois da zona morta). Era 1,15 (quase reta) e o carro "virava demais" ate com o
+ *  polegar perto do meio (30/10/2026): com 1,5 metade do curso pede 0,28 em vez de 0,38 e a ponta continua sendo tudo. Com a ajuda na
+ *  direcao (js/assistencia.js) o dedo pede um ANGULO, entao a curva aqui so da precisao perto do meio (1,8 deixava o meio morto). */
+const JOY_CURVA = 1.5;
 /** Inclinacao: graus de giro "de volante" para a direcao toda, zona morta e suavizacao do sensor (o sensor treme ~1 grau). */
 const INCLINA_MAX = 22;
 const INCLINA_ZONA_MORTA = 2.5;
@@ -196,6 +200,9 @@ export class Entrada {
     // padrao DESLIGADA desde 29/10/2026: o Morassi pediu acelerador e freio na tela, no estilo dos jogos de corrida de celular; quem
     // preferir liga "acelerar sozinho" nas opcoes
     this.acelAuto = typeof o.acelAuto === 'boolean' ? o.acelAuto : false;
+    // AJUDA NA DIRECAO (js/assistencia.js): ligada salvo `opcoes.ajudaDirecao === false`. As suites que dirigem o jogador com um
+    // piloto proprio (que ja e um controlador) desligam, para medir a fisica crua
+    this.ajuda = o.ajudaDirecao !== false;
     // toque: contadores por acao (cada pointerId segura uma)
     this._apertos = { esq: 0, dir: 0, acel: 0, freio: 0, turbo: 0, poder: 0, pausa: 0 };
     // tocado desde o ultimo passo (turbo, poder, pausa): o toque rapido que o quadro engasgado engoliria
@@ -306,7 +313,7 @@ export class Entrada {
       const dx = e.clientX - (r.left + r.width / 2);
       const raio = this._raioArrasto;
       const m = Math.min(1, Math.abs(dx) / raio);
-      this._joyX = m < JOY_ZONA_MORTA ? 0 : Math.sign(dx) * Math.pow((m - JOY_ZONA_MORTA) / (1 - JOY_ZONA_MORTA), JOY_CURVA);
+      this._joyX = Math.sign(dx) * Entrada.curvaDoArrasto(m);
       const kx = Math.max(-raio, Math.min(raio, dx));
       this.knob.style.transform = `translate(calc(-50% + ${kx.toFixed(1)}px), -50%)`;
       const lado = this._joyX > 0 ? 'dir' : this._joyX < 0 ? 'esq' : '';
@@ -401,6 +408,10 @@ export class Entrada {
     }, VIGIA_MS);
   }
 
+  /** Direcao (0..1) de um arrasto que andou a fracao `m` (0..1) do curso: zona morta e curva (JOY_CURVA). Exportado para as suites
+   *  simularem o polegar do jeito que ele chega no carro. */
+  static curvaDoArrasto(m) { const a = Math.min(1, Math.abs(m)); return a < JOY_ZONA_MORTA ? 0 : Math.pow((a - JOY_ZONA_MORTA) / (1 - JOY_ZONA_MORTA), JOY_CURVA); }
+
   /** Giro de volante (graus, + = direita) a partir de beta/gamma e do angulo da tela. Exportado para a suite medir a conta. */
   static giroDaInclinacao(beta, gamma, anguloTela) {
     const b = beta * GRAUS, g = gamma * GRAUS, a = (anguloTela || 0) * GRAUS;
@@ -481,7 +492,10 @@ export class Entrada {
     const e = this.estado, c = carro.controle;
     c.acel = Math.max(0, Math.min(1, e.acel || 0));
     c.freio = Math.max(0, Math.min(1, e.freio || 0));
-    c.direcao = Math.max(-1, Math.min(1, e.direcao || 0));
+    // a direcao do jogador e RELATIVA A ESTRADA: solto, o carro segue a pista e fica paralelo (js/assistencia.js, pedido de 30/10/2026)
+    c.direcao = this.ajuda ? direcaoAssistida(carro, e.direcao || 0) : Math.max(-1, Math.min(1, e.direcao || 0));
+    // e TIRA O PE sozinho na curva que o carro nao faz naquela velocidade (a crianca segura o acelerador o tempo todo)
+    if (this.ajuda) pedaisAssistidos(carro, c);
     c.drift = (e.drift || 0) > LIMIAR;
     // TURBO DE UM TOQUE (cabecalho): o toque acende; aceso, segue ligado sem o dedo ate a barra acabar. O js/turbo.js apagou depois de
     // acender (barra vazia, EMP, gelo, rodopio) -> o toque acabou. Le `ativo` do passo anterior: este passo ainda nao rodou o turbo

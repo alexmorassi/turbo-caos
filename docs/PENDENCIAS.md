@@ -56,6 +56,12 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
 - **Física** (fase 2): crista da rampa lança 8° mais para cima (sem isso a rampa da pista de teste virava lombada); quem cai num vão
   volta DEPOIS do buraco; parede invisível no ar acima dos muros; FREIO e DRIFT num botão só; loop nunca derruba (mínimo 18 m/s).
 - **Turbo × faixa de impulso não empilham** (maestro): os dois juntos davam 1,69 × a vMax (66 m/s antes do loop da Neon).
+- **Ajuda na direção** (30/10/2026: "o carro está virando demais, zigue-zague, ninguém se mantém na pista"): só o jogador. Medido em
+  `teste_direcao`: uma volta SOLTA (só o acelerador) em cada pista bate 0–1 vez com a ajuda contra 11–17 sem; a "criança" com 0,3 s de
+  reação que ia de muro em muro agora volta para o meio e assenta. Escolhas: o dedo pede ângulo (no máximo 8 m/s de lado); "tira o pé"
+  sozinho na curva que o carro não faz (o Vulcão não faz a 1ª curva da Orla a 36 m/s). **Para o playtest:** se adulto achar que "o
+  carro anda sozinho", dá para pôr "Ajuda na direção" nas Opções (o gancho já existe: `opcoes.ajudaDirecao`). As batidas que sobram
+  são pousos de salto em curva (Orla, Favela, Porto, Canyon): no ar a ajuda não age.
 - **Turbo e poder de um toque** (pedido do Morassi, 30/10/2026): o toque acende o turbo e ele gasta a barra inteira sozinho; o EMP, o
   gelo e o rodopio apagam e ele não reacende sozinho (a sobra fica para o próximo toque — escolha mais simples e previsível). **A IA
   continua segurando**: liga o turbo na reta e solta antes da curva, então gasta melhor que o jogador (que pode entrar numa curva

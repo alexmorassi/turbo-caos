@@ -68,6 +68,8 @@ async function nova(G, { def = OVAL, carro = 'vulcao', semente = 13 } = {}) {
 
 suite('turbo', async (G) => {
   apagaProgresso();
+  // o piloto desta suite JA e um controlador (le psi, d e a curva): sem a ajuda na direcao por cima (js/assistencia.js), a fisica crua
+  G.entrada.ajuda = false;
   on('turbo:liga', (e) => ev.liga.push(e)); on('turbo:desliga', (e) => ev.desliga.push(e)); on('turbo:vazio', (e) => ev.vazio.push(e));
   on('capsula:pega', (e) => ev.pega.push(e));
   let nans = 0;

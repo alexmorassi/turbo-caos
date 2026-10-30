@@ -53,6 +53,36 @@ export const FISICA = {
   GIRO_PARADO_ATE: 4,      // m/s: acima disto vale so o giro normal
   VOLANTE_IDA: 7,          // 1/s: rampa do volante quando a crianca aperta (botao e digital: 0 -> 1 em ~0,3 s, sem tranco)
   VOLANTE_VOLTA: 14,       // 1/s: soltar ou inverter e rapido (atraso na volta e a receita do zigue-zague — cidadeaberta vehicles.js)
+
+  // ------------------------------------------------------------------ ajuda na direcao do JOGADOR (js/assistencia.js; a IA nao usa)
+  // 30/10/2026, o Morassi: "o carro esta virando demais e o jogador fica andando em zigue-zague; nem crianca nem adulto se mantem na
+  // pista". O rumo psi nao volta sozinho nesta fisica (soltou, o carro segue torto ate o muro; na curva, solto, aponta para fora) e o
+  // giro cheio a 36 m/s e 1,5 rad/s: todo toque pedia um contra-toque que passava do ponto. Medido em testes/teste_direcao.js.
+  AJUDA: {
+    // O DEDO PEDE UM ANGULO, NAO UM GIRO: arrastar = "ande torto para la", com no maximo ANGULO_MAX relativo a ESTRADA; solto = angulo
+    // zero (paralelo a pista). Com o giro (o de antes) a posicao da crianca era a integral da integral do dedo e a correcao com atraso
+    // de reacao passava do ponto (teste_direcao: a "crianca" batia de muro em muro); com o angulo, ela assenta.
+    CURVA: 1,              // fracao do giro que a ESTRADA pede somada sozinha: solto, o carro faz a curva da pista
+    SEGUE: 3.5,            // 1/s: rapidez com que o rumo de verdade (chi) chega no angulo pedido (~0,3 s)
+    LATERAL_MAX: 8,        // m/s de lado com o dedo todo: o angulo maximo e asen(LATERAL_MAX / v) — 13 graus a 36 m/s, 24 a 20 m/s.
+                           // Desviar de oleo, pegar a capsula do lado, entrar no atalho: 3-8 m em ~1 s. Mais que isso, quem corrige com
+                           // atraso de reacao (0,3 s de crianca) passa do meio e bate do outro lado (teste_direcao, a "crianca")
+    ANGULO_TETO: 0.75,     // rad (43 graus): devagar o angulo nao passa disto (manobra perto do muro)
+    OLHA_A_FRENTE: 0.2,    // s: a curva e lida onde o carro vai estar (o volante leva ~0,15 s para chegar: VOLANTE_IDA)
+    VEL_MIN: 6,            // m/s: abaixo disto, nenhuma ajuda (manobra, saida do muro, re)
+    VEL_CHEIA: 12,         // m/s: a ajuda cresce de VEL_MIN ate aqui
+    PSI_MAX: 1.0,          // rad (~57 graus): mais atravessado que isto (rodou, bateu) quem endireita e a crianca
+    // TIRA O PE NA CURVA QUE NAO DA: o Vulcao (controle 2) faz no maximo 1,33 rad/s a 36 m/s e a primeira curva da Orla (raio 21-26 m)
+    // pede 1,4-1,7: com o pe no fundo ele bate no muro de fora mesmo virando certo. Acima do teto da curva a frente a ajuda solta o
+    // acelerador e freia de leve — nunca acelera pelo jogador, nunca antes de salto (VAO/LANCA ate SALTO_LIVRE m a frente: ele precisa
+    // da velocidade) nem no loop (MAGNETICO: a fisica garante a velocidade minima).
+    FRACAO_DA_CURVA: 0.9,  // fracao do volante que o teto supoe (sobra 10 % para o dedo corrigir)
+    FREIO: 12,             // m/s2 do plano de frenagem (FREIO cheio da fisica = 22): freia cedo e macio
+    OLHA_TETO: 0.25,       // s: o teto e lido onde o carro vai estar
+    FREIO_MAX: 0.55,       // fracao do freio que a ajuda usa no maximo
+    FREIO_POR_MS: 0.12,    // fracao do freio por m/s acima do teto
+    SALTO_LIVRE: 70,       // m antes de VAO/LANCA sem teto
+  },
   PERDA_NA_CURVA: 0.04,    // fracao do escorregamento tirado pelo pneu que vira perda de velocidade (o resto volta para a frente:
                            // "mantem o embalo"). Curva toda virada a 36 m/s custa ~2 m/s2: segurar a curva fechada e mais lento
   CONVERTE_ATE_GRAUS: 45,  // ate este angulo de escorregamento o pneu "devolve" o embalo para a frente; de lado (carro parado
