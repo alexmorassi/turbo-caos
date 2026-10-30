@@ -71,6 +71,10 @@ Flags de URL: `?pista=<id>&carro=<id>` (larga direto), `?auto=1` (IA dirige o jo
 - **IA: mirar um ponto à frente corta a curva da própria linha** (1,07 m fora); o controle Stanley anda 0,44 m fora (fase 5).
 - **Turbo e faixa de impulso não podem multiplicar um o outro** (1,69 × vMax) — a faixa leva à vMax do carro × 1,3 (fase 7).
 - **Fotos vão para o git em JPEG**: as ferramentas gravam PNG (7× maior); rode `python3 tools/fotos_jpg.py` antes do commit.
+- **Camada transparente por cima dos controles engole o toque**: `#ui .tc-tela { pointer-events: auto }` (id + classe) vencia
+  `#tela-corrida { pointer-events: none }` e NENHUM botão da corrida funcionava no celular. Regra de tela dentro do `#ui` usa
+  `#ui #id`. E **teste de toque dispara no `elementFromPoint`** do centro do botão, nunca direto no botão: o evento direto passava
+  com a camada por cima (`teste_mobile` confere cada controle) (30/10/2026).
 
 ## Fluxo
 

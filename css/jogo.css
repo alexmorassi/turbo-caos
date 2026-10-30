@@ -161,7 +161,10 @@
 #ui .cc-dica b { color: var(--sol); }
 
 /* corrida: so o botao de pausa (fica no #ui, por cima dos controles de toque) */
-#tela-corrida { pointer-events: none; background: none; z-index: 5; }
+/* `#ui #tela-corrida` e nao so `#tela-corrida`: a regra `#ui .tc-tela { pointer-events: auto }` tem mais peso (id + classe) e a
+   camada transparente da corrida engolia TODOS os toques nos pedais, setas, turbo e poder que ficam embaixo dela (bug achado com
+   toque de verdade em 30/10/2026; os testes antigos disparavam o evento direto no botao e nao viam). So o botao de pausa recebe toque. */
+#ui #tela-corrida { pointer-events: none; background: none; z-index: 5; }
 /* mesmo canto do #btn-pausa da fase 2 e 4 px maior: com os controles de toque na tela, o dela fica inteiro atras deste */
 #ui #tela-corrida .hud-pausa { position: absolute; right: var(--borda-dir); top: calc(var(--sat) + 8px); pointer-events: auto; width: 58px; height: 58px; }
 

@@ -175,6 +175,9 @@ lê/grava a configuração por `G.save` (`opcoes.controle` e `opcoes.acelAuto`, 
 Morassi, 29/10/2026, no estilo dos jogos de corrida de celular): setas ◀ ▶ à esquerda; à direita os PEDAIS `#btn-acel` (ACELERADOR,
 na ponta) e `#btn-freio` (FREIO), e a coluna redonda `#btn-turbo` (embaixo) + `#btn-poder` (em cima). **Aceleração automática
 DESLIGADA por padrão** (o acelerador aparece); ligada nas opções, o acelerador some. O pedal FREIO liga `freio` e `drift` juntos. `#btn-pausa` só liga `estado.pausa` (a fase 6 põe o botão de pausa dela por cima e lê `apertou('pausa')`).
+**A tela de corrida (`#tela-corrida`, no `#ui`) fica por cima dos controles e é transparente ao toque** (`#ui #tela-corrida {
+pointer-events: none }`; só o `.hud-pausa` recebe toque). Toda camada nova por cima da corrida segue a mesma regra, e o
+`teste_mobile` confere com `elementFromPoint` que o dedo no centro de cada controle acerta o próprio controle.
 Teclado (desenvolvimento): setas/WASD, espaço = turbo, E/Shift = poder, S/↓ = freio, Ctrl = drift.
 
 ## 7. Corrida (`js/corrida.js`, fundação)

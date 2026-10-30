@@ -18,9 +18,20 @@ function encosta(a, b) { return a && b && !(a.right <= b.left || b.right <= a.le
 function folgaRedonda(a, b) { const ax = a.left + a.width / 2, ay = a.top + a.height / 2, bx = b.left + b.width / 2, by = b.top + b.height / 2; return Math.hypot(ax - bx, ay - by) - a.width / 2 - b.width / 2; }
 /** Folga minima entre botoes (px): dedo de crianca escorrega; menos que isso o TURBO vira PODER sem querer. */
 const FOLGA_MINIMA = 10;
-function toque(el, tipo, id = 7) {
+/** O que o DEDO acerta no centro do elemento: o navegador entrega o toque ao elemento de cima naquele ponto (elementFromPoint), nao
+ *  ao botao que a gente quer. Disparar o evento direto no botao (como esta suite fazia ate 30/10/2026) passava com a camada
+ *  transparente da tela de corrida engolindo todos os toques — os botoes "funcionavam" no teste e nao no celular. */
+function alvoDoDedo(el) {
   const r = el.getBoundingClientRect();
-  el.dispatchEvent(new PointerEvent(tipo, { bubbles: true, cancelable: true, pointerId: id, pointerType: 'touch', isPrimary: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 }));
+  const x = r.left + r.width / 2, y = r.top + r.height / 2;
+  return { x, y, alvo: document.elementFromPoint(x, y) };
+}
+function alcancavel(el) { const { alvo } = alvoDoDedo(el); return !!alvo && el.contains(alvo); }
+function quemCobre(el) { const { alvo } = alvoDoDedo(el); return alvo ? (alvo.id || String(alvo.className && alvo.className.baseVal !== undefined ? alvo.className.baseVal : alvo.className) || alvo.tagName) : 'nada'; }
+/** Toque no ponto do dedo (vai para quem estiver POR CIMA, como no aparelho). */
+function toque(el, tipo, id = 7) {
+  const { x, y, alvo } = alvoDoDedo(el);
+  (alvo || el).dispatchEvent(new PointerEvent(tipo, { bubbles: true, cancelable: true, pointerId: id, pointerType: 'touch', isPrimary: true, clientX: x, clientY: y }));
 }
 
 /** Mede fps reais por `ms` com o laco do main.js simulando e desenhando (desliga o modo de teste so durante a medida). */
@@ -84,7 +95,30 @@ suite('mobile', async (G) => {
     G.entrada.configura({ acelAuto: false });
   }
 
-  // --- toque de verdade (Pointer Events) liga as acoes
+  // --- nenhuma camada por cima dos controles: o dedo no centro de cada botao cai NELE (a tela de corrida e transparente e fica por
+  // cima de tudo; com pointer-events errado ela engolia os toques e o carro nao andava, bug de 30/10/2026)
+  if (deToque) {
+    const telaCorrida = document.querySelector('#tela-corrida');
+    ok(!!telaCorrida && !telaCorrida.hidden, 'a tela de corrida (camada do botão de pausa) está aberta por cima dos controles');
+    const confere = (sufixo) => {
+      for (const id of ['btn-esq', 'btn-dir', 'btn-acel', 'btn-freio', 'btn-turbo', 'btn-poder']) {
+        const el = document.getElementById(id);
+        if (!el || !caixa('#' + id)) continue;
+        ok(alcancavel(el), `${sufixo}: o dedo no centro de ${id} acerta o botão (por cima: ${quemCobre(el)})`);
+      }
+      const pausa = document.querySelector('#tela-corrida .hud-pausa');
+      if (pausa) ok(alcancavel(pausa), `${sufixo}: o dedo acerta o botão de PAUSA (por cima: ${quemCobre(pausa)})`);
+    };
+    confere('pedais');
+    G.entrada.configura({ acelAuto: true }); quadros(1);
+    confere('acelerar sozinho');
+    G.entrada.configura({ modo: 'joystick', acelAuto: false }); quadros(1);
+    const stick = document.querySelector('#controles .tc-stick');
+    if (stick && caixa('#controles .tc-stick')) ok(alcancavel(stick), `joystick: o dedo acerta a área do joystick (por cima: ${quemCobre(stick)})`);
+    G.entrada.configura({ modo: 'botoes', acelAuto: false }); quadros(1);
+  }
+
+  // --- toque de verdade (Pointer Events no ponto do dedo) liga as acoes
   G.flags.auto = false;
   const bt = deToque ? document.querySelector('#btn-turbo') : null;
   if (bt) {
@@ -99,6 +133,12 @@ suite('mobile', async (G) => {
     ok(G.entrada.estado.freio > 0, 'pisar no FREIO junto (dois dedos) freia');
     toque(pf, 'pointerup', 9); toque(pa, 'pointerup', 8); quadros(2);
     ok(!G.entrada.estado.acel && !G.entrada.estado.freio, 'soltar os pedais solta acelerador e freio');
+    for (const [id, acao, valor] of [['btn-dir', 'direcao', 1], ['btn-esq', 'direcao', -1], ['btn-poder', 'poder', 1]]) {
+      const el = document.getElementById(id);
+      toque(el, 'pointerdown', 10); quadros(2);
+      ok(G.entrada.estado[acao] === valor, `tocar em ${id} liga ${acao} = ${valor} (deu ${G.entrada.estado[acao]})`);
+      toque(el, 'pointerup', 10); quadros(2);
+    }
   }
   G.flags.auto = true;
 

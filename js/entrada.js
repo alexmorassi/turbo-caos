@@ -82,10 +82,12 @@ const ESTILO = `
    canto — ACELERADOR (o mais alto, na ponta, como no carro de verdade) e FREIO ao lado dele —, e a coluna dos botoes redondos a
    esquerda dos pedais: TURBO embaixo (o polegar ja esta ali) e PODER em cima. Tudo medido em min(vh, vw): no iPhone deitado, com o
    entalhe comendo ~47 px de cada lado, o grupo encolhe em vez de encostar nas setas. A coluna redonda fica fora da faixa do minimapa
-   da fase 6 (canto de cima a direita). Na aceleracao automatica (opcao) o ACELERADOR some e o FREIO vai para a ponta. */
+   da fase 6 (canto de cima a direita). Na aceleracao automatica (opcao) o ACELERADOR some e o FREIO vai para a ponta.
+   TURBO nunca abaixo de 80 px (a "area de toque generosa" da fase 2): no Safari do iPhone deitado, com a barra de endereco, a tela
+   tem 664 px de largura e o 11.5vw dava 76 px — o botao mais usado da corrida ficava menor que o minimo (teste_entrada no iPhone). */
 #controles .tc-dir-grupo { position: absolute; right: calc(max(14px, var(--sar)) + 4px); bottom: calc(var(--sab) + 14px); width: 1px; height: 1px;
   --pw: clamp(58px, min(18vh, 9vw), 92px); --ph: clamp(108px, min(37vh, 18.5vw), 170px); --fh: calc(var(--ph) * 0.74);
-  --t: clamp(70px, min(23vh, 11.5vw), 112px); --p: clamp(64px, min(20vh, 10vw), 100px); --g: clamp(12px, 3.4vh, 20px); }
+  --t: clamp(80px, min(23vh, 11.5vw), 112px); --p: clamp(64px, min(20vh, 10vw), 100px); --g: clamp(12px, 3.4vh, 20px); }
 #controles .tc-dir-grupo > .tc-big, #controles .tc-dir-grupo > .tc-pedal { position: absolute; }
 #controles .tc-pedal { display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-sizing: border-box; margin: 0;
   padding: 9px 0 10px; border-radius: 18px; border: 4px solid #fffaf0; pointer-events: auto; touch-action: none; color: #fff; cursor: pointer;
