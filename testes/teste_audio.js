@@ -55,6 +55,9 @@ suite('audio', async (G) => {
   for (const nome of NOMES_DOS_EFEITOS) if (!a.toca(nome)) naoTocou.push(nome);
   ok(naoTocou.length === 0, `os ${NOMES_DOS_EFEITOS.length} sons tocam sem erro` + (naoTocou.length ? ' (falhou: ' + naoTocou.join(', ') + ')' : ''));
   ok(ORDEM_DOS_PODERES.every((p) => NOMES_DOS_EFEITOS.includes(p)), 'cada um dos 10 poderes tem som próprio (toca(id do poder))');
+  // dois pedidos seguidos (e nao "o clique do laco acima": com a maquina carregada o laco dos 44 sons passa dos 60 ms e o teste
+  // media o relogio, nao a regra — reprovou uma vez assim no iPhone com duas baterias em paralelo, 30/10/2026)
+  a.toca('clique');
   ok(a.toca('clique') === false, 'o mesmo som não toca duas vezes em 60 ms (anti-metralhadora)');
   ok(a.toca('isto_nao_existe') === false && a.desconhecidos.has('isto_nao_existe'), 'nome desconhecido: ignorado sem erro');
   mede('efeitos tocados', a.tocados);

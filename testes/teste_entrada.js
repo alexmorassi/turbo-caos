@@ -134,20 +134,26 @@ suite('entrada', async (G) => {
   ok(e.estado.direcao === 0, 'trava: o vigia solta o dedo de um botao que sumiu da tela');
   e.mostraControles(true);
 
-  // ------------------------------------------------------------------ joystick de base fixa (so o X)
+  // ------------------------------------------------------------------ ARRASTAR (o modo 'joystick', padrao): trilho de base fixa, so o X
   e.configura({ modo: 'joystick' });
-  ok(visivel($('stick')) && !visivel($('btn-dir')), 'modo joystick: area do joystick no lugar das setas');
-  const base = centro($('stick-base'));
-  dedo($('stick'), 'pointerdown', 20, base.x + 80, base.y); quadros(1);
-  ok(e.estado.direcao > 0.98, `joystick: 80 px para a direita = direcao toda (${e.estado.direcao.toFixed(2)})`);
-  dedo($('stick'), 'pointermove', 20, base.x - 30, base.y + 45); quadros(1);
-  ok(e.estado.direcao < -0.25 && e.estado.direcao > -0.5, `joystick: so o X conta (30 px para a esquerda, 45 para baixo = ${e.estado.direcao.toFixed(2)})`);
+  ok(visivel($('stick')) && !visivel($('btn-dir')), 'modo arrastar: o trilho com o botão no lugar das setas');
+  const base = centro($('stick-base')), raio = e.raioDoArrasto();
+  const rTrilho = $('stick-base').getBoundingClientRect(), rBotao = $('stick-knob').getBoundingClientRect();
+  perto(raio, (rTrilho.width - rBotao.width) / 2, 1, `curso do botão = (trilho - botão) / 2 = ${raio.toFixed(0)} px: a ponta do trilho é a direção toda`);
+  dedo($('stick'), 'pointerdown', 20, base.x + raio + 10, base.y); quadros(1);
+  ok(e.estado.direcao > 0.98 && $('stick-base').dataset.lado === 'dir', `arrastar até a ponta do trilho = direção toda, e o ▶ acende (${e.estado.direcao.toFixed(2)})`);
+  dedo($('stick'), 'pointermove', 20, base.x + raio * 0.5, base.y + 40); quadros(1);
+  const meio = e.estado.direcao;
+  dedo($('stick'), 'pointermove', 20, base.x + raio * 0.25, base.y); quadros(1);
+  const quarto = e.estado.direcao;
+  ok(quarto > 0 && meio > quarto && meio < 0.7, `PROGRESSIVO: ¼ do curso vira ${quarto.toFixed(2)}, ½ vira ${meio.toFixed(2)} (e só o X conta)`);
   dedo($('stick'), 'pointermove', 20, base.x + 4, base.y); quadros(1);
-  ok(e.estado.direcao === 0, 'joystick: zona morta no meio');
-  dedo(turbo, 'pointerdown', 21); dedo($('stick'), 'pointermove', 20, base.x - 90, base.y); quadros(1);
-  ok(e.estado.direcao < -0.98 && e.estado.turbo === 1, 'joystick + TURBO ao mesmo tempo');
+  ok(e.estado.direcao === 0 && !$('stick-base').dataset.lado, 'arrastar: zona morta no meio');
+  dedo(turbo, 'pointerdown', 21); dedo($('stick'), 'pointermove', 20, base.x - raio - 20, base.y); quadros(1);
+  ok(e.estado.direcao < -0.98 && e.estado.turbo === 1 && $('stick-base').dataset.lado === 'esq', 'arrastar para a esquerda + TURBO ao mesmo tempo');
   dedo($('stick'), 'pointerup', 20); dedo(turbo, 'pointerup', 21); quadros(1);
-  ok(e.estado.direcao === 0 && /translate\(-50%, -50%\)/.test($('stick-knob').style.transform), 'soltou: direcao zero e o botao do joystick volta ao meio');
+  ok(e.estado.direcao === 0 && /translate\(-50%, -50%\)/.test($('stick-knob').style.transform) && !$('stick-base').dataset.lado, 'soltou: direção zero no mesmo passo e o botão volta ao meio');
+  ok(parseFloat(getComputedStyle($('stick-knob')).transitionDuration) > 0, 'a volta ao meio é com mola (transição), não um pulo');
   // a base nao segue o dedo: tocar longe dela (canto da area) ainda mede a partir do centro da base
   const area = $('stick').getBoundingClientRect();
   dedo($('stick'), 'pointerdown', 22, area.left + 5, area.bottom - 5); quadros(1);
@@ -177,6 +183,11 @@ suite('entrada', async (G) => {
   inclina(10); dedo(turbo, 'pointerdown', 30); quadros(30);
   ok(e.estado.direcao > 0.3 && e.estado.turbo === 1, 'inclinacao + TURBO ao mesmo tempo');
   dedo(turbo, 'pointerup', 30); inclina(0); quadros(30);
+  // sem sensor (permissao negada; no artefato do Claude o iframe bloqueia): a reserva e o ARRASTAR, nao as setas
+  const permissaoAntes = e._permissao;
+  e._permissao = 'negada'; e._atualizaDom();
+  ok(visivel($('stick')) && !visivel($('btn-dir')) && /arraste/.test($('incl-texto').textContent), 'inclinação sem sensor: o botão de ARRASTAR aparece de reserva (e o texto diz para arrastar)');
+  e._permissao = permissaoAntes; e._atualizaDom();
 
   // ------------------------------------------------------------------ aceleracao manual e opcoes gravadas
   G.save.grava('opcoes', { volumeGeral: 0.7 });
@@ -194,6 +205,13 @@ suite('entrada', async (G) => {
   const outra = new Entrada({ ...G, save: G.save, relogio: G.relogio });
   ok(outra.modo === 'botoes' && outra.acelAuto === false, 'uma entrada nova le a configuracao gravada');
   outra.el && outra.el.remove(); clearInterval(outra._vigia);
+  // ARRASTAR e o padrao (30/10/2026); 'botoes' gravado ANTES disso (de carona com o "acelerar sozinho") passa para ele uma vez
+  const modoDe = (op) => { G.save.grava('opcoes', op); const x = new Entrada({ ...G, save: G.save, relogio: G.relogio }); const m = x.modo; x.el && x.el.remove(); clearInterval(x._vigia); return m; };
+  ok(modoDe({}) === 'joystick', 'padrão: o botão de ARRASTAR no lugar das setas');
+  ok(modoDe({ controle: 'botoes', acelAuto: true }) === 'joystick', "'botoes' gravado antes do arrastar virar padrão passa para o arrastar");
+  ok(modoDe({ controle: 'botoes', acelAuto: false, arrastarPadrao: true }) === 'botoes', 'Setas escolhidas nas opções depois disso continuam');
+  ok(modoDe({ controle: 'inclinacao' }) === 'inclinacao', 'inclinação gravada continua');
+  G.save.grava('opcoes', { controle: 'botoes', acelAuto: false, arrastarPadrao: true, volumeGeral: 0.7 });
   e.configura({ acelAuto: true });
 
   // ------------------------------------------------------------------ teclado, esqueceTudo, simulada

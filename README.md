@@ -13,7 +13,8 @@ temáticas, da Orla do Rio à Pista Maluca final, com atalhos, rampas e loops. M
 | **Sem internet / PC** | Dois cliques no `TurboCaos.html` (ou no `Jogar.bat`). É um arquivo único (9,6 MB): dá para copiar para o celular. |
 | **Desenvolvimento** | `Servidor.bat` (ou `python server.py 8125`) e `http://localhost:8125`. Com `--rede`, abre no celular pela Wi-Fi de casa. |
 
-**Controles de toque** (no estilo dos jogos de corrida de celular): setas **◀ ▶** à esquerda (ou joystick, ou inclinar o celular fora
+**Controles de toque** (no estilo dos jogos de corrida de celular): à esquerda o **botão de arrastar** — arraste o botão amarelo para os
+lados: pouco vira pouco, até a ponta vira tudo, e soltando ele volta para o meio (nas opções dá para trocar por setas **◀ ▶** ou inclinar o celular fora
 do artefato); à direita os pedais **ACELERA** e **FREIO** (segurar o freio numa curva rápida faz drift) e os botões redondos **TURBO** e
 **PODER**. **TURBO e PODER são de um toque:** toque uma vez e o turbo gasta a barra inteira sozinho (o dedo volta para o acelerador); o
 poder dura até o fim. Quando um deles está **pronto**, o botão pula e solta uma onda de luz — nada de mensagem no meio da tela. Nas opções dá para ligar "acelerar sozinho" (o pedal do acelerador some). Congelado? Toque várias vezes no PODER.

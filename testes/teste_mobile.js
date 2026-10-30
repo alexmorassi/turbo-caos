@@ -34,6 +34,12 @@ function toque(el, tipo, id = 7) {
   const { x, y, alvo } = alvoDoDedo(el);
   (alvo || el).dispatchEvent(new PointerEvent(tipo, { bubbles: true, cancelable: true, pointerId: id, pointerType: 'touch', isPrimary: true, clientX: x, clientY: y }));
 }
+/** O dedo num ponto qualquer da tela (o arrasto do botao de virar). */
+function dedoEm(x, y, tipo, id) {
+  const alvo = document.elementFromPoint(x, y);
+  if (alvo) alvo.dispatchEvent(new PointerEvent(tipo, { bubbles: true, cancelable: true, pointerId: id, pointerType: 'touch', isPrimary: true, clientX: x, clientY: y }));
+  return alvo;
+}
 
 /** Mede fps reais por `ms` com o laco do main.js simulando e desenhando (desliga o modo de teste so durante a medida). */
 async function medeFps(G, ms) {
@@ -50,8 +56,9 @@ suite('mobile', async (G) => {
   const W = window.innerWidth, H = window.innerHeight;
   mede('tela (px CSS)', `${W}x${H} @${window.devicePixelRatio}`);
   ok(W > H, 'paisagem (o jogo é jogado deitado)');
-  // a entrada leu as opcoes no boot, ANTES do apagaProgresso (e as suites dividem o localStorage): volta ao padrao do jogo
-  G.entrada.configura({ modo: 'botoes', acelAuto: false });
+  // a entrada leu as opcoes no boot, ANTES do apagaProgresso (e as suites dividem o localStorage): volta ao padrao do jogo — ARRASTAR para
+  // virar (o modo 'joystick', padrao desde 30/10/2026) e os pedais
+  G.entrada.configura({ modo: 'joystick', acelAuto: false });
   G.flags.auto = true;
   const c = await G.telas.mostra('corrida_direta', { pista: 'orla', carro: 'vulcao' });
   ok(!!c, 'corrida aberta pelas telas');
@@ -77,12 +84,18 @@ suite('mobile', async (G) => {
     mede(`${sufixo}: menor folga entre botões (px)`, folga);
     ok(folga >= FOLGA_MINIMA, `${sufixo}: botões da direita não se encostam (folga ${folga.toFixed(0)} px >= ${FOLGA_MINIMA})`);
     const vao = Math.min(t.left, p.left) - Math.max(esq.right, dir ? dir.right : esq.right);
-    mede(`${sufixo}: vão entre as setas e os botões (px)`, vao);
-    ok(vao >= 24, `${sufixo}: setas à esquerda e botões à direita com vão para ver o carro (${vao.toFixed(0)} px)`);
+    mede(`${sufixo}: vão entre a direção e os botões (px)`, vao);
+    ok(vao >= 24, `${sufixo}: direção à esquerda e botões à direita com vão para ver o carro (${vao.toFixed(0)} px)`);
     const mapa = caixa('#hud canvas');
     if (mapa) ok(![t, p, f, a].some((r) => encosta(mapa, r)), `${sufixo}: minimapa não cobre os botões`);
   };
   if (deToque) {
+    const trilho = caixa('#stick-base'), botao = caixa('#stick-knob');
+    ok(!!trilho && !!botao && !caixa('#btn-esq') && !caixa('#btn-dir'), 'padrão: o botão de ARRASTAR para virar no lugar das setas');
+    if (trilho && botao) {
+      mede('trilho do arrastar (px)', `${trilho.width.toFixed(0)} x ${trilho.height.toFixed(0)}, botão ${botao.width.toFixed(0)} px, curso ${G.entrada.raioDoArrasto().toFixed(0)} px`);
+      ok(botao.width >= LADO_MINIMO && G.entrada.raioDoArrasto() >= 50, `botão de arrastar grande (${botao.width.toFixed(0)} px) e com curso para o polegar (${G.entrada.raioDoArrasto().toFixed(0)} px até a direção toda)`);
+    }
     confere('pedais');
     // iPhone de verdade deitado: o entalhe come ~47 px de cada lado (a emulacao do Playwright nao tem safe-area); simula pelas variaveis
     const ctl = document.querySelector('#controles .tc-ctl');
@@ -94,6 +107,10 @@ suite('mobile', async (G) => {
     const t2 = caixa('#btn-turbo'), p2 = caixa('#btn-poder'), f2 = caixa('#btn-freio');
     ok(!caixa('#btn-acel') && t2 && p2 && f2, 'acelerar sozinho: some o ACELERADOR, ficam FREIO, TURBO e PODER');
     G.entrada.configura({ acelAuto: false });
+    // as SETAS continuam nas opcoes: o mesmo layout tem de caber com elas
+    G.entrada.configura({ modo: 'botoes' }); quadros(1);
+    confere('setas (opção)');
+    G.entrada.configura({ modo: 'joystick' }); quadros(1);
   }
 
   // --- nenhuma camada por cima dos controles: o dedo no centro de cada botao cai NELE (a tela de corrida e transparente e fica por
@@ -110,13 +127,16 @@ suite('mobile', async (G) => {
       const pausa = document.querySelector('#tela-corrida .hud-pausa');
       if (pausa) ok(alcancavel(pausa), `${sufixo}: o dedo acerta o botão de PAUSA (por cima: ${quemCobre(pausa)})`);
     };
-    confere('pedais');
+    const arrastar = () => {
+      const stick = document.querySelector('#controles .tc-stick'), knob = document.getElementById('stick-knob');
+      if (stick && caixa('#controles .tc-stick')) ok(alcancavel(stick) && alcancavel(knob), `arrastar: o dedo acerta o botão de arrastar e a área dele (por cima: ${quemCobre(knob)})`);
+    };
+    confere('pedais'); arrastar();
     G.entrada.configura({ acelAuto: true }); quadros(1);
-    confere('acelerar sozinho');
-    G.entrada.configura({ modo: 'joystick', acelAuto: false }); quadros(1);
-    const stick = document.querySelector('#controles .tc-stick');
-    if (stick && caixa('#controles .tc-stick')) ok(alcancavel(stick), `joystick: o dedo acerta a área do joystick (por cima: ${quemCobre(stick)})`);
+    confere('acelerar sozinho'); arrastar();
     G.entrada.configura({ modo: 'botoes', acelAuto: false }); quadros(1);
+    confere('setas (opção)');
+    G.entrada.configura({ modo: 'joystick', acelAuto: false }); quadros(1);
   }
 
   // --- toque de verdade (Pointer Events no ponto do dedo) liga as acoes
@@ -134,12 +154,32 @@ suite('mobile', async (G) => {
     ok(G.entrada.estado.freio > 0, 'pisar no FREIO junto (dois dedos) freia');
     toque(pf, 'pointerup', 9); toque(pa, 'pointerup', 8); quadros(2);
     ok(!G.entrada.estado.acel && !G.entrada.estado.freio, 'soltar os pedais solta acelerador e freio');
-    for (const [id, acao, valor] of [['btn-dir', 'direcao', 1], ['btn-esq', 'direcao', -1], ['btn-poder', 'poder', 1]]) {
+    // ARRASTAR com o dedo no botao: pouco vira pouco, a ponta do trilho vira tudo, soltou = zero e o botao volta ao meio
+    const knob = document.getElementById('stick-knob'), kc = alvoDoDedo(knob), raio = G.entrada.raioDoArrasto();
+    const pegou = dedoEm(kc.x, kc.y, 'pointerdown', 11); quadros(2);
+    const parado = G.entrada.estado.direcao;
+    dedoEm(kc.x + raio * 0.4, kc.y, 'pointermove', 11); quadros(2);
+    const pouco = G.entrada.estado.direcao;
+    dedoEm(kc.x + raio + 15, kc.y, 'pointermove', 11); quadros(2);
+    const tudo = G.entrada.estado.direcao;
+    dedoEm(kc.x - raio - 15, kc.y, 'pointermove', 11); quadros(2);
+    const esquerda = G.entrada.estado.direcao;
+    dedoEm(kc.x - raio - 15, kc.y, 'pointerup', 11); quadros(2);
+    ok(!!pegou && knob.contains(pegou) && parado === 0 && pouco > 0.05 && pouco < 0.6 && tudo > 0.98 && esquerda < -0.98 && G.entrada.estado.direcao === 0,
+      `arrastar o botão com o dedo: parado ${parado}, um pouco ${pouco.toFixed(2)}, a ponta ${tudo.toFixed(2)}, o outro lado ${esquerda.toFixed(2)}, soltou ${G.entrada.estado.direcao}`);
+    ok(/translate\(-50%, -50%\)/.test(knob.style.transform), 'soltou: o botão de arrastar volta para o meio');
+    toque(document.getElementById('btn-poder'), 'pointerdown', 10); quadros(2);
+    ok(G.entrada.estado.poder === 1, `tocar em btn-poder liga poder (deu ${G.entrada.estado.poder})`);
+    toque(document.getElementById('btn-poder'), 'pointerup', 10); quadros(2);
+    // as setas (opcao) continuam funcionando no toque
+    G.entrada.configura({ modo: 'botoes' }); quadros(1);
+    for (const [id, valor] of [['btn-dir', 1], ['btn-esq', -1]]) {
       const el = document.getElementById(id);
       toque(el, 'pointerdown', 10); quadros(2);
-      ok(G.entrada.estado[acao] === valor, `tocar em ${id} liga ${acao} = ${valor} (deu ${G.entrada.estado[acao]})`);
+      ok(G.entrada.estado.direcao === valor, `setas (opção): tocar em ${id} liga direcao = ${valor} (deu ${G.entrada.estado.direcao})`);
       toque(el, 'pointerup', 10); quadros(2);
     }
+    G.entrada.configura({ modo: 'joystick' }); quadros(1);
   }
   G.flags.auto = true;
 

@@ -282,8 +282,8 @@ export class Telas {
       <div class="tc-titulo"><span class="emo">⚙️</span> OPÇÕES</div>
       <div class="tc-painel op-painel">
         <div class="op-linha"><span class="op-rotulo"><i class="emo">🎮</i>Direção</span><div class="op-escolhas" data-grupo="direcao">
-          <button data-acao="op_direcao" data-valor="botoes"><span class="emo">🔘</span> Botões</button>
-          <button data-acao="op_direcao" data-valor="joystick"><span class="emo">🕹️</span> Joystick</button>
+          <button data-acao="op_direcao" data-valor="joystick"><span class="emo">👆</span> Arrastar</button>
+          <button data-acao="op_direcao" data-valor="botoes"><span class="emo">🔘</span> Setas</button>
           <button data-acao="op_direcao" data-valor="inclinacao" class="op-inclinar"><span class="emo">📱</span> Inclinar</button>
         </div></div>
         <div class="op-linha"><span class="op-rotulo"><i class="emo">🦶</i>Acelerar sozinho</span><button class="op-chave" data-acao="op_acel_auto" aria-pressed="false" aria-label="Acelerar sozinho"><i></i></button></div>
@@ -774,7 +774,7 @@ export class Telas {
   _opcoesAtuais() {
     const o = save.opcoes(), e = this.G.entrada || {};
     // a entrada (fase 2) e a dona do controle: o que ela esta usando agora vale mais que o salvo (e o padrao dela e dela)
-    const modo = typeof e.modo === 'string' ? e.modo : o.controle || 'botoes';
+    const modo = typeof e.modo === 'string' ? e.modo : o.controle || 'joystick';   // 'joystick' = ARRASTAR, o padrao (js/entrada.js)
     const acel = typeof e.acelAuto === 'boolean' ? e.acelAuto : typeof o.acelAuto === 'boolean' ? o.acelAuto : false; // padrao igual ao da entrada
     return { ...o, controle: modo, acelAuto: acel };
   }

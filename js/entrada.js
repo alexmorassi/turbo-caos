@@ -5,8 +5,11 @@
 // adaptado: direcao so no eixo X, botoes TURBO / PODER / FREIO (e ACELERA quando a aceleracao automatica esta desligada).
 //   * Pointer Events com pointerId: cada dedo segura UM controle — direcao + TURBO ao mesmo tempo (multitoque) sem um soltar o outro.
 //     setPointerCapture: o dedo que escorrega para fora do botao continua apertando (crianca nao mira com precisao).
-//   * Joystick de base FIXA numa area grande a esquerda: o dedo pode cair em qualquer ponto da area; vale a distancia horizontal ate o
-//     centro da base (zona morta + curva: toque leve vira de leve).
+//   * ARRASTAR (o modo 'joystick'; PADRAO desde 30/10/2026 — a crianca pediu "um botao de arrastar progressivo para virar, que volta
+//     para o centro ao soltar" no lugar das setas, que viram tudo ou nada): um trilho com um botao amarelo que o polegar arrasta para
+//     os lados. Base FIXA numa area grande a esquerda (Breno): o dedo pode cair em qualquer ponto da area e vale a distancia horizontal
+//     ate o centro do trilho; o curso inteiro do botao (ponta do trilho) e a direcao toda, com zona morta e curva (arrastar pouco vira
+//     pouco). Soltou: direcao zero no mesmo passo e o botao volta ao meio com mola. As setas continuam nas opcoes ("Setas").
 //   * TRAVAS ANTI-DEDO-PRESO (o "TRAVA DO COMANDO" do Breno): o fim do toque e ouvido na JANELA toda (pointerup/pointercancel em
 //     captura), `touchend` sem dedos na tela solta tudo, `touchcancel`/`blur`/`visibilitychange` soltam tudo, e um vigia de 250 ms solta o
 //     controle cujo elemento sumiu da tela com o dedo em cima (tela de pausa abriu por cima, HUD escondido).
@@ -40,8 +43,11 @@ const UM_TOQUE = ['turbo', 'poder', 'pausa'];
 const MODOS = ['botoes', 'joystick', 'inclinacao'];
 /** Acima disto uma acao conta como "apertada" (direcao: em modulo). */
 const LIMIAR = 0.5;
-/** Joystick: px do centro ate a direcao toda (o mesmo R0 = 60-62 do Breno). */
+/** Arrastar: px do centro ate a direcao toda quando o trilho ainda nao tem tamanho (o R0 = 60-62 do Breno). Com o trilho na tela o
+ *  curso e medido nele — (largura do trilho - largura do botao) / 2 — para a ponta do trilho ser sempre a direcao toda. */
 const JOY_RAIO = 62;
+/** Curso minimo (px): trilho espremido numa tela minuscula nao vira um interruptor de tudo-ou-nada. */
+const JOY_RAIO_MIN = 44;
 const JOY_ZONA_MORTA = 0.12;
 const JOY_CURVA = 1.15;
 /** Inclinacao: graus de giro "de volante" para a direcao toda, zona morta e suavizacao do sensor (o sensor treme ~1 grau). */
@@ -78,17 +84,26 @@ const ESTILO = `
 #controles .tc-esq { position: absolute; left: calc(max(14px, var(--sal)) + 4px); bottom: calc(var(--sab) + 16px); display: flex; gap: clamp(12px, 3.5vh, 24px); }
 #controles .tc-seta { width: clamp(86px, 25vh, 128px); height: clamp(86px, 25vh, 128px); background: radial-gradient(circle at 40% 30%, #9fd8ff, #3d9be8 60%, #2270c0); }
 #controles .tc-stick { position: absolute; left: 0; bottom: 0; width: 46%; height: 72%; pointer-events: auto; touch-action: none; }
-#controles .tc-base { position: absolute; left: calc(max(16px, var(--sal)) + 14px); bottom: calc(var(--sab) + 26px); width: clamp(170px, 46vh, 220px);
-  height: clamp(96px, 27vh, 124px); border-radius: 70px; background: rgba(255,255,255,.22); border: 5px solid rgba(255,255,255,.7); box-sizing: border-box; }
-#controles .tc-base.on { background: rgba(255,255,255,.38); }
-#controles .tc-base::before, #controles .tc-base::after { position: absolute; top: 50%; transform: translateY(-50%); font-size: 22px; color: rgba(255,255,255,.75); font-weight: 900; }
-#controles .tc-base::before { content: '◀'; left: 12px; } #controles .tc-base::after { content: '▶'; right: 12px; }
-#controles .tc-knob { position: absolute; left: 50%; top: 50%; width: clamp(62px, 18vh, 78px); height: clamp(62px, 18vh, 78px); border-radius: 50%;
-  transform: translate(-50%, -50%); background: radial-gradient(circle at 35% 30%, #fff, #ffe08a 60%, #f0b830); border: 4px solid #fffaf0;
-  box-shadow: 0 4px 0 rgba(0,0,0,.2); box-sizing: border-box; }
+/* o TRILHO do arrastar: largo o bastante para o polegar ter curso (a ponta = direcao toda), com as setas nas pontas e a marca do meio */
+#controles .tc-base { position: absolute; left: calc(max(16px, var(--sal)) + 14px); bottom: calc(var(--sab) + 22px); width: clamp(200px, 60vh, 280px);
+  height: clamp(88px, 26vh, 116px); border-radius: 999px; background: rgba(16,32,74,.38); border: 5px solid rgba(255,250,240,.85); box-sizing: border-box;
+  box-shadow: 0 5px 0 rgba(0,0,0,.22), inset 0 4px 10px rgba(0,0,0,.25); }
+#controles .tc-base.on { background: rgba(16,32,74,.5); }
+#controles .tc-base::before, #controles .tc-base::after { position: absolute; top: 50%; transform: translateY(-50%); font-size: clamp(20px, 6.5vh, 30px); color: rgba(255,250,240,.8);
+  font-weight: 900; transition: color .1s, transform .1s; line-height: 1; }
+#controles .tc-base::before { content: '◀'; left: 6%; } #controles .tc-base::after { content: '▶'; right: 6%; }
+/* o lado para onde o polegar esta virando acende */
+#controles .tc-base[data-lado=esq]::before, #controles .tc-base[data-lado=dir]::after { color: #ffd23a; transform: translateY(-50%) scale(1.35); }
+#controles .tc-meio { position: absolute; left: 50%; top: 18%; bottom: 18%; width: 4px; margin-left: -2px; border-radius: 2px; background: rgba(255,250,240,.35); }
+/* o BOTAO de arrastar: grande como os outros botoes redondos, com a seta dupla de "arraste"; solto, volta ao meio com mola */
+#controles .tc-knob { position: absolute; left: 50%; top: 50%; width: clamp(70px, 21vh, 96px); height: clamp(70px, 21vh, 96px); border-radius: 50%;
+  transform: translate(-50%, -50%); background: radial-gradient(circle at 35% 30%, #fff, #ffe08a 55%, #f0b830); border: 5px solid #fffaf0;
+  box-shadow: 0 6px 0 rgba(0,0,0,.25); box-sizing: border-box; display: grid; place-items: center; transition: transform .2s cubic-bezier(.3, 1.6, .5, 1); }
+#controles .tc-base.on .tc-knob { transition: none; }
+#controles .tc-knob svg { width: 62%; height: 62%; pointer-events: none; }
 #controles .tc-incl { position: absolute; left: calc(max(16px, var(--sal)) + 14px); bottom: calc(var(--sab) + 22px); display: flex; flex-direction: column;
   align-items: center; gap: 6px; color: #fffaf0; font-weight: 800; font-size: clamp(12px, 3vh, 16px); text-shadow: 0 2px 0 rgba(0,0,0,.35); pointer-events: auto; }
-#controles .tc-incl.sem { bottom: calc(var(--sab) + 30px + clamp(86px, 25vh, 128px)); }
+#controles .tc-incl.sem { bottom: calc(var(--sab) + 30px + clamp(88px, 26vh, 116px)); }
 #controles .tc-incl.sem .tc-incl-barra { display: none; }
 #controles .tc-incl-barra { position: relative; width: clamp(150px, 40vh, 200px); height: 26px; border-radius: 14px; background: rgba(255,255,255,.25); border: 4px solid rgba(255,255,255,.75); }
 #controles .tc-incl-ponto { position: absolute; top: 50%; left: 50%; width: 30px; height: 30px; border-radius: 50%; transform: translate(-50%, -50%);
@@ -131,6 +146,8 @@ const ESTILO = `
 
 const SETA_ESQ = '<svg viewBox="0 0 24 24"><path d="M16 4 6 12l10 8z" fill="#fff" stroke="#23324a" stroke-width="1.6" stroke-linejoin="round"/></svg>';
 const SETA_DIR = '<svg viewBox="0 0 24 24"><path d="M8 4l10 8-10 8z" fill="#fff" stroke="#23324a" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+/** A seta dupla do botao de arrastar ("arraste para os lados"). */
+const SETA_DUPLA = '<svg viewBox="0 0 24 24"><path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="#23324a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 /** Pedais: setas duplas para cima (acelera, verde) e para baixo (freia, vermelho) — leem sem texto para quem ainda nao le. */
 const PEDAL_ACEL = '<svg viewBox="0 0 24 24"><path d="M5 13l7-7 7 7M5 20l7-7 7 7" fill="none" stroke="#5dff8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const PEDAL_FREIO = '<svg viewBox="0 0 24 24"><path d="M5 4l7 7 7-7M5 11l7 7 7-7" fill="none" stroke="#ff5a5a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -140,7 +157,7 @@ const HTML = `
   <button class="tc-big tc-seta" id="btn-esq" data-acao="esq" aria-label="Esquerda">${SETA_ESQ}</button>
   <button class="tc-big tc-seta" id="btn-dir" data-acao="dir" aria-label="Direita">${SETA_DIR}</button>
 </div>
-<div class="tc-stick" id="stick" data-so="joystick"><div class="tc-base" id="stick-base"><div class="tc-knob" id="stick-knob"></div></div></div>
+<div class="tc-stick" id="stick" data-so="joystick"><div class="tc-base" id="stick-base"><i class="tc-meio"></i><div class="tc-knob" id="stick-knob">${SETA_DUPLA}</div></div></div>
 <div class="tc-incl" id="incl" data-so="inclinacao"><div class="tc-incl-barra"><div class="tc-incl-ponto" id="incl-ponto"></div></div><span id="incl-texto">Incline o celular</span></div>
 <div class="tc-dir-grupo">
   <button class="tc-big" id="btn-poder" data-acao="poder" aria-label="Poder"><span class="deco"></span><span class="tc-icone">⚡</span><span class="tc-rotulo">PODER</span></button>
@@ -172,7 +189,10 @@ export class Entrada {
       (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches));
     // configuracao (G.save 'opcoes': { controle, acelAuto } — a tela de opcoes da fase 6 chama configura())
     const o = (G.save && G.save.le && G.save.le('opcoes', null)) || {};
-    this.modo = MODOS.includes(o.controle) ? o.controle : 'botoes';
+    // ARRASTAR e o padrao (cabecalho). 'botoes' salvo ANTES dele virar padrao era so o padrao antigo gravado de carona (a tela de opcoes
+    // grava o modo junto com o "acelerar sozinho"): passa para o arrastar. Setas escolhidas depois disso (marca `arrastarPadrao`) valem
+    const salvo = o.controle === 'botoes' && !o.arrastarPadrao ? 'joystick' : o.controle;
+    this.modo = MODOS.includes(salvo) ? salvo : 'joystick';
     // padrao DESLIGADA desde 29/10/2026: o Morassi pediu acelerador e freio na tela, no estilo dos jogos de corrida de celular; quem
     // preferir liga "acelerar sozinho" nas opcoes
     this.acelAuto = typeof o.acelAuto === 'boolean' ? o.acelAuto : false;
@@ -183,7 +203,7 @@ export class Entrada {
     // o turbo aceso por um toque: fica ligado ate a barra acabar (ou algo apagar)
     this._turboPreso = false;
     this._dedos = new Map();               // pointerId -> { acao, el }
-    this._joyId = null; this._joyX = 0;
+    this._joyId = null; this._joyX = 0; this._raioArrasto = JOY_RAIO;
     // le uma lista de teclas (metodo preso aqui uma vez: criar a funcao dentro do passo alocaria a cada passo)
     this._tem = (lista) => { for (let i = 0; i < lista.length; i++) if (this._teclas.has(lista[i])) return 1; return 0; };
     // inclinacao
@@ -236,12 +256,12 @@ export class Entrada {
     const semSensor = this.modo === 'inclinacao' && this._semSensor();
     for (const p of this.el.querySelectorAll('[data-so]')) {
       const so = p.dataset.so;
-      p.classList.toggle('tc-oculto', !(so === this.modo || (so === 'botoes' && semSensor)));
+      p.classList.toggle('tc-oculto', !(so === this.modo || (so === 'joystick' && semSensor)));
     }
     if (this.btn.acel) this.btn.acel.classList.toggle('tc-oculto', this.acelAuto);
-    // sem sensor (permissao negada, ou nenhum evento ainda): as setas aparecem de reserva e o aviso sobe para cima delas, sem a barra
+    // sem sensor (permissao negada, ou nenhum evento ainda): o ARRASTAR aparece de reserva e o texto sobe para cima dele, sem a barra
     if (this.incl) this.incl.classList.toggle('sem', semSensor);
-    if (this.inclTexto) this.inclTexto.textContent = this._permissao === 'negada' ? 'Sem inclinação: use as setas' : (semSensor ? 'Toque aqui para ligar a inclinação' : 'Incline o celular');
+    if (this.inclTexto) this.inclTexto.textContent = this._permissao === 'negada' ? 'Sem inclinação: arraste para virar' : (semSensor ? 'Toque aqui para ligar a inclinação' : 'Incline o celular');
   }
 
   _semSensor() {
@@ -284,15 +304,19 @@ export class Entrada {
     const move = (e) => {
       const r = this.base.getBoundingClientRect();
       const dx = e.clientX - (r.left + r.width / 2);
-      const m = Math.min(1, Math.abs(dx) / JOY_RAIO);
+      const raio = this._raioArrasto;
+      const m = Math.min(1, Math.abs(dx) / raio);
       this._joyX = m < JOY_ZONA_MORTA ? 0 : Math.sign(dx) * Math.pow((m - JOY_ZONA_MORTA) / (1 - JOY_ZONA_MORTA), JOY_CURVA);
-      const kx = Math.max(-JOY_RAIO, Math.min(JOY_RAIO, dx));
+      const kx = Math.max(-raio, Math.min(raio, dx));
       this.knob.style.transform = `translate(calc(-50% + ${kx.toFixed(1)}px), -50%)`;
+      const lado = this._joyX > 0 ? 'dir' : this._joyX < 0 ? 'esq' : '';
+      if (this.base.dataset.lado !== lado) this.base.dataset.lado = lado;
     };
     area.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       if (e.pointerType === 'touch' && !this.toque) { this.toque = true; this._atualizaDom(); }
       this._joyId = e.pointerId;                                    // novo toque sempre assume (Breno)
+      this._raioArrasto = this.raioDoArrasto();                     // mede uma vez por toque (o trilho nao muda no meio do arrasto)
       this.base.classList.add('on');
       try { area.setPointerCapture(e.pointerId); } catch (er) { /* sem captura */ }
       move(e);
@@ -302,9 +326,16 @@ export class Entrada {
     area.addEventListener('lostpointercapture', (e) => { if (e.pointerId === this._joyId) this._soltaJoystick(); });
   }
 
+  /** Curso do botao de arrastar (px do meio ate a direcao toda): medido no trilho da tela (ver JOY_RAIO). */
+  raioDoArrasto() {
+    const b = this.base, k = this.knob;
+    if (!b || !k || !b.offsetWidth || !k.offsetWidth) return JOY_RAIO;
+    return Math.max(JOY_RAIO_MIN, (b.offsetWidth - k.offsetWidth) / 2);
+  }
+
   _soltaJoystick() {
     this._joyId = null; this._joyX = 0;
-    if (this.base) this.base.classList.remove('on');
+    if (this.base) { this.base.classList.remove('on'); if (this.base.dataset.lado) this.base.dataset.lado = ''; }
     if (this.knob) this.knob.style.transform = 'translate(-50%, -50%)';
   }
 
@@ -482,7 +513,7 @@ export class Entrada {
     this._soltaTodosOsDedos();
     try {
       const S = this.G.save;
-      if (S && S.le && S.grava) { const o = S.le('opcoes', null) || {}; o.controle = this.modo; o.acelAuto = this.acelAuto; S.grava('opcoes', o); }
+      if (S && S.le && S.grava) { const o = S.le('opcoes', null) || {}; o.controle = this.modo; o.acelAuto = this.acelAuto; o.arrastarPadrao = true; S.grava('opcoes', o); }
     } catch (e) { /* salvamento quebrado: vale ate fechar a aba */ }
     this._atualizaDom();
     return { modo: this.modo, acelAuto: this.acelAuto };
