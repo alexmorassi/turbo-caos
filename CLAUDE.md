@@ -59,6 +59,19 @@ Flags de URL: `?pista=<id>&carro=<id>` (larga direto), `?auto=1` (IA dirige o jo
   (por isso `G.sorteio`); aba escondida não para o som (`visibilitychange`); `localStorage` levanta exceção em `file://`/privativo;
   `devicePixelRatio` muda sem `innerWidth` mudar; `server.py` em HTTP/1.1; erro no console reprova a suíte.
 
+### Aprendidas nas fases (relatórios em `docs/fases/`)
+
+- **`carro.i` (a dica da projeção) tem de andar em TODO passo**, no chão e no ar: parado na amostra da grade, a decolagem projetava em
+  outro trecho e o carro voltava ~1 km (fase 2).
+- **Rampa precisa de um ponto "fantasma" logo depois da crista**: sem ele a spline achata a crista e o carro sai quase reto (fase 3).
+- **Céu e efeitos com `toneMapped: false`**: com o ACES a neblina não pega a cor do horizonte e a cor do poder desbota (fases 3 e 4).
+- **Faixa emissiva/enfeite repetido: uma malha por superfície**, nunca por pedaço de pista (31 draw calls só nisso na Neon) (fase 3).
+- **Animação CSS que começa em opacidade 0 com atraso trava invisível** quando a página engasga: anime só a escala (fase 6).
+- **Google Fonts é bloqueado na bateria**: o `<link>` não entra com `?teste=`/`?foto=`/`?semente=` (um "Failed to load" reprova) (fase 6).
+- **IA: mirar um ponto à frente corta a curva da própria linha** (1,07 m fora); o controle Stanley anda 0,44 m fora (fase 5).
+- **Turbo e faixa de impulso não podem multiplicar um o outro** (1,69 × vMax) — a faixa leva à vMax do carro × 1,3 (fase 7).
+- **Fotos vão para o git em JPEG**: as ferramentas gravam PNG (7× maior); rode `python3 tools/fotos_jpg.py` antes do commit.
+
 ## Fluxo
 
 Fases em `docs/fases/`, pendências consolidadas em `docs/PENDENCIAS.md`. Ao fechar cada fase: bateria verde, `node tools/monta.js`,

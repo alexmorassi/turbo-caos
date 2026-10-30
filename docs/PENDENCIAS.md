@@ -1,39 +1,62 @@
 # PENDÊNCIAS E DECISÕES — Turbo Caos
 
-Decisões tomadas sozinho (pedido: "se faltar alguma decisão, siga a opção mais simples, registre aqui e continue") e o que ficou para
-você decidir ou conferir. Cada fase detalha as suas em `docs/fases/`.
+O que ficou para você conferir/decidir e as decisões que tomei sozinho (pedido: "se faltar alguma decisão, siga a opção mais simples,
+registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`.
 
-## Para você conferir/decidir
+## 1. Para você fazer ou conferir
 
-1. **Referências lidas nos seus artefatos do Claude** ("Breno e o Tesouro do Pirata Morassi" e "Rampa Radical"). Os dois padrões são
-   diferentes; segui o do **Breno** (pedido):
-   - Breno: artefato com VÁRIOS arquivos — `index.html` + `js/*.js` (ES modules) + `lib/basis/` (transcodificador KTX2 no projeto) +
-     cada GLB como módulo `assets/<nome>.glb.js` em base64 (o artefato não serve `.glb`), carregado por `import()` sob demanda.
-   - Rampa Radical: um `index.html` único com todo o código dentro e texturas geradas em canvas (sem GLB).
-   - Turbo Caos: igual ao Breno (`dist/artefato/`), e ALÉM disso um `TurboCaos.html` único que funciona sem internet em `file://`.
-   - **Diferença deliberada:** o Breno carrega o three.js r170 do CDN jsdelivr; aqui o three.js (e os decoders meshopt/KTX2) ficam em
-     `lib/` dentro do projeto — o pedido exige "decoders salvos no próprio projeto (sem CDN externo)", e o decoder meshopt mora nos
-     addons do three. Funciona igual e não depende de CDN.
-   - O Breno tem um GLB reserva `*_web.glb` (texturas comuns) para quando o KTX2 falha. Aqui ainda não: se a textura KTX2 falhar,
-     o carro aparece na cor dele (ver fase 1). Dá para acrescentar se algum celular mostrar o problema.
-   - Fontes: os dois usam Google Fonts (Baloo 2 / Bungee) com fonte do sistema de reserva; aqui também (sem internet cai na reserva).
-2. **Repositório `alexmorassi/turbo-caos`:** não existia e esta sessão não tem permissão para criar repositório. Os commits estão
-   prontos; o push acontece assim que o repositório (vazio) existir.
+1. **Criar o repositório `alexmorassi/turbo-caos` no GitHub (vazio, sem README).** Esta sessão não tem permissão para criar
+   repositório; os commits de cada fase estão prontos e o push sai assim que ele existir.
+2. **Playtest no celular de verdade** (o que a bateria não mede):
+   - **fps real**: a bateria roda em SwiftShader (renderização por software), onde os números só comparam níveis entre si
+     (BAIXA 12 fps, ALTA 2–4 fps a 839×412). No celular, a qualidade AUTO desce de nível sozinha abaixo de 50 fps e trava em 30 fps
+     na BAIXA. Desenho por quadro na corrida (ALTA): ~134 chamadas e ~390 mil triângulos.
+   - tela cheia + trava de orientação no Android; safe-area do iPhone; aviso de girar; som destravando no primeiro toque; volume no
+     alto-falante; vibração.
+   - **dificuldade para criança pequena**: o ritmo dos rivais na pista 1 é 87 % da vMax e o DDA alivia até 85 %. Os números estão em
+     `config/dificuldade.js` (`BASE`, `DDA`, `ELASTICO`).
+   - se os **feixes do Raio Congelante e do Troca-Troca** se veem bem da câmera de trás (se não, o próximo passo é pintar a faixa
+     de gelo no asfalto).
+   - se as **pistas 1 a 4** parecem repetidas na planta (todas são um retângulo com o bojo do atalho); redesenhar é barato, porque o
+     construtor fecha o circuito sozinho.
+3. **No artefato do Claude** o iframe bloqueia o sensor de movimento: a direção por **inclinação** cai sozinha para as setas
+   (funciona no `TurboCaos.html` e pelo servidor local). Também não há query string, então as flags (`?pista=`…) só valem fora dele.
+4. **Logotipos nas texturas herdadas** do Cidade Aberta (VW na Kombosa, Toyota/GR no Voador, brasão no Lagartixa). Os nomes no jogo
+   não têm marca.
+5. **Fonte com internet**: as fotos foram tiradas sem internet (fonte do sistema). Com o Baloo 2/Bungee carregados o texto fica um
+   pouco mais largo; as larguras têm folga, mas vale olhar uma vez.
 
-## Decisões da fundação (fase 1)
+## 2. Referências e entrega
 
-- **Entrega = `TurboCaos.html` único + `index.html` de desenvolvimento.** O `index.html` usa ES modules + importmap + `server.py`,
-  igual às referências. O `TurboCaos.html` é montado por `tools/monta.js` (esbuild empacota o código num script clássico; GLB e
-  transcodificador Basis vão em base64 em blocos `<script type="application/octet-stream" id="embutido:...">`) e abre em `file://`
-  sem servidor — testado no Chromium (`node testes/rodar.js --html`). Os carros ficam no arquivo e só viram malha quando usados
-  ("carregados sob demanda"); as pistas são geradas por código na hora da corrida.
-- **WebGL1:** o three r170 (o mesmo das referências) só tem WebGL2 — o WebGL1 saiu no r163. Todo Chrome de Android e Safari de
-  iOS 15+ tem WebGL2. Sem ele, o jogo mostra a mensagem "atualize o navegador" em vez de tela preta. Manter um segundo three antigo
-  só para WebGL1 dobraria o código por quase nenhum aparelho.
-- **toktx bloqueado:** baixar o binário do KTX-Software foi bloqueado no ambiente; as texturas KTX2 são codificadas com o pacote npm
-  `ktx2-encoder` (o mesmo Basis Universal, em WebAssembly).
-- **Porta 8125** para o servidor e a bateria (a 8123 é a do Cidade Aberta; o dinotrails-web perdeu uma hora com dois servidores na
-  mesma porta).
-- **Jogador larga em penúltimo** (ultrapassar é a graça; a dificuldade adaptativa evita frustração).
-- **A corrida termina 3 s depois de o jogador cruzar a chegada**; quem não chegou recebe tempo estimado pela velocidade média.
-- **Campeonato:** pódio (1º–3º) desbloqueia a próxima pista; senão, corre a mesma de novo. Pontos 10-8-6-5-4-3-2-1.
+- **Lidas nos seus artefatos do Claude** ("Breno e o Tesouro do Pirata Morassi" e "Rampa Radical"). Os dois padrões são diferentes;
+  segui o do **Breno** (pedido):
+  - Breno: artefato com vários arquivos — `index.html` + `js/*.js` (ES modules) + `lib/basis/` (transcodificador KTX2 no projeto) +
+    cada GLB como módulo `assets/<nome>.glb.js` em base64 (o artefato não serve `.glb`), carregado por `import()` sob demanda.
+  - Rampa Radical: um `index.html` único com todo o código dentro e texturas geradas em canvas (sem GLB).
+  - **Turbo Caos**: igual ao Breno (`dist/artefato/`, publicado em https://claude.ai/artifact/FWWGVVDUhpoUng3w8aTfUZ) e ALÉM disso
+    o `TurboCaos.html` único (9,6 MB), que funciona sem internet em `file://` — testado na bateria (`--html` e `--artefato`).
+- **Diferença deliberada:** o Breno carrega o three.js r170 do CDN jsdelivr; aqui three.js e os decoders meshopt/KTX2 ficam em `lib/`
+  (o pedido exige "decoders salvos no próprio projeto, sem CDN externo", e o decoder meshopt mora nos addons do three).
+- O Breno tem um GLB reserva `*_web.glb` para quando o KTX2 falha; aqui, se a textura falhar, o carro aparece na cor dele.
+- **WebGL1:** o three r170 (o mesmo das referências) só tem WebGL2 — o WebGL1 saiu no r163. Todo Chrome de Android e Safari de iOS
+  15+ tem WebGL2; sem ele aparece "atualize o navegador" em vez de tela preta.
+- **toktx bloqueado** no ambiente: as texturas KTX2 foram codificadas com o pacote npm `ktx2-encoder` (o mesmo Basis Universal).
+- Porta **8125** para o servidor e a bateria (a 8123 é a do Cidade Aberta).
+
+## 3. Decisões de jogo
+
+- **Carros** (fase 1): o Fuscão saiu (o `fusca.glb` é branco como o Faísca e a versão leve tem defeitos de malha) e entrou o
+  **Buguinho** (laranja, chassi de Fusca, mesmo poder). O **Voador** fica com as turbinas recolhidas (abertas ele teria 2,7 m). Pela
+  regra de escala (4,2 × 2,3 × 2,6 m), o Picolé (3,25 m) e o Tubarão (3,34 m) ficam mais curtos. Atributos somam 16 em todos.
+- **Física** (fase 2): crista da rampa lança 8° mais para cima (sem isso a rampa da pista de teste virava lombada); quem cai num vão
+  volta DEPOIS do buraco; parede invisível no ar acima dos muros; FREIO e DRIFT num botão só; loop nunca derruba (mínimo 18 m/s).
+- **Turbo × faixa de impulso não empilham** (maestro): os dois juntos davam 1,69 × a vMax (66 m/s antes do loop da Neon).
+- **Poderes** (fase 4): o Troca-Troca devolvido pelo Escudo faz quem mandou trocar com quem vem atrás dele; o dono não sofre com a
+  própria poça/nuvem; quem já chegou não é alvo; no máximo 3 cápsulas douradas por volta. Números ajustados para a esquiva escrita
+  funcionar de verdade (óleo 10 s, EMP 24 m, raio congelante 80 m/s, tornado 2,4 m).
+- **IA/dificuldade** (fase 5): "derrota" = fora do pódio (o mesmo critério do campeonato); o rival forte é o da pole; o piloto
+  automático (`?auto=1`, só nos testes) também alimenta o DDA e não faz a largada turbo.
+- **Corrida**: o jogador larga em penúltimo; a corrida termina 3 s depois de ele cruzar a chegada (quem não chegou recebe tempo
+  estimado); no campeonato o pódio (1º–3º) desbloqueia a próxima pista e os pontos são 10-8-6-5-4-3-2-1 com rivais fixos.
+- **Interface** (fase 6): fontes Baloo 2/Bungee do Google Fonts como nos jogos de referência (sem internet cai na fonte do sistema);
+  qualidade AUTO lembra o nível aprendido no aparelho.

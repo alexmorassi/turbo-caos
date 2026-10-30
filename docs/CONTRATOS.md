@@ -196,11 +196,18 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
 ## 8. Turbo, cápsulas e poderes (fase 4)
 
 - `carro.turbo = { carga 0..1, capacidade (s de turbo cheio), ativo }`. Turbo ativo → `mod.velMax *=`, `mod.empurrao +=`
-  (valores em `config/turbo.js`). `mod.semTurbo` (EMP) impede ligar.
-- `corrida.capsulas`: `proximas(carro, alcance) -> [{ sup, s, d, dourada, pos }]` (ativas, à frente), `atrai(pos, raio, carro)` (Ímã).
+  (valores em `config/turbo.js`, objetos `TURBO` e `CAPSULAS`). `mod.semTurbo` (EMP), gelo e rodopio impedem ligar. Extras:
+  `turbo.soma(carro, fracao)`, `turbo.bloqueado(carro)`, `capacidadeDoTurbo(cfg)`. A faixa IMPULSO leva a 1,3 × a vMax do carro e
+  NÃO empilha com o turbo.
+- `corrida.capsulas`: `proximas(carro, alcance) -> [{ sup, s, d, dourada, pos }]` (ativas, à frente), `atrai(pos, raio, carro)` (Ímã),
+  `contaPerto(pos, raio)`; geração automática em `geraCapsulas(pista)` (+ `capsulas`/`douradas` da definição e dos atalhos).
 - `corrida.poderes`: `podeUsar(carro)`, `usa(carro)`, `iaDeveUsar(carro) -> bool` (heurística do poder daquele carro: Raio Congelante
   só com alvo à frente em linha, etc.), `recarga(carro) -> 0..1` (anel do botão), `ativosEm(carro)` (efeitos atuais, para o HUD),
-  `perigos() -> [{ tipo: 'oleo'|'fumaca'|'tornado'|..., sup, s, d, raio }]` (o que está na pista agora, para a IA desviar).
+  `perigos() -> [{ tipo: 'oleo'|'fumaca'|'tornado', sup, s, d, raio, comprimento, dono, alvo }]` (o que se desvia pela faixa; pulsos e
+  Ímã não entram). `ativosEm(c) -> [{ poder, id, resta }]` (sem o que a física já mostra: gelo, rodopio, levantado, encolhido).
+  `carro.poder = { id, restante, total, usos }`. Extras: `acerta(id, de, alvo)`, `escudoAtivo(c)`, `ameacado(c)`.
+  Eventos: `turbo:vazio` também no aperto com a barra vazia; `poder:fim` para todo efeito com tempo (Escudo inclusive);
+  `poder:esquivou` só quando o alvo escapou de verdade.
   Configuração de cada poder em `config/poderes.js`. Todo poder: efeito visual, som (`G.audio.toca`), esquiva/contra-ataque.
 
 ## 9. IA e dificuldade (fase 5)
@@ -209,7 +216,12 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
   testes) ou `jogador.chegou` (a festa depois da chegada).
 - `corrida.dificuldade`: `inicia()` define `carro.ia = { habilidade, agressividade, precisao, usoDePoder }` pela pista (base gradual)
   e pelo histórico (DDA); `passo(dt)` aplica o fator 0,85–1,15 e o rubber band leve via `mod`; `registra(resultado)` no fim
-  (persiste em `G.save`). Números em `config/dificuldade.js`.
+  (persiste em `G.save`). Números em `config/dificuldade.js` (`BASE`, `DDA`, `ELASTICO`).
+- `carro.ia` ganha `ritmo`, `aceleracao`, `papel` ('forte'|'mediano'|'fraco'|'auto') e `fator`; `corrida.dificuldade` expõe `fator`,
+  `historico`, `estado`, `base`, `elastico`, `ultimoRegistro`. Leitura (não contrato forte): `corrida.ia.estatisticas`,
+  `corrida.ia.planos`; `js/ia.js` exporta `planosDaPista`, `velDaCurva`, `raioDeGiro`, `perfilDoCarro`.
+- `carro.modAnterior` (corrida): o `mod` do passo anterior, copiado antes do `zeraMod` — a IA roda antes dos poderes e enxerga o
+  efeito por ele. `carro:largada_turbo` vale para rivais também (a IA emite).
 
 ## 10. Interface, áudio, salvamento, qualidade (fase 6)
 
