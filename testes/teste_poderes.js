@@ -183,6 +183,10 @@ suite('poderes', async (G) => {
     planos.get(B).v = 45; planos.get(B).turbo = true; B.turbo.carga = 1;
     anda(Math.round(cfg.carga * 60) + 2);
     ok(conta('poder:acerta', (e) => e.alvo === A && e.poder === 'emp') === 1 && conta('poder:acerta', alvo(B)) === 0, 'no estouro acerta quem ficou no circulo');
+    // O CHOQUE (31/10/2026: so tirar o turbo nao se via): o acertado perde velocidade na hora e o motor fica fraco
+    ok(A.vf < 15 * (1 - cfg.perdaNoChoque) + 1, `choque: o acertado perde velocidade na hora (15 -> ${A.vf.toFixed(1)} m/s)`);
+    ok(Math.abs(A.mod.velMax - cfg.forcaNoChoque) < 1e-9 && Math.abs(A.mod.acel - cfg.forcaNoChoque) < 1e-9, `choque: motor fraco (mod.velMax e mod.acel ${A.mod.velMax.toFixed(2)})`);
+    ok(j.mod.velMax === 1, 'quem usou nao leva choque');
     ok(conta('poder:esquivou', (e) => e.alvo === B && e.poder === 'emp') === 1, `quem saiu do circulo durante a carga escapou (B a ${B.pos.distanceTo(j.pos).toFixed(0)} m > ${cfg.raio})`);
     ok(conta('poder:acerta', alvo(C)) === 0 && conta('poder:esquivou', alvo(C)) === 0, 'quem estava longe nem soube');
     planos.get(A).turbo = true; A.turbo.carga = 1;
@@ -221,14 +225,17 @@ suite('poderes', async (G) => {
     ok(A.efeitos.gelo < g0 - 3 * FISICA.GELO_POR_TOQUE + 0.01 && conta('poder:usa', (e) => e.carro === A) === 0, 'congelado: toques no PODER quebram o gelo (e nao disparam)');
     anda(Math.round(A.efeitos.gelo * 60) + 3);
     ok(conta('poder:fim', (e) => e.alvo === A && e.poder === 'congelante') === 1, 'o gelo derreteu: poder:fim');
-    // ESQUIVA: mudar de faixa — o alvo esta 5 m para o lado: o raio vai reto
+    // MIRA (31/10/2026: a crianca toca quando o botao acende, sem alinhar, e errava 10 de 13): o alvo esta 5 m para o lado NA HORA do
+    // disparo — o raio vai para a faixa dele e congela. A IA continua so atirando alinhada
     poe(planos, A, 345, 5.2, 18);
     anda(5); pronto(j);
-    ok(!P.iaDeveUsar(j), 'congelante: iaDeveUsar FALSO sem alvo em linha');
+    ok(!P.iaDeveUsar(j), 'congelante: iaDeveUsar FALSO sem alvo em linha (a IA so atira alinhada)');
     aperta(planos, j);
-    anda(60);
-    ok(A.efeitos.gelo === 0 && conta('poder:acerta', alvo(A)) === 1, 'o raio passa reto pela faixa vazia (o alvo de outra faixa nao congela)');
-    ok(conta('poder:esquivou', (e) => e.alvo === A && e.poder === 'congelante') === 1, 'quem estava a frente e escapou: poder:esquivou');
+    anda(8); G.quadro(1 / 60);
+    const rc = P.mods.congelante.raios.find((r) => r.ativo && r.dono === j), fx = rc ? P.mods.congelante.faixa(rc, 30) : NaN;
+    ok(!!rc && Math.abs(rc.d0 - j.d) < 0.5 && Math.abs(fx - A.d) < 0.5, `o raio sai na faixa de quem atirou (${rc && rc.d0.toFixed(1)} m) e corre na do carro da frente (${fx.toFixed(1)} m)`);
+    anda(52);
+    ok(conta('poder:acerta', (e) => e.alvo === A && e.poder === 'congelante') === 2 && A.efeitos.gelo > 0, `o raio vai para a faixa do carro da frente: congela quem estava 5 m para o lado (gelo ${A.efeitos.gelo.toFixed(2)} s)`);
     // trocando de faixa DEPOIS do disparo (o raio nao segue)
     poe(planos, j, 500 - 120, 0, 18); poe(planos, A, 500 - 60, 0, 18); anda(5); pronto(j);
     aperta(planos, j);
@@ -237,6 +244,7 @@ suite('poderes', async (G) => {
     anda(50);
     mede('congelante: faixa do alvo quando o raio passou (m)', A.d);
     ok(A.efeitos.gelo === 0, `mudou de faixa enquanto o raio vinha: escapou (d ${A.d.toFixed(1)})`);
+    ok(conta('poder:esquivou', (e) => e.alvo === A && e.poder === 'congelante') === 1, 'quem estava a frente e escapou: poder:esquivou');
     confere(c);
   }
 
@@ -260,7 +268,7 @@ suite('poderes', async (G) => {
     ok(voando >= 2, `as capsulas perto voam para o dono (${voando} voando)`);
     anda(60);
     ok(conta('capsula:pega', (e) => e.carro === j) >= 2 && j.turbo.carga >= 0.5, `e o dono pega (${conta('capsula:pega', (e) => e.carro === j)} capsulas, turbo ${Math.round(j.turbo.carga * 100)}%)`);
-    anda(Math.round(cfg.duracao * 60));
+    anda(Math.round((cfg.duracao + cfg.segura) * 60));
     ok(conta('poder:esquivou', (e) => e.alvo === B && e.poder === 'ima') === 1, 'quem ficou perto mas longe do campo: poder:esquivou');
     ok(conta('poder:fim', (e) => e.alvo === A && e.poder === 'ima') === 1 && A.mod.velMax === 1, 'o campo acabou: o segurado esta solto (poder:fim)');
     for (const x of [A, B]) poe(planos, x, 1300 + x.indice * 10, 0, 0);
@@ -363,10 +371,17 @@ suite('poderes', async (G) => {
     const lim = c.pista.principal.larguraEm(nv.s) * 0.5 - 1.15;
     const livre = Math.max(lim - (nv.d + nv.raio), (nv.d - nv.raio) + lim);
     ok(livre >= cfg.livre - 1e-6, `a nuvem nao cobre a pista toda: sobra ${livre.toFixed(2)} m de faixa`);
-    let visaoA = 0, visaoB = 0;
-    for (let k = 0; k < 150; k++) { anda(1); visaoA = Math.max(visaoA, A.mod.visao); visaoB = Math.max(visaoB, B.mod.visao); }
+    let visaoA = 0, visaoB = 0, vMaxA = 1, vMaxB = 1, vMinA = Infinity;
+    for (let k = 0; k < 150; k++) {
+      anda(1);
+      visaoA = Math.max(visaoA, A.mod.visao); visaoB = Math.max(visaoB, B.mod.visao);
+      vMaxA = Math.min(vMaxA, A.mod.velMax); vMaxB = Math.min(vMaxB, B.mod.velMax);
+      if (conta('poder:acerta', alvo(A))) vMinA = Math.min(vMinA, A.vf);
+    }
     ok(visaoA > 0.5 && conta('poder:acerta', (e) => e.alvo === A && e.poder === 'fumaca') === 1, `quem entrou na nuvem perde a visao (mod.visao ${visaoA.toFixed(2)})`);
-    ok(visaoB === 0, 'quem passou PELO LADO enxerga');
+    // ANDA MENOS (31/10/2026: so a visao nao tirava nada): o susto na entrada e a lentidao la dentro
+    ok(vMinA < 20 * (1 - cfg.susto) + 0.5 && Math.abs(vMaxA - (1 - cfg.lentidao)) < 1e-6, `e anda menos: susto na entrada (20 -> ${vMinA.toFixed(1)} m/s) e mod.velMax ${vMaxA.toFixed(2)} la dentro`);
+    ok(visaoB === 0 && vMaxB === 1, 'quem passou PELO LADO enxerga e anda normal');
     ok(conta('poder:esquivou', (e) => e.alvo === B && e.poder === 'fumaca') === 1, 'quem passou pelo lado: poder:esquivou');
     anda(Math.round(cfg.duracao * 60));
     ok(!P.perigos().some((h) => h.tipo === 'fumaca'), `a nuvem some depois de ${cfg.duracao} s`);
@@ -469,6 +484,12 @@ suite('poderes', async (G) => {
     anda(Math.round(cfg.carga * 60) + 2);
     ok(!B.noChao, 'B esta no ar (saltando a rampa) na hora do tremor');
     ok(conta('poder:acerta', (e) => e.alvo === A && e.poder === 'terremoto') === 1 && Math.abs(A.mod.aderencia - cfg.aderencia) < 1e-9, `no chao: escorrega (mod.aderencia ${A.mod.aderencia})`);
+    // O TRANCO (31/10/2026: so escorregar nao tirava nada do rival): rodopia uma volta e perde velocidade
+    const vA0 = A.vf;
+    ok(A.efeitos.rodopio > 0 && !(B.efeitos.rodopio > 0) && !(j.efeitos.rodopio > 0), `no chao: o tranco faz rodopiar (${A.efeitos.rodopio.toFixed(2)} s); no ar e quem usou, nao`);
+    anda(Math.round(cfg.rodopio * 60));
+    ok(A.efeitos.rodopio === 0 && A.vf < vA0 * 0.6, `depois do tranco: perdeu velocidade (${vA0.toFixed(1)} -> ${A.vf.toFixed(1)} m/s) e terminou olhando para a frente (psi ${A.psi.toFixed(2)})`);
+    ok(Math.abs(A.psi) < 0.35, 'uma volta inteira: o rodopio termina com o carro na direcao da pista');
     ok(conta('poder:esquivou', (e) => e.alvo === B && e.poder === 'terremoto') === 1, 'NO AR na hora do tremor: nao sente (poder:esquivou)');
     ok(j.mod.aderencia === 1, 'quem usou nao escorrega');
     anda(120);

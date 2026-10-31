@@ -18,21 +18,25 @@ export const PODERES = {
   },
   emp: {
     nome: 'Pulso EMP', icone: '⚡', cor: '#2fd3ff',
-    descricao: 'Uma onda elétrica que desliga o turbo de quem estiver perto por 3 segundos.',
+    descricao: 'Uma onda elétrica que dá um choque em quem estiver perto: perde força e fica sem turbo por 3 segundos.',
     esquiva: 'O pulso carrega por meio segundo: saia do círculo azul!',
     recarga: 14,
     duracao: 3,            // s sem turbo (mod.semTurbo)
+    choque: 1.2,           // s de motor fraco depois do estouro (31/10/2026: so tirar o turbo nao se via — 14 m perdidos em 5 s, medido)
+    perdaNoChoque: 0.4,    // fracao da velocidade perdida NA HORA do choque (no chao): o rival cai para tras na frente da crianca
+    forcaNoChoque: 0.6,    // mod.velMax e mod.acel *= durante o choque (o motor "engasga" e volta)
     raio: 24,              // m (era 26: com 26 o pelotao inteiro de 8 carros ficava dentro e nao havia "saia do circulo")
     carga: 0.6,            // s ate o pulso estourar (o circulo cresce ate o raio nesse tempo)
   },
   congelante: {
     nome: 'Raio Congelante', icone: '❄️', cor: '#9fe8ff',
     descricao: 'Congela o carro logo à sua frente por um segundo e meio.',
-    esquiva: 'O raio vai reto: mude de faixa. Congelado? Toque rápido no PODER para quebrar o gelo.',
+    esquiva: 'O raio vai na sua faixa: mude de faixa. Congelado? Toque rápido no PODER para quebrar o gelo.',
     recarga: 12,
     duracao: 1.5,          // s congelado (js/carro.js congela; cada toque no PODER tira FISICA.GELO_POR_TOQUE)
     alcance: 70,           // m pela pista
-    larguraDoRaio: 3,      // m: o raio corre na FAIXA (d) em que foi disparado; acerta quem estiver a menos de meia largura + meio carro
+    larguraDoRaio: 3,      // m: o raio corre na FAIXA (d) do carro da frente na hora do disparo (31/10/2026; antes, na de quem atirou: a
+                           // crianca errava 10 de 13); acerta quem estiver a menos de meia largura + meio carro
     velocidadeDoRaio: 80,  // m/s (era 120: 70 m em 0,58 s, ninguem reagia — o raio vem POR TRAS do alvo). A 80 m/s o raio leva
                            // ~1 s para alcancar quem vai a 30 m/s 50 m a frente: com o aviso na tela da para trocar de faixa
   },
@@ -44,8 +48,9 @@ export const PODERES = {
     duracao: 3,            // s de campo ligado
     raioCapsulas: 35,      // m: capsulas dentro disto voam para o dono
     raioCarros: 14,        // m: rival dentro disto e segurado (o "mais de 14 m" da esquiva)
-    freio: 0.82,           // mod.velMax *= enquanto segurado
-    segura: 0.35,          // s que o rival continua segurado depois de sair do campo (sem pisca-pisca na borda)
+    freio: 0.7,            // mod.velMax *= enquanto segurado (era 0,82: o segurado perdia so ~20 m em 5 s, medido com a IA em 31/10/2026)
+    segura: 1.2,           // s que o rival continua segurado depois de sair do campo (sem pisca-pisca na borda). Era 0,35: quem o dono
+                           // passava saia do campo na hora e nao perdia nada (-3 m em 5 s, medido com a IA em 31/10/2026)
   },
   trocatroca: {
     nome: 'Troca-Troca', icone: '🔄', cor: '#ff5ad1',
@@ -65,13 +70,13 @@ export const PODERES = {
     duracao: 4,            // s encolhido
     raio: 22,              // m
     escala: 0.55,          // mod.escala (o visual do carro e a caixa de colisao encolhem juntos)
-    velMax: 0.8,           // mod.velMax *=
+    velMax: 0.7,           // mod.velMax *= (era 0,8: o encolhido perdia so ~23 m em 5 s, medido com a IA em 31/10/2026)
     carga: 0.5,            // s de carga do pulso (o anel roxo cresce)
     massa: 0.5,            // mod.massa *= — "leves": na batida o encolhido e empurrado longe
   },
   fumaca: {
     nome: 'Cortina de Fumaça', icone: '💨', cor: '#9aa3ad',
-    descricao: 'Solta uma nuvem que embaça a visão de quem vem atrás.',
+    descricao: 'Solta uma nuvem atrás de você: quem entrar nela fica sem enxergar e perde velocidade.',
     esquiva: 'A nuvem não cobre a pista toda: passe pelo lado.',
     recarga: 11,
     duracao: 6,            // s de nuvem
@@ -80,6 +85,9 @@ export const PODERES = {
     meiaLargura: 4.2,      // m de meia LARGURA da nuvem atravessada: numa pista de 14 m sobra uma faixa para passar ao lado
     livre: 1.6,            // m minimos de faixa livre para o centro do carro (o mesmo do oleo)
     visao: 0.85,           // mod.visao no meio da nuvem (o HUD embaca a tela; a IA perde precisao)
+    susto: 0.25,           // fracao da velocidade perdida ao ENTRAR na nuvem (31/10/2026: so a visao nao tirava nada — 3 m em 5 s)
+    lentidao: 0.35,        // mod.velMax *= 1 - lentidao dentro da nuvem e logo depois: sem enxergar, tira o pe
+    lentoDepois: 1.2,      // s que a lentidao dura depois de sair (atravessar 18 m a 35 m/s leva so meio segundo)
     cegoDevolvido: 2.5,    // s de visao embacada para quem mandou, quando o Escudo devolve
   },
   tornado: {
@@ -104,12 +112,15 @@ export const PODERES = {
   },
   terremoto: {
     nome: 'Terremoto', icone: '🌋', cor: '#ff7a1a',
-    descricao: 'Faz a pista tremer: todo mundo escorrega, menos você.',
+    descricao: 'Faz a pista tremer: quem está no chão rodopia e escorrega, menos você.',
     esquiva: 'Quem estiver no ar na hora do tremor não sente nada — pule numa rampa!',
     recarga: 17,
     duracao: 3,            // s escorregando
     raio: 90,              // m
     aderencia: 0.35,       // mod.aderencia *= (o k do pneu: o carro escorrega na curva)
+    rodopio: 0.7,          // s do TRANCO no tremor (31/10/2026): so escorregar nao tirava nada do rival (-7 m em 5 s, medido com a IA);
+                           // o tranco tira ~40 m de cada um no chao. Mais curto que o do oleo (1,4 s): pega varios carros de uma vez
+    voltas: 1,             // voltas do tranco (inteiras: o carro termina olhando para a frente; duas em 0,7 s viravam um borrao)
     carga: 0.8,            // s de aviso antes do tremor (o chao ja treme de leve)
   },
 };

@@ -29,12 +29,17 @@ const OVAL = {
 const ev = { alvo: null, batidas: [], decolou: [], pouso: [], queda: 0, volta: 0, drift: [] };
 function zeraEventos(c) { ev.alvo = c; ev.batidas = []; ev.decolou = []; ev.pouso = []; ev.queda = 0; ev.volta = 0; ev.drift = []; }
 
-/** Corrida nova, ja correndo, com os rivais fantasmas (a suite mede um carro de cada vez). */
+/** Corrida nova, ja correndo, com os rivais fantasmas e SEM PODER (a suite mede um carro de cada vez: desde 31/10/2026 o choque do EMP,
+ *  o tranco do Terremoto e a fumaca tiram velocidade de quem pegam — um rival da IA disparando no meio da medida da vMax a estragava). */
 async function nova(G, op = {}) {
   G.sorteio.semente(op.semente || 77);
   const c = await corridaDeTeste({ pista: op.pista || 'teste', def: op.def, carro: op.carro || 'vulcao', corredores: 6, voltas: 5, rivais: op.rivais || RIVAIS });
+  // acelerador segurado desde o comeco da contagem: o primeiro `segura('acel')` depois do VAI virava LARGADA TURBO (+9 m/s, js/entrada.js)
+  // e a medida do 0 a 95 % saia 0,6 s mais rapida — so quando a suite rodava sozinha (rodando a bateria, a suite de antes deixava o
+  // acelerador baixo e nao havia a borda)
+  segura('acel', 1);
   largada();
-  if (op.isola !== false) for (const x of c.carros) if (x !== c.jogador) x.fantasma = 1e9;
+  if (op.isola !== false) for (const x of c.carros) if (x !== c.jogador) { x.fantasma = 1e9; if (x.poder) x.poder.restante = 1e9; }
   zeraEventos(c.jogador);
   return c;
 }
@@ -249,7 +254,10 @@ suite('fisica', async (G) => {
   {
     const c = await nova(G, { carro: 'tubarao', rivais: ['jatinho', 'dourado', 'lagartixa', 'picole', 'kombosa'] });
     const pesado = c.jogador, leve = c.carros.find((x) => x.cfg.id === 'jatinho');
-    ok(!!leve && pesado.p.massa > leve.p.massa * 1.5, `tubarao (massa ${pesado.p.massa}) x jatinho (${leve && leve.p.massa})`);
+    // desde 31/10/2026 todos os carros tem o MESMO NIVEL (o mesmo peso): a regra da batida se prova com as pontas da tabela de massa
+    // (a fisica continua a mesma — o Encolhedor deixa o encolhido leve pelo mod.massa)
+    if (leve) { pesado.p.massa = FISICA.POR_ATRIBUTO.MASSA[4]; leve.p.massa = FISICA.POR_ATRIBUTO.MASSA[0]; }
+    ok(!!leve && pesado.p.massa > leve.p.massa * 1.5, `peso 5 (massa ${pesado.p.massa}) x peso 1 (${leve && leve.p.massa})`);
     leve.fantasma = 0;
     // encaixados 30 cm um no outro pelas medidas do config (o tubarao e estreito e curto: 3,34 x 1,57 m)
     const lado = (pesado.p.largura + leve.p.largura) / 2 - 0.3, comp = (pesado.p.comprimento + leve.p.comprimento) / 2 - 0.3;

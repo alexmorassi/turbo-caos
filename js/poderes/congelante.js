@@ -1,10 +1,14 @@
-// PODER 3 — RAIO CONGELANTE (Picole). Um raio de gelo sai da frente do carro e CORRE PELA PISTA na faixa (d) em que foi disparado, a
-// `velocidadeDoRaio` m/s, ate `alcance` m; o primeiro carro que estiver nessa faixa (meia largura do raio + meio carro) fica congelado
+// PODER 3 — RAIO CONGELANTE (Picole). Um raio de gelo sai da frente do carro, VAI PARA A FAIXA (d) DO CARRO DA FRENTE nos primeiros
+// CONVERGE m e CORRE PELA PISTA nessa faixa, a `velocidadeDoRaio` m/s, ate `alcance` m; sem ninguem a frente vai reto na faixa de quem
+// atirou. O primeiro carro que estiver na faixa do raio (meia largura do raio + meio carro) fica congelado
 // `duracao` s (js/carro.js congela: sem controle, freia forte) dentro de um bloco de gelo. ESQUIVA (verdade aqui): "O raio vai reto: mude
 // de faixa" — a faixa do raio e a do disparo, nao segue ninguem; "Congelado? Toque rapido no PODER para quebrar o gelo" — js/carro.js
 // tira FISICA.GELO_POR_TOQUE a cada toque (e o gerente nao dispara poder de carro congelado).
 // O raio corre pela pista (e nao em linha reta no mundo) porque na curva uma reta de 70 m sairia da pista pelo lado de dentro e acertaria
 // quem a crianca nem ve; pela faixa, o que acerta e o que esta "na mesma pista, mais a frente".
+// POR QUE MIRA A FAIXA DO DA FRENTE (31/10/2026, o Morassi: "o poder do jogador nao esta surtindo efeito nos outros carros"): na faixa de
+// quem atirou, a crianca (que toca quando o botao acende, sem alinhar) errava 10 de 13 tiros numa corrida de verdade; a IA so atira
+// alinhada (iaDeveUsar) e acertava 20 de 21. A mira e na faixa de AGORA: quem troca de faixa enquanto o raio vem escapa (a esquiva).
 // Visual: fita de luz gelada seguindo a curva (js/efeitos.js Feixes), ponta brilhante, cristais; bloco de gelo translucido no alvo,
 // que estilhaca quando derrete (poder:fim -> o audio toca gelo_quebra no jogador).
 import * as THREE from 'three';
@@ -16,13 +20,14 @@ const SOME = 0.25;                         // s que o raio leva para apagar depo
 const ALTURA = 0.9;                        // m acima do asfalto (visual; o acerto e pela faixa e pela altura do carro)
 const ALTURA_MAX_DO_ALVO = 2.5;            // m: carro voando mais alto que isto passa por cima do raio
 const CRISTAIS_NA_FITA = 3;                // faiscas por quadro espalhadas ao longo do raio (o corpo do raio brilha, nao so a ponta)
+const CONVERGE = 15;                       // m em que o raio sai do bico de quem atirou e chega na faixa do carro da frente (a curva da fita)
 const COR = { r: 0.3, g: 0.85, b: 1.0 }, COR_GELO = { r: 0.5, g: 0.86, b: 1.0 }, COR_CACO = { r: 0.75, g: 0.95, b: 1.0 };
 const _p = new THREE.Vector3(), _X = new THREE.Vector3(), _M = new THREE.Matrix4();
 
 export class Congelante extends PoderBase {
   inicia() {
     this.raios = [];
-    for (let k = 0; k < MAX_RAIOS; k++) this.raios.push({ ativo: false, voando: false, dono: null, sup: 0, s0: 0, d0: 0, frente: 0, alcance: 0, alvo: null, acertou: false, some: 0, slot: -1 });
+    for (let k = 0; k < MAX_RAIOS; k++) this.raios.push({ ativo: false, voando: false, dono: null, sup: 0, s0: 0, d0: 0, d1: 0, frente: 0, alcance: 0, alvo: null, acertou: false, some: 0, slot: -1 });
     const n = this.corrida.carros.length;
     this.gelado = new Uint8Array(n);
     this.bloco = new Int16Array(n).fill(-1);
@@ -35,6 +40,8 @@ export class Congelante extends PoderBase {
     r.s0 = c.s + this.P.meiaComp(c); r.d0 = c.d; r.frente = 0; r.acertou = false; r.some = 0;
     r.alcance = sup.fechada ? cfg.alcance : Math.max(0, Math.min(cfg.alcance, sup.comprimento - r.s0));
     r.alvo = this.P.carroAFrente(c, cfg.alcance);
+    // a faixa do raio: a do carro da frente AGORA (cabecalho); em outra tira (atalho) ou sem ninguem, a de quem atirou
+    r.d1 = r.alvo && r.alvo.sup === c.sup ? r.alvo.d : c.d;
     if (r.slot < 0) r.slot = this.ef.feixes.pega();
     sup.ponto(r.s0, r.d0, ALTURA, _p);
     this.ef.clarao(_p, 3, COR, 0.15, 0.9);
@@ -54,7 +61,7 @@ export class Congelante extends PoderBase {
         if (x === r.dono || x.chegou || x.sup !== r.sup || Math.abs(x.h) > ALTURA_MAX_DO_ALVO) continue;
         const ds = difS(sup, r.s0, x.s), mc = P.meiaComp(x);
         if (ds + mc < ant || ds - mc > r.frente) continue;
-        if (Math.abs(x.d - r.d0) >= cfg.larguraDoRaio * 0.5 + P.meiaLarg(x)) continue;
+        if (Math.abs(x.d - this.faixa(r, ds)) >= cfg.larguraDoRaio * 0.5 + P.meiaLarg(x)) continue;
         if (ds < melhor) { melhor = ds; alvo = x; }
       }
       if (alvo) {
@@ -75,6 +82,12 @@ export class Congelante extends PoderBase {
         P.fim('congelante', c);
       }
     }
+  }
+
+  /** A faixa (d) do raio `ds` m depois do disparo: sai na de quem atirou e chega na do alvo em CONVERGE m (smoothstep), depois reta. */
+  faixa(r, ds) {
+    const u = Math.max(0, Math.min(1, ds / CONVERGE));
+    return r.d0 + (r.d1 - r.d0) * u * u * (3 - 2 * u);
   }
 
   aplicaEm(alvo) {
@@ -102,7 +115,7 @@ export class Congelante extends PoderBase {
     for (const r of this.raios) {
       if (!r.ativo || !r.voando || r.dono === c || r.sup !== c.sup) continue;
       const ds = difS(sup, r.s0 + r.frente, c.s);
-      if (ds > 0 && ds < this.cfg.alcance && Math.abs(c.d - r.d0) < this.cfg.larguraDoRaio * 0.5 + this.P.meiaLarg(c)) return true;
+      if (ds > 0 && ds < this.cfg.alcance && Math.abs(c.d - this.faixa(r, r.frente + ds)) < this.cfg.larguraDoRaio * 0.5 + this.P.meiaLarg(c)) return true;
     }
     return false;
   }
@@ -115,7 +128,7 @@ export class Congelante extends PoderBase {
       // a cauda acompanha a frente de quem atirou (o raio "sai do carro"); presa no ponto do disparo, o carro passava por cima dela
       let cauda = 0;
       if (r.dono.sup === r.sup) cauda = Math.max(0, Math.min(r.frente - 1, difS(sup, r.s0, r.dono.s + this.P.meiaComp(r.dono))));
-      for (let k = 0; k <= seg; k++) sup.ponto(r.s0 + cauda + ((r.frente - cauda) * k) / seg, r.d0, ALTURA, pts[k]);
+      for (let k = 0; k <= seg; k++) { const ds = cauda + ((r.frente - cauda) * k) / seg; sup.ponto(r.s0 + ds, this.faixa(r, ds), ALTURA, pts[k]); }
       const a = r.voando ? 1 : Math.max(0, r.some / SOME);
       // a fita tem a largura da faixa que congela (cfg.larguraDoRaio): o que a crianca ve e o perigo de verdade. Com 1,2 m (primeira
       // versao) a camera de tras via um fio de 5 px: a estrada de 10 a 30 m a frente ocupa so ~40 px de altura na tela

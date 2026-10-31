@@ -92,6 +92,12 @@ Flags de URL: `?pista=<id>&carro=<id>` (larga direto), `?auto=1` (IA dirige o jo
 - **`*_lo` do Cidade Aberta com defeito de geometria se refaz, não se repinta**: `tools/carros/refaz_lod.mjs` (pele de fora +
   rachaduras tampadas + cartas novas). Rodas leves dividem a MESMA faixa de textura com a carroceria: trocar a faixa sem levar as rodas
   junto deixa a roda da cor da lataria (30/10/2026).
+- **Poder provado só com o piloto da suíte não prova que a criança sente.** A `teste_poderes` troca a IA pelo piloto dela e confere
+  o `mod`: o Terremoto (aderência), o EMP (sem turbo) e a Fumaça (visão) passavam e, numa corrida de verdade com a IA, o rival
+  acertado perdia −7 m, 14 m e 3 m em 5 s — "o poder do jogador não está surtindo efeito". Meça a **perda do alvo em 5 s** com a IA e
+  a dificuldade ligadas, tocando o poder como a criança (assim que acende, sem mirar). E suíte que mede a física de um carro isola os
+  rivais **também do poder** (`x.poder.restante = 1e9`): com efeito que tira velocidade, um EMP da IA no meio da medida a estraga
+  (31/10/2026).
 
 ## Fluxo
 

@@ -1,6 +1,11 @@
 // PODER 2 — PULSO EMP (Faisca). O pulso CARREGA `carga` s (o circulo azul cresce em volta do dono, ate o raio) e estoura: quem estiver a
-// menos de `raio` m (3D) do dono NESSA HORA fica sem turbo por `duracao` s (mod.semTurbo: js/turbo.js nao liga e desliga o que estava
-// ligado). ESQUIVA (verdade aqui): "O pulso carrega por meio segundo: saia do circulo azul!" — conta a posicao no ESTOURO, nao no disparo:
+// menos de `raio` m (3D) do dono NESSA HORA leva o CHOQUE — perde `perdaNoChoque` da velocidade na hora (no chao) e o motor fica fraco
+// por `choque` s (mod.velMax e mod.acel *= forcaNoChoque) — e fica sem turbo por `duracao` s (mod.semTurbo: js/turbo.js nao liga e
+// desliga o que estava ligado).
+// POR QUE O CHOQUE (31/10/2026, o Morassi: "o poder do jogador nao esta surtindo efeito nos outros carros"): so tirar o turbo nao se via
+// — o rival que nao estava com o turbo aceso seguia igual (medido numa corrida de verdade com a IA: 14 m perdidos em 5 s). Com o choque
+// o acertado cai para tras na frente da crianca (~35 m), cercado das faiscas azuis.
+// ESQUIVA (verdade aqui): "O pulso carrega por meio segundo: saia do circulo azul!" — conta a posicao no ESTOURO, nao no disparo:
 // quem estava dentro e saiu durante a carga escapa (poder:esquivou).
 // Visual: cortina de luz azul em anel (js/efeitos.js Aneis) crescendo com o dono, onda de choque no estouro e faiscas eletricas em
 // volta de quem ficou sem turbo.
@@ -20,6 +25,7 @@ export class Emp extends PoderBase {
     this.pulsos = [];
     for (let k = 0; k < MAX_PULSOS; k++) this.pulsos.push({ ativo: false, dono: null, t: 0, dentro: 0, anel: -1, borda: -1, circ: -1, circ2: -1, onda: 0, pos: new THREE.Vector3(), cima: new THREE.Vector3(0, 1, 0), frente: new THREE.Vector3(0, 0, 1) });
     this.semTurbo = this.porCarro();
+    this.choque = this.porCarro();
     this._faisca = this.porCarro();
   }
 
@@ -60,9 +66,13 @@ export class Emp extends PoderBase {
       this.ef.clarao(_p, 14, COR, 0.35, 0.8);
       this.ef.explosao(_p, 26, COR_RAIO, { vel: 16, sobe: 1, tam: 0.5, vida: 0.45, grav: 0, espalha: 0.25, aditivo: true });
     }
-    // sem turbo: o mod de cada passo (o turbo, depois, nao liga)
+    // sem turbo: o mod de cada passo (o turbo, depois, nao liga); e o motor fraco do choque
     for (const c of this.corrida.carros) {
       const k = c.indice;
+      if (this.choque[k] > 0) {
+        c.mod.velMax *= cfg.forcaNoChoque; c.mod.acel *= cfg.forcaNoChoque;
+        this.choque[k] = Math.max(0, this.choque[k] - dt);
+      }
       if (this.semTurbo[k] > 0) {
         c.mod.semTurbo = true;
         this.semTurbo[k] -= dt;
@@ -72,7 +82,11 @@ export class Emp extends PoderBase {
   }
 
   aplicaEm(alvo) {
-    this.semTurbo[alvo.indice] = this.cfg.duracao;
+    const cfg = this.cfg;
+    this.semTurbo[alvo.indice] = cfg.duracao;
+    this.choque[alvo.indice] = cfg.choque;
+    // o tranco do choque so no chao: no ar a velocidade mora no vetor do mundo e o motor fraco pega no pouso
+    if (alvo.noChao && !alvo.estaVoando && alvo.vf > 0) alvo.vf *= 1 - cfg.perdaNoChoque;
     this.P.centro(alvo, _p);
     this.ef.explosao(_p, 16, COR_RAIO, { vel: 7, sobe: 1.5, tam: 0.45, vida: 0.4, grav: 0, aditivo: true });
     return true;

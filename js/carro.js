@@ -111,7 +111,7 @@ export class Carro {
     this._tMuro = -1e9;
     this._quebrouEm = -1;
     this._impulso = 0;
-    this._rodDur = 0; this._rodAng = 0;
+    this._rodDur = 0; this._rodAng = 0; this._rodVoltas = F.RODOPIO_VOLTAS;
     this._levDur = 0; this._levT = 0; this._levAng = 0;
   }
 
@@ -195,7 +195,7 @@ export class Carro {
   _giroDoRodopio(dt) {
     if (!(this._rodDur > 0)) return 0;
     const decorrido = this._rodDur - this.efeitos.rodopio + dt;
-    const ang = F.RODOPIO_VOLTAS * DUAS_PI * suave(decorrido / this._rodDur);
+    const ang = this._rodVoltas * DUAS_PI * suave(decorrido / this._rodDur);
     const d = ang - this._rodAng;
     this._rodAng = ang;
     return d / dt;
@@ -621,10 +621,11 @@ export class Carro {
     return P.normaliza(x);
   }
 
-  /** Mancha de Oleo e companhia: gira `seg` segundos (voltas inteiras), perde velocidade, sem controle. */
-  rodopia(seg) {
+  /** Mancha de Oleo e companhia: gira `seg` segundos (`voltas` voltas INTEIRAS: termina olhando para onde ia), perde velocidade, sem
+   *  controle. O Terremoto pede uma volta so (31/10/2026): duas voltas num tranco curto viravam um borrao. */
+  rodopia(seg, voltas = F.RODOPIO_VOLTAS) {
     if (!(seg > 0)) return;
-    this.efeitos.rodopio = seg; this._rodDur = seg; this._rodAng = 0;
+    this.efeitos.rodopio = seg; this._rodDur = seg; this._rodAng = 0; this._rodVoltas = Math.max(1, Math.round(voltas));
     this._ligaDrift(false);
   }
 

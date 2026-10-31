@@ -22,7 +22,8 @@ Tudo reprodutível por `tools/carros/` (seção 5). Fotos: `docs/fotos/carros.jp
 Total **5.625 KB** (≈ 7,3 MB em base64 no HTML único). Todos < 1,5 MB e nenhum acima do ideal de 500–900 KB (quatro abaixo).
 Origem: 12–22 MB cada (400 mil triângulos no shark). `CARRO_PADRAO = 'vulcao'` (o do modelo de config do pedido).
 
-Atributos (1–5, soma 16 em todos; cada atributo tem um carro com 5):
+Atributos (1–5, soma 16 em todos; cada atributo tem um carro com 5) — **até 31/10/2026**: desde então todos têm o mesmo nível
+(velocidade 4, o resto 3; pedido: "ganhe quem utilizar melhor os turbos e os poderes"). A tabela abaixo é a da fase 1:
 
 | id | vel | acel | ctrl | peso | turbo | por quê (resumo) |
 |---|---|---|---|---|---|---|

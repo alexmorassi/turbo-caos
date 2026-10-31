@@ -29,36 +29,43 @@ sobrou fica para o próximo toque. Apertar o TURBO bem no **VAI!** dá uma larga
 
 ## Os carros e os poderes
 
-| Carro | Vel | Acel | Curva | Peso | Turbo | Poder | Como escapar |
-|---|---|---|---|---|---|---|---|
-| Carro Vulcão | 4 | 3 | 2 | 4 | 3 | 🌋 Terremoto (todo mundo escorrega) | estar no ar na hora do tremor |
-| Carro Dourado B7 | 5 | 3 | 3 | 2 | 3 | 🛡️ Escudo Refletor (bloqueia e devolve) | esperar o escudo acabar |
-| Porsche 911 GT3 RS | 3 | 4 | 5 | 2 | 2 | 🛢️ Mancha de Óleo (quem passa roda) | desviar da poça |
-| Carro de Sorvete | 2 | 2 | 3 | 5 | 4 | ❄️ Raio Congelante (congela o da frente) | mudar de faixa |
-| Buggy | 3 | 4 | 4 | 2 | 3 | 🔻 Encolhedor (rivais pequenos e lentos) | pegar uma cápsula |
-| Kombi | 2 | 3 | 3 | 4 | 4 | 💨 Cortina de Fumaça (embaça quem vem atrás) | passar pelo lado |
-| Monster Truck Tubarão | 3 | 2 | 2 | 5 | 4 | 🧲 Ímã (puxa cápsulas, segura quem está perto) | ficar longe |
-| Toyota GR Yaris Voador | 4 | 3 | 3 | 1 | 5 | 🌪️ Mini Tornado (levanta e gira) | desviar na hora certa |
-| BYD Seal | 4 | 5 | 3 | 2 | 2 | ⚡ Pulso EMP (desliga o turbo de quem está perto) | sair do círculo azul |
-| Kart a Jato | 3 | 4 | 5 | 1 | 3 | 🔄 Troca-Troca (troca de lugar com o da frente) | ligar o turbo durante a mira |
+**Todos os carros têm o mesmo nível** (31/10/2026): velocidade 4, arrancada 3, curva 3, peso 3 e turbo 3. O carro escolhe a cara e o
+poder; quem ganha é quem usa melhor o **turbo** e o **poder**. Antes cada carro tinha os seus atributos e o Carro Dourado B7
+(velocidade 5) ficava impossível de alcançar.
+
+| Carro | Poder | Como escapar |
+|---|---|---|
+| Carro Vulcão | 🌋 Terremoto (quem está no chão rodopia e escorrega) | estar no ar na hora do tremor |
+| Carro Dourado B7 | 🛡️ Escudo Refletor (bloqueia e devolve) | esperar o escudo acabar |
+| Porsche 911 GT3 RS | 🛢️ Mancha de Óleo (quem passa roda) | desviar da poça |
+| Carro de Sorvete | ❄️ Raio Congelante (vai na faixa do carro da frente e congela) | mudar de faixa |
+| Buggy | 🔻 Encolhedor (rivais pequenos e lentos) | pegar uma cápsula |
+| Kombi | 💨 Cortina de Fumaça (quem entra fica sem enxergar e perde velocidade) | passar pelo lado |
+| Monster Truck Tubarão | 🧲 Ímã (puxa cápsulas, segura quem está perto) | ficar longe |
+| Toyota GR Yaris Voador | 🌪️ Mini Tornado (levanta e gira) | desviar na hora certa |
+| BYD Seal | ⚡ Pulso EMP (choque: perde força e fica sem turbo) | sair do círculo azul |
+| Kart a Jato | 🔄 Troca-Troca (troca de lugar com o da frente) | ligar o turbo durante a mira |
 
 **Mais 9 do Cidade Aberta** (30/10/2026): o **Toyota Prius** e os carros de rua que fazem **pops and bangs** lá. Os poderes se
 repetem (são 10). Os 7 Pro Stock entraram junto e saíram no dia seguinte, a pedido.
 
-| Carro | Vel | Acel | Curva | Peso | Turbo | Poder | Pops and bangs |
-|---|---|---|---|---|---|---|---|
-| Toyota Prius | 2 | 3 | 4 | 2 | 5 | ⚡ Pulso EMP | — (híbrido: o motor zune) |
-| Fusca Teto Solar | 2 | 3 | 3 | 3 | 5 | 🛢️ Mancha de Óleo | de rua: estoura nas reduções |
-| VW Voyage | 3 | 3 | 3 | 3 | 4 | 🛡️ Escudo Refletor | de rua |
-| VW Gol GTI | 3 | 4 | 3 | 1 | 5 | 🔻 Encolhedor | de rua |
-| Hyundai HB20 Turbo | 4 | 3 | 4 | 2 | 3 | ❄️ Raio Congelante | de rua |
-| Chevrolet Monza SL/E | 3 | 2 | 3 | 4 | 4 | 🧲 Ímã | de rua |
-| VW speed up! TSI | 2 | 4 | 5 | 1 | 4 | 🔄 Troca-Troca | de rua |
-| Chevrolet Celta | 2 | 4 | 4 | 2 | 4 | 🌪️ Mini Tornado | de rua |
-| Furgão | 2 | 2 | 3 | 5 | 4 | 💨 Cortina de Fumaça | de rua |
+| Carro | Poder | Pops and bangs |
+|---|---|---|
+| Toyota Prius | ⚡ Pulso EMP | — (híbrido: o motor zune) |
+| Fusca Teto Solar | 🛢️ Mancha de Óleo | de rua: estoura nas reduções |
+| VW Voyage | 🛡️ Escudo Refletor | de rua |
+| VW Gol GTI | 🔻 Encolhedor | de rua |
+| Hyundai HB20 Turbo | ❄️ Raio Congelante | de rua |
+| Chevrolet Monza SL/E | 🧲 Ímã | de rua |
+| VW speed up! TSI | 🔄 Troca-Troca | de rua |
+| Chevrolet Celta | 🌪️ Mini Tornado | de rua |
+| Furgão | 💨 Cortina de Fumaça | de rua |
 
 **Pops and bangs** (do Cidade Aberta): o carro **de rua** estoura no escapamento a cada redução — soltou o acelerador e a marcha
 caiu; o **Porsche 911 GT3 RS** também estala logo que tira o pé embalado. Ligar o **turbo** de quem estoura solta um **BANG**.
+
+**Todo poder pega de verdade** (31/10/2026): medido numa corrida com a IA, o rival acertado perde de 30 a 70 m nos 5 s seguintes. O
+Terremoto, o EMP e a Fumaça quase não tiravam nada (o rival seguia igual) e o Raio Congelante só corria na faixa de quem atirou.
 
 Os nomes são **os do Cidade Aberta**, iguais para todos (31/10/2026): os 10 primeiros tinham apelido (Vulcão, Lagartixa, Picolé…).
 
@@ -77,7 +84,7 @@ Os nomes são **os do Cidade Aberta**, iguais para todos (31/10/2026): os 10 pri
 | 9 | Canyon | 1,9 km | 3 saltos, loop, paredão de 65° |
 | 10 | Pista Maluca | 2,2 km | 2 loops, saca-rolha, 2 paredões, 2 atalhos |
 
-**Curvas para a criança** (30/10/2026): toda curva das 10 pistas tem raio de 50 m ou mais — o carro que menos vira (o Carro Vulcão) faz a
+**Curvas para a criança** (30/10/2026): toda curva das 10 pistas tem raio de 50 m ou mais — qualquer carro (todos viram igual) faz a
 volta inteira com o acelerador no fundo, sem frear nem diminuir. A inspeção das pistas (`teste_pistas`) reprova curva mais fechada.
 
 ## Estrutura

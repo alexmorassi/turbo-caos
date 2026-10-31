@@ -5,7 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { RAIZ, AQUI } from './comum.mjs';
-import { TABELA, CARRO_PADRAO } from './tabela.mjs';
+import { TABELA, CARRO_PADRAO, MESMO_NIVEL } from './tabela.mjs';
 
 const medidas = JSON.parse(fs.readFileSync(path.join(AQUI, 'medidas.json'), 'utf8'));
 const PODERES = ['oleo', 'emp', 'congelante', 'ima', 'trocatroca', 'encolhedor', 'fumaca', 'tornado', 'escudo', 'terremoto'];
@@ -26,6 +26,8 @@ for (const c of TABELA) {
 for (const c of TABELA) {
   const a = c.atributos, soma = a.velocidade + a.aceleracao + a.controle + a.peso + a.turbo;
   if (soma !== 16) erros.push(`${c.id}: soma dos atributos ${soma}, tem de ser 16`);
+  // MESMO NIVEL (31/10/2026, tools/carros/tabela.mjs): carro com atributo diferente dos outros reprova — quem ganha e o turbo e o poder
+  for (const k of Object.keys(MESMO_NIVEL)) if (a[k] !== MESMO_NIVEL[k]) erros.push(`${c.id}: ${k} = ${a[k]}, todos os carros tem o mesmo nivel (${MESMO_NIVEL[k]})`);
   for (const [k, v] of Object.entries(a)) if (!(v >= 1 && v <= 5 && Number.isInteger(v))) erros.push(`${c.id}: ${k} = ${v} fora de 1..5`);
   if (!medidas[c.id]) erros.push(`${c.id}: sem medidas (rode node tools/carros/otimiza.mjs ${c.id})`);
   if (!/^#[0-9a-f]{6}$/.test(c.cor)) erros.push(`${c.id}: cor ${c.cor} invalida`);
@@ -84,10 +86,9 @@ const texto = `// CARROS DO TURBO CAOS (fase 1). ARQUIVO GERADO por tools/carros
 // malha no EIXO da roda, extras { radius, front, side }; 1/2 frente, 3/4 tras, side 1 = +X) -> wheelN_malha. Girar
 // wheelN.rotation.x gira a roda no proprio eixo. Voador: sem wheel; pod0..3 filhos do body (extras { side, slide, aberto }).
 //
-// REGRA DOS ATRIBUTOS: 1 a 5 em velocidade, aceleracao, controle, peso e turbo, SOMA 16 em todos - nenhum carro e melhor em
-// tudo, a escolha vira estilo de corrida. Cada atributo tem pelo menos um carro com 5 (velocidade: Carro Dourado B7; aceleracao:
-// BYD Seal; controle: Porsche, Kart a Jato e speed up!; peso: Carro de Sorvete, Monster Truck e Furgao; turbo: Yaris Voador e outros).
-// O peso decide quem empurra quem na batida.
+// ATRIBUTOS: 1 a 5 em velocidade, aceleracao, controle, peso e turbo — o MESMO NIVEL em todos desde 31/10/2026 (pedido: "deixe todos
+// os carros com o mesmo nivel, a ideia e que ganhe quem utilizar melhor os turbos e os poderes"; antes cada um tinha os seus, com soma
+// 16, e o Carro Dourado B7 de velocidade 5 era impossivel de alcancar). O carro escolhe a cara e o poder (tools/carros/tabela.mjs).
 // Os 10 primeiros tem um poder cada (os 10 de config/poderes.js); os 9 do Cidade Aberta de 30/10/2026 (o Prius e os carros de rua com
 // pops and bangs) repetem poder. nome = o do Cidade Aberta em todos (31/10/2026; o id continua o de antes: o save guarda o id).
 // cor = destaque do carro na interface, minimapa e rastro, tirada da pintura.

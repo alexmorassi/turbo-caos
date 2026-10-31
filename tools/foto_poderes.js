@@ -118,12 +118,14 @@ const CENAS = [
   ['emp_carga', 'Pulso EMP carregando: o circulo azul crescendo em volta de quem usou', `
     F.limpa(); const j = F.poe(F.j, 40, 0, 16); F.poe(F.rivais[0], 52, 3.5, 16); F.poe(F.rivais[1], 60, -3, 16); F.poe(F.rivais[2], 75, 0, 16);
     F.dispara(j, 'emp'); F.anda(24); return '';`],
-  ['emp_estouro', 'o estouro: sem turbo, faiscas eletricas em quem ficou dentro', `F.anda(26); return '';`],
+  ['emp_estouro', 'o estouro: o choque (perde velocidade, sem turbo) e as faiscas eletricas em quem ficou dentro', `F.anda(26); return 'vf ' + F.rivais[0].vf.toFixed(1);`],
   ['congelante_raio', 'Raio Congelante correndo pela faixa ate o carro da frente', `
     F.limpa(); const j = F.poe(F.j, 30, 0, 20), R = F.poe(F.rivais[0], 78, 0.4, 16); F.dispara(j, 'congelante'); F.anda(22); return '';`],
   ['congelante_gelo', 'o congelado dentro do bloco de gelo', `
     const R = F.rivais[0]; for (let k = 0; k < 60 && !(R.efeitos.gelo > 0); k++) F.anda(1); F.anda(10); const s = F.sDe(R);
     F.olha(s - 6, 5, 2.2, s, 0.4, 0.8, 50); return 'gelo ' + R.efeitos.gelo.toFixed(2);`],
+  ['congelante_mira', 'o raio vai para a faixa do carro da frente (31/10/2026): sai do bico e curva ate o alvo 4,5 m para o lado', `
+    F.limpa(); const j = F.poe(F.j, 30, -2, 20), R = F.poe(F.rivais[0], 80, 2.5, 16); F.dispara(j, 'congelante'); F.anda(20); return 'faixa do alvo ' + R.d.toFixed(1);`],
   ['ima', 'Ima: o campo vermelho segura o rival perto e puxa as capsulas', `
     F.limpa(); const cap = F.c.capsulas.lista.filter((x) => x.sup === 0 && x.ativa && !x.dourada && x.s > F.s0 + 60)[0];
     const s = cap.s - F.s0 - 26; const j = F.poe(F.j, s, 0, 14); F.poe(F.rivais[0], s + 9, 3.5, 14); F.poe(F.rivais[1], s + 30, -3, 14);
@@ -149,7 +151,7 @@ const CENAS = [
     for (let k = 0; k < 60 && !(R.efeitos.gelo > 0); k++) F.anda(1); F.anda(5); const s = F.sDe(R); F.olha(s - 9, -6, 3, s + 10, 0, 0.8, 58); return 'rival gelo ' + R.efeitos.gelo.toFixed(2);`],
   ['terremoto_carga', 'Terremoto carregando: o chao treme (aviso) e levanta poeira', `
     F.limpa(); const j = F.poe(F.j, 40, 0, 15); F.poe(F.rivais[0], 55, 3.5, 15); F.poe(F.rivais[1], 66, -3, 15); F.dispara(j, 'terremoto'); F.anda(36); return '';`],
-  ['terremoto_onda', 'o tremor: a onda de choque e todo mundo escorregando', `F.anda(26); return 'aderencia ' + F.rivais[0].mod.aderencia;`],
+  ['terremoto_onda', 'o tremor: a onda de choque e o tranco — quem esta no chao rodopia (31/10/2026) e escorrega', `F.anda(20); return 'rodopio ' + F.rivais[0].efeitos.rodopio.toFixed(2) + ', aderencia ' + F.rivais[0].mod.aderencia;`],
 ];
 
 async function main() {

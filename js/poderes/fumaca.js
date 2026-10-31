@@ -1,6 +1,9 @@
 // PODER 7 — CORTINA DE FUMACA (Kombosa). Uma nuvem colorida (a Kombi paz e amor) fica na pista ATRAS do carro por `duracao` s: elipse de
 // `raio` m de meio comprimento ao longo da pista e `meiaLargura` m de meia largura atravessada. Quem esta DENTRO tem mod.visao (o HUD da
-// fase 6 embaca a tela do jogador; a IA da fase 5 perde precisao), mais forte no meio. ESQUIVA (verdade aqui): "A nuvem nao cobre a
+// fase 6 embaca a tela do jogador; a IA da fase 5 perde precisao), mais forte no meio, e ANDA MENOS: na entrada leva o susto (perde
+// `susto` da velocidade, no chao) e, dentro e por `lentoDepois` s depois de sair, mod.velMax *= 1 - lentidao ("nao enxerga, tira o pe").
+// POR QUE ANDA MENOS (31/10/2026, o Morassi: "o poder do jogador nao esta surtindo efeito nos outros carros"): so a visao nao se via —
+// a IA atravessava a nuvem quase sem perder nada (3 m em 5 s, medido numa corrida de verdade). ESQUIVA (verdade aqui): "A nuvem nao cobre a
 // pista toda: passe pelo lado" — como o oleo, a nuvem e posta deixando `livre` m de faixa para o centro do carro passar (dComFaixaLivre;
 // em atalho estreito ela afina). Fumaca vale no ar tambem (ate ALTURA_DA_NUVEM).
 // Escudo: o carro com escudo que entra fica imune a ESTA nuvem e quem mandou fica com a visao embacada `cegoDevolvido` s.
@@ -30,6 +33,7 @@ export class Fumaca extends PoderBase {
         tam: new Float32Array(BOLOTAS), cor: new Uint8Array(BOLOTAS), fase: new Float32Array(BOLOTAS) });
     }
     this.cego = this.porCarro();
+    this.lento = this.porCarro();
   }
 
   usa(c) {
@@ -65,8 +69,13 @@ export class Fumaca extends PoderBase {
         const q = (ds / cfg.raio) * (ds / cfg.raio) + (dd / n.mL) * (dd / n.mL);
         if (q < 1) {
           if (n.imunes & bit) continue;
-          if (!(n.dentro & bit)) { n.dentro |= bit; if (!P.acerta('fumaca', n.dono, x)) { n.imunes |= bit; continue; } }
+          if (!(n.dentro & bit)) {
+            n.dentro |= bit;
+            if (!P.acerta('fumaca', n.dono, x)) { n.imunes |= bit; continue; }
+            if (x.noChao && !x.estaVoando && x.vf > 0) x.vf *= 1 - cfg.susto * forca;   // o susto de entrar sem enxergar
+          }
           x.mod.visao = Math.max(x.mod.visao || 0, cfg.visao * (1 - 0.45 * q) * forca);
+          this.lento[x.indice] = Math.max(this.lento[x.indice], cfg.lentoDepois * forca);
         } else if (!(n.viu & bit) && !(n.dentro & bit) && ds >= 0 && ds < cfg.raio && Math.abs(dd) < n.mL + PASSOU_PERTO) {
           n.viu |= bit; P.esquivou('fumaca', n.dono, x);
         }
@@ -74,7 +83,10 @@ export class Fumaca extends PoderBase {
     }
     for (const c of this.corrida.carros) {
       const k = c.indice;
+      // sem enxergar, tira o pe: dentro da nuvem (o `lento` e renovado a cada passo la dentro) e um pouco depois de sair
+      if (this.lento[k] > 0) { c.mod.velMax *= 1 - cfg.lentidao; this.lento[k] = Math.max(0, this.lento[k] - dt); }
       if (this.cego[k] > 0) {
+        c.mod.velMax *= 1 - cfg.lentidao;   // devolvido pelo escudo: embacado igual a quem entra na nuvem
         c.mod.visao = Math.max(c.mod.visao || 0, cfg.visao * 0.9);
         this.cego[k] -= dt;
         if (this.cego[k] <= 0) { this.cego[k] = 0; P.fim('fumaca', c); }

@@ -1,6 +1,11 @@
 // PODER 10 — TERREMOTO (Vulcao). CARGA de `carga` s com aviso (o chao ja treme de leve, poeira em volta do dono; o jogador perto ve
-// "Terremoto! Pule!"), depois o TREMOR: todo rival a menos de `raio` m (3D) que estiver NO CHAO escorrega por `duracao` s
-// (mod.aderencia *= aderencia: o pneu segura menos e o carro desliza na curva). ESQUIVA (verdade aqui): "Quem estiver no ar na hora do
+// "Terremoto! Pule!"), depois o TREMOR: todo rival a menos de `raio` m (3D) que estiver NO CHAO leva o TRANCO — rodopia `voltas` volta
+// em `rodopio` s (js/carro.js rodopia: sem controle, perde boa parte da velocidade) — e escorrega por `duracao` s (mod.aderencia *=
+// aderencia: o pneu segura menos e o carro desliza na curva).
+// POR QUE O TRANCO (31/10/2026, o Morassi: "o poder do jogador nao esta surtindo efeito nos outros carros"): so escorregar nao fazia
+// nada que se visse — com as curvas de raio >= 50 m (pedido de 30/10) o rival nem chegava perto do limite do pneu; medido numa corrida
+// de verdade com a IA, o acertado perdia -7 m em 5 s (andava ate MAIS). Com o tranco perde ~40 m, como o oleo e o tornado.
+// ESQUIVA (verdade aqui): "Quem estiver no ar na hora do
 // tremor nao sente nada — pule numa rampa!" — `aplicaEm` confere `alvo.noChao` NA HORA do tremor: no ar (rampa, vao, tornado) escapa
 // (poder:esquivou) e continua escapado depois de pousar. Quem usou nunca escorrega.
 // camera.treme no jogador: leve na carga, forte no tremor e tremidinhas enquanto escorrega.
@@ -73,6 +78,7 @@ export class Terremoto extends PoderBase {
     const k = alvo.indice;
     this.escorrega[k] = this.cfg.duracao;
     this._treme[k] = TREME_A_CADA;
+    alvo.rodopia(this.cfg.rodopio, this.cfg.voltas);   // o tranco (cabecalho)
     this.P.treme(alvo, 0.85, 0.9);
     return true;
   }

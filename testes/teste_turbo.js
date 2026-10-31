@@ -82,8 +82,10 @@ suite('turbo', async (G) => {
     ok(Math.min(...caps) >= 2.5 && Math.max(...caps) <= 5.5 && TURBO.CAPACIDADE.every((v, i) => i === 0 || v > TURBO.CAPACIDADE[i - 1]), `capacidades de ${Math.min(...caps)} a ${Math.max(...caps)} s, crescendo com o atributo`);
     const c = await nova(G);
     ok(c.carros.every((x) => x.turbo && x.turbo.capacidade === capacidadeDoTurbo(x.cfg) && x.turbo.carga === TURBO.CARGA_INICIAL && x.turbo.ativo === false), `cada carro larga com ${Math.round(TURBO.CARGA_INICIAL * 100)}% e a sua capacidade`);
-    const voador = CARROS.find((x) => x.id === 'voador'), faisca = CARROS.find((x) => x.id === 'faisca');
-    ok(capacidadeDoTurbo(voador) > capacidadeDoTurbo(faisca), 'Toyota GR Yaris Voador (turbo 5) dura mais que o BYD Seal (turbo 2)');
+    // a regra pelo atributo continua valendo (a tabela e a mesma), mas desde 31/10/2026 todos os carros tem o MESMO NIVEL (pedido: "a
+    // ideia e que ganhe quem utilizar melhor os turbos e os poderes"): o mesmo turbo para todos
+    ok(capacidadeDoTurbo({ atributos: { turbo: 5 } }) > capacidadeDoTurbo({ atributos: { turbo: 2 } }), 'atributo turbo 5 dura mais que o 2 (a tabela)');
+    ok(new Set(caps).size === 1, `todos os carros com o mesmo turbo (${caps[0]} s de barra cheia)`);
   }
 
   // =============================================================================================== o sistema (como a IA usa): gasta so ligado

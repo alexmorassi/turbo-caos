@@ -147,7 +147,8 @@ export const IA = {
   ALCANCE_PERIGO: [35, 65],    // m de olhar para oleo/fumaca/tornado, por habilidade (o mediano ve tarde)
   FOLGA_PERIGO: 1.2,           // m alem do raio do perigo + meia largura
   AMEACA_ATRAS: 45,            // m: raio congelante / tornado vindo por tras na faixa do carro, ate esta distancia
-  ESQUIVA: [0.15, 0.8],        // chance de ver e esquivar a ameaca de tras, por habilidade (a crianca tambem nem sempre ve)
+  ESQUIVA: [0.1, 0.5],         // chance de ver e esquivar a ameaca de tras, por habilidade (a crianca tambem nem sempre ve). Era
+                               // [0,15; 0,8]: o rival bom escapava de 4 em 5 tornados e o poder da crianca "nao pegava" (31/10/2026)
   ALCANCE_CAPSULA: 70,         // m
   CAPSULA_MIN: 8,              // m: mais perto que isto nao da mais tempo de desviar
   CAPSULA_ANGULO: 0.28,        // |d da capsula - linha| <= 0,28 x distancia (~16 graus): pega sem atravessar a pista
@@ -187,7 +188,7 @@ export const IA = {
   TURBO_CARGA_MIN: 0.2,        // carga minima para ligar
   TURBO_REACAO: [0.8, 0.15],   // s de espera entre "da para ligar" e ligar, por habilidade
   TURBO_FOGE: 1.3,             // s de turbo para fugir da mira do Troca-Troca (config/poderes.js: a mira dura 1 s)
-  FUGA_TROCA: [0.3, 0.9],      // chance de ver a mira do Troca-Troca e fugir, por habilidade
+  FUGA_TROCA: [0.2, 0.6],      // chance de ver a mira do Troca-Troca e fugir, por habilidade (era [0,3; 0,9]: mesmo motivo da ESQUIVA)
   TURBO_GUARDA: [0, 0.35],     // carga guardada para a fuga, por habilidade (o bom guarda um pouco)
   TERREMOTO_RITMO: 0.85,       // x velocidade de curva com a pista tremendo (config/poderes.js: aderencia 0,35)
 

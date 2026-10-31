@@ -143,8 +143,10 @@ Cidade Aberta (o Toyota Prius e os de rua que fazem pops and bangs lá), que rep
 o emoji); o `id` é o de sempre (o save guarda o carro pelo id). Campos opcionais dos novos: `timbre` (`'eletrico'`,
 `'grave'`: o som do motor em `js/audio.js`), `pops` (`'turbo'` | `'esportivo'`) e `escapamento: { canos: [[x, y, z]…],
 dir: [x, y, z] }` — a boca de cada cano NO CARRO DAQUI (m, x = esquerda, y = cima, z = frente; o x de `dir` espelha pelo lado do cano).
-Regra dos atributos: soma 16 **e** velocidade 5 só com controle ≥ 3, velocidade 4 só com controle ≥ 2 (senão o raio da curva para a
-criança passa de 40,1 m e as pistas têm curva de 45 m). O campeonato continua com os 10 primeiros como rivais (`rivaisDoCampeonato`);
+Regra dos atributos: **o mesmo nível em todos** desde 31/10/2026 (`MESMO_NIVEL` em `tools/carros/tabela.mjs`: velocidade 4, o resto
+3 — pedido: "ganhe quem utilizar melhor os turbos e os poderes"; o `gera_config.mjs` reprova carro diferente). Continuam valendo a
+soma 16 e velocidade 5 só com controle ≥ 3, velocidade 4 só com controle ≥ 2 (senão o raio da curva para a criança passa de 40,1 m
+e as pistas têm curva de 45 m). O campeonato continua com os 10 primeiros como rivais (`rivaisDoCampeonato`);
 a corrida livre sorteia entre os 19.
 
 ```
@@ -244,7 +246,11 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
   `carro.poder = { id, restante, total, usos }`. Extras: `acerta(id, de, alvo)`, `escudoAtivo(c)`, `ameacado(c)`.
   Eventos: `turbo:vazio` também no aperto com a barra vazia; `poder:fim` para todo efeito com tempo (Escudo inclusive);
   `poder:esquivou` só quando o alvo escapou de verdade.
-  Configuração de cada poder em `config/poderes.js`. Todo poder: efeito visual, som (`G.audio.toca`), esquiva/contra-ataque.
+  Configuração de cada poder em `config/poderes.js`. Todo poder: efeito visual, som (`G.audio.toca`), esquiva/contra-ataque, e
+  **efeito que se sente** (31/10/2026: o acertado perde 30–70 m em 5 s numa corrida com a IA): o Terremoto dá o tranco
+  (`carro.rodopia(seg, voltas)`: uma volta) além de escorregar, o EMP dá o choque (perde velocidade na hora e o motor fica fraco) além
+  de tirar o turbo, a Fumaça deixa mais lento quem entra (susto na entrada + `mod.velMax`) e o Raio Congelante corre na faixa do carro
+  da frente (`congelante.faixa(raio, ds)`).
 - `corrida.pipoco` (`js/pipoco.js`, 30/10/2026): o **pops and bangs** dos carros com `cfg.pops`, com as regras do Cidade Aberta — de
   rua estoura na redução (as pseudo-marchas `MARCHAS` do `js/audio.js`, pé abaixo de 0,3), o esportivo também ao tirar o pé
   embalado; ligar o turbo (`turbo:liga`) de quem estoura solta um BANG. `passo(dt)` decide (sorteio do

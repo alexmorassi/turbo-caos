@@ -15,6 +15,14 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
      alto-falante; vibração.
    - **dificuldade para criança pequena**: o ritmo dos rivais na pista 1 é 87 % da vMax e o DDA alivia até 85 %. Os números estão em
      `config/dificuldade.js` (`BASE`, `DDA`, `ELASTICO`).
+   - **carros todos iguais e poderes mais fortes** (31/10/2026): com o mesmo carro para todos, quem decide é o turbo, o poder e a
+     dificuldade. Numa simulação da "criança preguiçosa" (acelerador no fundo, sem virar, turbo e poder tocados quando acendem) ela
+     chegou em 2º, 1º e 3º nas pistas 1, 3 e 5, e o pelotão terminou mais junto (do 1º ao último: 18–25 s; antes 45–55 s, com o
+     Carro Dourado B7 abrindo 5–11 s). O **rival forte** (o da pole) continua 3,5 % mais rápido que os outros rivais, de propósito:
+     é o adversário a caçar (`config/dificuldade.js` `PAPEIS.forte`). Os poderes da IA agora também tiram de verdade quando pegam o
+     jogador: se a criança achar que apanha demais, o número é o `usoDePoder` da `BASE`.
+   - na seleção, as **barras de atributo** ficaram iguais em todos os carros (é a verdade). Se confundir, dá para tirar as barras
+     e deixar só o poder.
    - se os **feixes do Raio Congelante e do Troca-Troca** se veem bem da câmera de trás (se não, o próximo passo é pintar a faixa
      de gelo no asfalto).
    - **sem as mensagens no meio da tela** (pedido de 30/10/2026) a criança perdeu os avisos de "você é o alvo" ("Raio de gelo! Mude
@@ -65,7 +73,8 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
 
 - **Carros** (fase 1): o Fuscão saiu (o `fusca.glb` é branco como o Faísca e a versão leve tem defeitos de malha) e entrou o
   **Buguinho** (laranja, chassi de Fusca, mesmo poder). O **Voador** fica com as turbinas recolhidas (abertas ele teria 2,7 m). Pela
-  regra de escala (4,2 × 2,3 × 2,6 m), o Picolé (3,25 m) e o Tubarão (3,34 m) ficam mais curtos. Atributos somam 16 em todos.
+  regra de escala (4,2 × 2,3 × 2,6 m), o Picolé (3,25 m) e o Tubarão (3,34 m) ficam mais curtos. Atributos somavam 16 em todos (desde
+  31/10/2026, o mesmo nível em todos: ver abaixo).
 - **Os 9 carros novos do Cidade Aberta** (30/10/2026, pedido: "coloque o Toyota Prius e os carros com pops and bangs"): os com pops
   são os SPECS do `cidadeaberta/js/carmodels.js` com `turbo` (Fusca Teto Solar, VW Voyage, VW Gol GTI, Hyundai HB20 Turbo, Chevrolet
   Monza SL/E, VW speed up! TSI, Chevrolet Celta, Furgão) ou `pops` (o Porsche 911 GT3 RS, que já estava aqui: ganhou o estouro).
@@ -93,6 +102,20 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
   continua segurando**: liga o turbo na reta e solta antes da curva, então gasta melhor que o jogador (que pode entrar numa curva
   com o turbo aceso). O DDA compensa; se nos testes com a criança os rivais parecerem espertos demais no turbo, dá para fazer a IA
   também de um toque (só acende quando a reta à frente comporta a barra inteira).
+- **Mesmo nível em todos os carros** (31/10/2026, pedido: "o carro dourado está muito rápido, está impossível de ganhar dele. Deixe
+  todos os carros com o mesmo nível, a ideia é que ganhe quem utilizar melhor os turbos e os poderes"): velocidade 4, arrancada 3,
+  curva 3, peso 3, turbo 3 em todos (`MESMO_NIVEL` em `tools/carros/tabela.mjs`; o `gera_config.mjs` reprova diferença). Velocidade
+  4 para a corrida continuar rápida; o resto no meio da tabela (soma 16). As frases que falavam de vantagem ("o mais arrancador",
+  "o turbo dura mais") foram reescritas. O tamanho de cada modelo (o Tubarão e o Carro de Sorvete são mais curtos) continua o dele.
+- **Todo poder pega de verdade** (31/10/2026, pedido: "o poder do jogador não está surtindo efeito nos outros carros"). Medido numa
+  corrida com a IA e a dificuldade ligadas, tocando o poder assim que acende: o rival acertado perdia −7 m em 5 s no Terremoto, 3 m na
+  Fumaça e 14 m no EMP (só escorregar, só embaçar e só tirar o turbo não se viam), e o Raio Congelante errava 10 de 13 tiros (só corria
+  na faixa de quem atirou). Agora: **Terremoto** dá o tranco (rodopia uma volta em 0,7 s) além de escorregar; **EMP** dá o choque
+  (perde 40 % da velocidade na hora e o motor fica fraco 1,2 s) além de tirar o turbo; **Fumaça** dá o susto na entrada (−25 %) e
+  deixa mais lento lá dentro e 1,2 s depois; **Raio Congelante** vai para a faixa do carro da frente (quem troca de faixa enquanto ele
+  vem escapa); **Ímã** segura 0,7 (era 0,82) e continua segurando 1,2 s depois do campo (era 0,35); **Encolhedor** 0,7 (era 0,8).
+  Resultado: 30–70 m perdidos por acerto em todos. E a IA esquiva menos (`ESQUIVA` 0,1–0,5, era 0,15–0,8; fuga do Troca-Troca 0,2–0,6,
+  era 0,3–0,9): o rival bom escapava de 4 em 5 tornados. As regras valem para todos: a IA acertando o jogador também tira de verdade.
 - **Poderes** (fase 4): o Troca-Troca devolvido pelo Escudo faz quem mandou trocar com quem vem atrás dele; o dono não sofre com a
   própria poça/nuvem; quem já chegou não é alvo; no máximo 3 cápsulas douradas por volta. Números ajustados para a esquiva escrita
   funcionar de verdade (óleo 10 s, EMP 24 m, raio congelante 80 m/s, tornado 2,4 m).
