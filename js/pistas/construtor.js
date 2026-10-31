@@ -19,8 +19,10 @@ import { geraLoop, BOCA_DO_ATALHO } from '../pista.js';
 /** Passo maximo entre pontos de controle numa reta (m). Com pontos alinhados a CatmullRom passa reta; 25 m deixa a lombada e o pe
  *  de subida suaves em ~1 trecho sem encher a pista de pontos (a tabela t -> s do nucleo custa 64 amostras por trecho). */
 const PASSO_RETA = 25;
-/** Passo maximo numa curva: 15 graus ou 20 m de arco. Com 15 graus a CatmullRom fica a menos de 2 cm do arco verdadeiro. */
-const PASSO_CURVA_GRAUS = 15, PASSO_CURVA_M = 20;
+/** Passo maximo numa curva: 7,5 graus ou 10 m de arco. Com 15 graus (antes) a POSICAO ficava a 2 cm do arco, mas a CURVATURA da
+ *  CatmullRom ondulava ~20 % (a curva de raio 50 media 39-40 m nas emendas) — e e a curvatura que diz se o carro faz a curva no
+ *  acelerador (30/10/2026, curvas para a crianca: testes/teste_pistas.js). Com 7,5 graus a ondulacao cai para poucos %. */
+const PASSO_CURVA_GRAUS = 7.5, PASSO_CURVA_M = 10;
 /** Determinante minimo do sistema de fechamento: as duas retas elasticas precisam fazer pelo menos ~17 graus entre si, senao o
  *  fechamento "estica" uma reta de centenas de metros para corrigir um erro pequeno. */
 const DET_MINIMO = 0.3;

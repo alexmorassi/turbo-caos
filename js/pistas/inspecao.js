@@ -5,6 +5,8 @@
 import * as THREE from 'three';
 import { MARCA, BOCA_DO_ATALHO } from '../pista.js';
 import { figurasDaPista } from './consulta.js';
+import { CARROS } from '../../config/carros.js';
+import { FISICA, indiceDoAtributo } from '../../config/fisica.js';
 
 /** Faixa de comprimento da volta (m): 45 a 60 s a ~35 m/s, com folga de 1,4 a 2,2 km (o pedido). */
 export const COMPRIMENTO_MIN = 1400, COMPRIMENTO_MAX = 2200;
@@ -14,6 +16,23 @@ export const FOLGA_VERTICAL = 6;
 export const VIZINHANCA = 40;
 /** Comprimento (m) da zona de transicao de cada boca de atalho, alem dos 12 m da boca: e onde o atalho ainda esta se afastando. */
 export const TRANSICAO_DA_BOCA = 45;
+/** CURVAS PARA A CRIANCA (30/10/2026, o Morassi: "curvas mais suaves; a crianca consegue fazer com o dedo no acelerador o tempo
+ *  inteiro, sem frear nem diminuir"). O raio que o carro que MENOS vira no fundo precisa (o raio de giro da fisica na vMax dele, com a
+ *  folga de volante que a ajuda guarda — FISICA.AJUDA.FRACAO_DA_CURVA) mais FAIXA_DE_DENTRO (o carro na faixa de dentro faz um raio
+ *  menor que o do centro). Hoje: o Vulcao (39 m/s, controle 2) -> 34,1 + 6 = 40,1 m. Por isso o desenho usa raio 50 no minimo. A
+ *  curvatura e a media em +-CURVA_JANELA m e loop, paredao, saca-rolha e salto ficam fora (CURVA_FIGURA_LIVRE m em volta): os mesmos
+ *  numeros do "tira o pe" da ajuda (config/fisica.js AJUDA). */
+const { FAIXA_DE_DENTRO, CURVA_JANELA, CURVA_FIGURA_LIVRE } = FISICA.AJUDA;
+export function raioDaCrianca() {
+  const F = FISICA;
+  let pior = 0;
+  for (const c of CARROS) {
+    const v = F.POR_ATRIBUTO.VEL_MAX[indiceDoAtributo(c.atributos.velocidade)];
+    const rr = F.POR_ATRIBUTO.RAIO_NA_REFERENCIA[indiceDoAtributo(c.atributos.controle)];
+    pior = Math.max(pior, (F.RAIO_MINIMO + (rr - F.RAIO_MINIMO) * (v / F.VEL_REFERENCIA) ** 2) / F.AJUDA.FRACAO_DA_CURVA);
+  }
+  return pior + FAIXA_DE_DENTRO;
+}
 /** Passo (m) das amostras na conta de vizinhanca: 2 m basta (largura minima 8 m) e deixa a conta em ~1 milhao de pares. */
 const PASSO_VIZ = 2;
 
@@ -164,5 +183,28 @@ export function inspeciona(pista) {
   medidas.mImpulso = conta(MARCA.IMPULSO);
   let ymin = Infinity, ymax = -Infinity; for (let i = 0; i < P.n; i++) { ymin = Math.min(ymin, P.P[i * 3 + 1]); ymax = Math.max(ymax, P.P[i * 3 + 1]); }
   medidas.desnivel = ymax - ymin;
+  // ------------------------------------------------------------ 9. curvas que a crianca faz com o pe no fundo
+  const rNec = raioDaCrianca();
+  const apertadas = [];
+  let rMin = 1e9;
+  for (const sup of pista.superficies) {
+    const n = sup.n, livre = new Uint8Array(n), jan = Math.max(1, Math.round(CURVA_JANELA / sup.ds)), folga = Math.round(CURVA_FIGURA_LIVRE / sup.ds);
+    for (let i = 0; i < n; i++) if (sup.marcas[i] & (MARCA.MAGNETICO | MARCA.VAO | MARCA.LANCA)) for (let k = -folga; k <= folga; k++) { const q = sup.fechada ? sup.idx(i + k) : i + k; if (q >= 0 && q < n) livre[q] = 1; }
+    let ini = -1, rTrecho = 1e9;
+    for (let i = 0; i <= n; i++) {
+      let R = 1e9;
+      if (i < n && !livre[i]) {
+        let k = 0, m = 0;
+        for (let j = -jan; j <= jan; j++) { const q = sup.fechada ? sup.idx(i + j) : i + j; if (q < 0 || q >= n) continue; k += Math.abs(sup.kh[q]); m++; }
+        R = 1 / Math.max(1e-9, k / Math.max(1, m));
+        rMin = Math.min(rMin, R);
+      }
+      if (R < rNec) { if (ini < 0) ini = i; rTrecho = Math.min(rTrecho, R); }
+      else if (ini >= 0) { apertadas.push(`tira ${sup.id} s ${(ini * sup.ds).toFixed(0)}-${(i * sup.ds).toFixed(0)} raio ${rTrecho.toFixed(0)} m`); ini = -1; rTrecho = 1e9; }
+    }
+  }
+  medidas.raioMinimo = rMin;
+  ok(apertadas.length === 0, `${nome}: toda curva dá para fazer com o pé no fundo (menor raio ${rMin.toFixed(0)} m; o carro que menos vira precisa de ${rNec.toFixed(0)})` + (apertadas.length ? ' — apertadas: ' + apertadas.slice(0, 6).join('; ') : ''));
+
   return { linhas, medidas };
 }

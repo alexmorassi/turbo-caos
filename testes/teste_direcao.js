@@ -59,7 +59,7 @@ suite('direcao', async (G) => {
 
   // ============================================================================ 1. SOLTO, UMA VOLTA, em todas as pistas
   {
-    const ruins = [];
+    const ruins = [], semPeNoFundo = [];
     let semAjuda = 0;
     for (const def of PISTAS) {
       const medida = {};
@@ -68,18 +68,26 @@ suite('direcao', async (G) => {
         const c = await nova(G, { pista: def.id });
         e.ajuda = ajuda;
         const j = c.jogador, L = c.pista.principal.comprimento, p0 = j.progresso;
-        let t = 0;
-        while (t < 90 && j.progresso - p0 < L) { dirige(1, () => 0); t += DT; }
-        medida[ajuda] = { batidas, quedas, t, volta: (j.progresso - p0) / L };
+        let t = 0, cortes = 0;
+        while (t < 90 && j.progresso - p0 < L) {
+          dirige(1, () => 0); t += DT;
+          // a ajuda tirou o pe com o carro na velocidade normal (nao na faixa de impulso nem no turbo)? E o que as curvas novas evitam
+          if (ajuda && j.controle.acel === 0 && j.vf <= j.p.vMax * 1.02) cortes++;
+        }
+        medida[ajuda] = { batidas, quedas, t, volta: (j.progresso - p0) / L, cortes };
         if (!ajuda) semAjuda += batidas;
       }
       const m = medida.true;
-      mede(`${def.id}: uma volta SOLTA (só o acelerador)`, `com a ajuda ${m.batidas} batidas e ${m.quedas} quedas em ${m.t.toFixed(0)} s` +
+      if (m.cortes > 0) semPeNoFundo.push(`${def.id} (${(m.cortes * DT).toFixed(1)} s)`);
+      mede(`${def.id}: uma volta SOLTA (só o acelerador)`, `com a ajuda ${m.batidas} batidas e ${m.quedas} quedas em ${m.t.toFixed(0)} s, ${(m.cortes * DT).toFixed(1)} s sem o pé no fundo` +
         (medida.false ? ` | sem a ajuda ${medida.false.batidas} batidas e ${medida.false.quedas} quedas em ${medida.false.t.toFixed(0)} s` : ''));
       if (!(m.volta >= 0.999 && m.batidas <= BATIDAS_POR_VOLTA && m.quedas === 0)) ruins.push(`${def.id} (${m.batidas} batidas, ${m.quedas} quedas)`);
     }
     ok(ruins.length === 0, `SOLTO, O CARRO SEGUE A ESTRADA: a volta inteira em todas as pistas com no máximo ${BATIDAS_POR_VOLTA} batidas e nenhuma queda` + (ruins.length ? ' — falhou: ' + ruins.join(', ') : ''));
-    ok(semAjuda >= 8, `sem a ajuda (o de antes) o carro solto batia em toda curva (${semAjuda} batidas em 2 voltas)`);
+    ok(semAjuda >= 1, `sem a ajuda o carro solto ainda bate (${semAjuda} batidas em 2 voltas; antes das curvas novas eram 28)`);
+    // CURVAS PARA A CRIANCA (30/10/2026: "fazer as curvas com o dedo no acelerador o tempo inteiro, sem frear nem diminuir"): o carro
+    // que menos vira (o Vulcao) faz a volta inteira de toda pista sem a ajuda precisar tirar o pe na velocidade normal
+    ok(semPeNoFundo.length === 0, 'CURVAS ABERTAS: em todas as pistas o Vulcão faz a volta com o pé no fundo — a ajuda não precisou frear nem tirar o pé' + (semPeNoFundo.length ? ' — tirou em: ' + semPeNoFundo.join(', ') : ''));
   }
 
   // ============================================================================ 2. TROCA DE FAIXA: um toque e solta
@@ -155,13 +163,14 @@ suite('direcao', async (G) => {
     j.colocaNaPista(0, 100, 0, 0.1, 30); j.derrapando = true;
     ok(direcaoAssistida(j, 0.7) === 0.7, 'derrapando: sem ajuda');
     j.derrapando = false;
-    // chegando rapido numa curva que nao da (a primeira da Orla, raio ~21 m): o pe sai sozinho
-    const c2 = await nova(G, { pista: 'orla' });
+    // chegando rapido numa curva que nao da: o pe sai sozinho. Na pista de TESTE (das suites): as 10 do jogo nao tem mais curva assim
+    // (30/10/2026, curvas para a crianca); a de teste tem a de 18 m da largada
+    const c2 = await nova(G, { pista: 'teste' });
     const j2 = c2.jogador, S = c2.pista.principal;
     let sCurva = 0; for (let s = 0; s < S.comprimento; s += 2) if (Math.abs(S.khEm(s)) > Math.abs(S.khEm(sCurva))) sCurva = s;
     j2.colocaNaPista(0, sCurva - 30, 0, 0, 40);
     segura('acel', 1); segura('direcao', 0); quadros(1);
-    ok(j2.controle.acel === 0 && j2.controle.freio > 0, `a 40 m/s chegando na curva mais fechada da Orla (raio ${(1 / Math.abs(S.khEm(sCurva))).toFixed(0)} m, teto ${tetoDaCurva(j2).toFixed(0)} m/s): o pé sai do acelerador e freia de leve (${j2.controle.freio.toFixed(2)})`);
+    ok(j2.controle.acel === 0 && j2.controle.freio > 0, `a 40 m/s chegando na curva mais fechada da pista de teste (raio ${(1 / Math.abs(S.khEm(sCurva))).toFixed(0)} m, teto ${tetoDaCurva(j2).toFixed(0)} m/s): o pé sai do acelerador e freia de leve (${j2.controle.freio.toFixed(2)})`);
     // a ajuda pode ser desligada (as suites de fisica medem a fisica crua; e o gancho para uma opcao)
     e.ajuda = false; j2.colocaNaPista(0, sCurva - 30, 0, 0, 40); segura('direcao', 0.4); quadros(1);
     ok(j2.controle.direcao === 0.4 && j2.controle.acel === 1, 'ajuda desligada: o carro recebe o dedo cru (e o pé fica no fundo)');

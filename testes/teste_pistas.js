@@ -79,14 +79,27 @@ suite('pistas', async (G) => {
         mede(`${def.id} desenho na ${nome}: triangulos`, info.triangles);
         ok(info.calls < META_CHAMADAS && info.triangles < META_TRIANGULOS, `${def.id}: ${nome} desenha ${info.calls} chamadas e ${(info.triangles / 1000).toFixed(0)} mil triangulos (meta < ${META_CHAMADAS} e < ${META_TRIANGULOS / 1000} mil, sem carros)`);
       }
-      // qualidade: a BAIXA tem de cortar cenario (contrato secao 10: metade do cenario e neblina mais perto)
-      // parte da ALTA de proposito (maestro, fase 7): no celular emulado a qualidade ja nasce MEDIA, e o corte media -> baixa e de so
-      // ~10 % — a assercao reprovava com --mobile sem nada errado no cenario
+      // qualidade: a BAIXA tem de cortar o CENARIO e aproximar a neblina (contrato secao 10). Mede-se o cenario que a densidade
+      // controla (os blocos instanciados de js/cenario.js que nao sao `fixo`), nao o total: o total tambem tem o chao e a fita, que
+      // crescem com o comprimento da pista. O Vulcao de 2,1 km (curvas para a crianca, 30/10/2026) cortava 15,0 % do total com o
+      // cenario cortado nos mesmos 60 % das outras pistas — a regra antiga (total -15 %; era 15,6 % com 1,9 km) reprovava a pista
+      // mais longa, nao um cenario errado. O corte do total continua medido no [MEDE].
+      // Parte da ALTA de proposito (maestro, fase 7): no celular emulado a qualidade ja nasce MEDIA.
+      const doCenario = () => {
+        let t = 0;
+        vis.grupo.traverse((o) => {
+          if (!o.isInstancedMesh || !o.visible || o.userData.cheia === undefined || o.userData.fixo) return;
+          const g = o.geometry; t += (g.index ? g.index.count / 3 : g.attributes.position.count / 3) * o.count;
+        });
+        return t;
+      };
       vis.aplicaQualidade({ densidadeCenario: 1, distancia: 1000 });
-      const alta = vis.conta().triangulos, longeAlta = G.cena.fog ? G.cena.fog.far : 0;
+      const alta = vis.conta().triangulos, cenAlta = doCenario(), longeAlta = G.cena.fog ? G.cena.fog.far : 0;
       vis.aplicaQualidade({ densidadeCenario: 0.4, distancia: 450 });
-      const baixa = vis.conta().triangulos, longeBaixa = G.cena.fog ? G.cena.fog.far : 0;
-      ok(baixa < alta * 0.85 && longeBaixa < longeAlta, `${def.id}: qualidade BAIXA corta o cenario (${(alta / 1000).toFixed(0)} -> ${(baixa / 1000).toFixed(0)} mil triangulos) e aproxima a neblina (${longeAlta.toFixed(0)} -> ${longeBaixa.toFixed(0)} m)`);
+      const baixa = vis.conta().triangulos, cenBaixa = doCenario(), longeBaixa = G.cena.fog ? G.cena.fog.far : 0;
+      mede(`${def.id} corte da BAIXA no total de triangulos (%)`, 100 * (1 - baixa / alta));
+      // densidade 0,4 com arredondamento por bloco: 38,5-40,4 % nas 10 pistas; 45 % e a folga
+      ok(cenAlta > 0 && cenBaixa <= cenAlta * 0.45 && baixa < alta && longeBaixa < longeAlta, `${def.id}: qualidade BAIXA corta o cenario (${(cenAlta / 1000).toFixed(0)} -> ${(cenBaixa / 1000).toFixed(0)} mil triangulos de cenario; total ${(alta / 1000).toFixed(0)} -> ${(baixa / 1000).toFixed(0)} mil) e aproxima a neblina (${longeAlta.toFixed(0)} -> ${longeBaixa.toFixed(0)} m)`);
       vis.aplicaQualidade(G.qualidade.p);
       vis.destroi();
       ok(vis.grupo.parent === null, `${def.id}: destroi tira o visual da cena`);

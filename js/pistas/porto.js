@@ -8,17 +8,17 @@ const c = new Construtor({ inicio: [0, 0, 0], rumo: -90, largura: 14 });
 // rumos: -90 (o cais da largada, o mar a esquerda) -> 0 (pier 1, mar adentro) -> -90 (ponte na ponta) -> -180 (pier 2, volta)
 //        -> -90 (cais de novo, loop) -> -180 -> -270 (a rua dos armazens) -> -360 -> -450 (= -90)
 c.reta(90, { nome: 'largada' })
-  .esquerda(40, 90, { incl: 8 })
+  .esquerda(50, 90, { incl: 8 })
   .reta(70)
   .ponto('entrada_cais')
   .reta(100)
-  .direita(40, 90, { incl: 9 })
+  .direita(50, 90, { incl: 9 })
   .reta(100, { ponte: true, marca: 'sem_muro', nome: 'ponte_pier' })
-  .direita(40, 90, { incl: 9 })
+  .direita(50, 90, { incl: 9 })
   .reta(100)
   .ponto('saida_cais')
   .reta(70)
-  .esquerda(40, 90, { incl: 8 })
+  .esquerda(50, 90, { incl: 8 })
   .reta(50)
   .reta(30, { marca: 'impulso' })
   .loop({ raio: 12, larg: 12, nome: 'loop_cais' })
@@ -39,7 +39,8 @@ c.reta(90, { nome: 'largada' })
 
 c.atalho({
   de: 'entrada_cais', ate: 'saida_cais', lado: 'dir', largura: 9, nome: 'Salto do Cais',
-  via: (t) => t.direita(30, 90, { incl: 6 }).reta(12).rampa({ comp: 24, altura: 3.6, vao: 22, queda: 1.2, pouso: 26, perigo: 'agua' }),
+  // a volta do fim e uma curva de raio 50 de verdade: a cubica de ligacao sozinha fechava em raio 13 (30/10/2026, curvas para a crianca)
+  via: (t) => t.direita(50, 90, { incl: 6 }).reta(5).rampa({ comp: 24, altura: 3.6, vao: 22, queda: 1.2, pouso: 26, perigo: 'agua' }).direita(50, 90, { incl: 6 }),
   douradas: [{ em: 4, d: 0 }],
 });
 const tracado = c.compila();

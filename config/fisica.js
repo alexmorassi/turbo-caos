@@ -82,6 +82,10 @@ export const FISICA = {
     FREIO_MAX: 0.55,       // fracao do freio que a ajuda usa no maximo
     FREIO_POR_MS: 0.12,    // fracao do freio por m/s acima do teto
     SALTO_LIVRE: 70,       // m antes de VAO/LANCA sem teto
+    CURVA_JANELA: 4,       // m: a curvatura vale a media em +-4 m (o volante leva ~0,15 s: o carro nao segue o pico de 2 m na emenda
+                           // da spline). O mesmo numero na inspecao das pistas (js/pistas/inspecao.js, "curvas para a crianca")
+    CURVA_FIGURA_LIVRE: 30, // m em volta de loop, paredao e saca-rolha (MAGNETICO) sem teto: a fisica garante a velocidade ali
+    FAIXA_DE_DENTRO: 6,    // m: na faixa de dentro o carro faz um raio menor que o do centro (inspecao: raio da crianca)
   },
   PERDA_NA_CURVA: 0.04,    // fracao do escorregamento tirado pelo pneu que vira perda de velocidade (o resto volta para a frente:
                            // "mantem o embalo"). Curva toda virada a 36 m/s custa ~2 m/s2: segurar a curva fechada e mais lento

@@ -56,6 +56,11 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
 - **Física** (fase 2): crista da rampa lança 8° mais para cima (sem isso a rampa da pista de teste virava lombada); quem cai num vão
   volta DEPOIS do buraco; parede invisível no ar acima dos muros; FREIO e DRIFT num botão só; loop nunca derruba (mínimo 18 m/s).
 - **Turbo × faixa de impulso não empilham** (maestro): os dois juntos davam 1,69 × a vMax (66 m/s antes do loop da Neon).
+- **Curvas para a criança** (30/10/2026: "curvas mais suaves, com o dedo no acelerador o tempo inteiro"): as 10 pistas foram
+  redesenhadas com raio ≥ 50 m em toda curva (o Vulcão, o que menos vira, faz a volta inteira sem a ajuda tirar o pé). As voltas
+  ficaram entre 1,7 e 2,2 km; os desvios do Beco (Neon) e do Circo e do Tobogã (Maluca) viraram curvas de 60°; a rampa do Palhaço
+  passou para depois do viaduto; o atalho do Cais (Porto) ganhou a curva de volta de raio 50. **No turbo** (1,3 × a velocidade) as
+  curvas de raio 50 ainda pedem um pouco de freio nos carros de controle baixo: a ajuda tira o pé sozinha ali.
 - **Ajuda na direção** (30/10/2026: "o carro está virando demais, zigue-zague, ninguém se mantém na pista"): só o jogador. Medido em
   `teste_direcao`: uma volta SOLTA (só o acelerador) em cada pista bate 0–1 vez com a ajuda contra 11–17 sem; a "criança" com 0,3 s de
   reação que ia de muro em muro agora volta para o meio e assenta. Escolhas: o dedo pede ângulo (no máximo 8 m/s de lado); "tira o pé"

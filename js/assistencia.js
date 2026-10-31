@@ -74,10 +74,14 @@ function tetoDaTira(sup, raioRef) {
   if (t) return t;
   const n = sup.n, ds = sup.ds;
   t = new Float32Array(n);
-  // a curva sozinha: raio(v) = FRACAO / |kh| (a inversa da conta da fisica)
+  // a curva sozinha: raio(v) = FRACAO / |kh| (a inversa da conta da fisica), com a curvatura media em +-CURVA_JANELA m (o volante leva
+  // ~0,15 s para chegar: o carro nao segue o pico de 2 m na emenda da spline — e a mesma conta da inspecao das pistas)
+  const jan = Math.max(1, Math.round(A.CURVA_JANELA / ds));
   for (let i = 0; i < n; i++) {
-    const k = Math.abs(sup.kh[i]);
-    if (k < 1e-4 || (sup.marcas[i] & MARCA.MAGNETICO)) { t[i] = SEM_TETO; continue; }
+    let soma = 0, m = 0;
+    for (let j = -jan; j <= jan; j++) { const q = sup.fechada ? sup.idx(i + j) : i + j; if (q < 0 || q >= n) continue; soma += Math.abs(sup.kh[q]); m++; }
+    const k = soma / Math.max(1, m);
+    if (k < 1e-4) { t[i] = SEM_TETO; continue; }
     const R = A.FRACAO_DA_CURVA / k;
     t[i] = R <= F.RAIO_MINIMO + 0.3 ? 4 : F.VEL_REFERENCIA * Math.sqrt((R - F.RAIO_MINIMO) / (raioRef - F.RAIO_MINIMO));
   }
@@ -91,11 +95,13 @@ function tetoDaTira(sup, raioRef) {
       if (v < t[i]) t[i] = v;
     }
   }
-  // antes de salto, nenhum teto: ele precisa da velocidade (a crista e o vao decidem, nao a curva)
-  const livre = Math.round(A.SALTO_LIVRE / ds);
+  // antes de salto, nenhum teto: ele precisa da velocidade (a crista e o vao decidem, nao a curva); no loop, paredao e saca-rolha
+  // (MAGNETICO) e em volta deles, tambem nao: a fisica garante a velocidade minima e a faixa de impulso de antes e para isso
+  const livre = Math.round(A.SALTO_LIVRE / ds), folga = Math.round(A.CURVA_FIGURA_LIVRE / ds);
   for (let i = 0; i < n; i++) {
-    if (!(sup.marcas[i] & (MARCA.VAO | MARCA.LANCA))) continue;
-    for (let k = 0; k <= livre; k++) { const j = i - k; if (j < 0 && !sup.fechada) break; t[sup.idx(j)] = SEM_TETO; }
+    const mk = sup.marcas[i];
+    if (mk & (MARCA.VAO | MARCA.LANCA)) for (let k = 0; k <= livre; k++) { const j = i - k; if (j < 0 && !sup.fechada) break; t[sup.idx(j)] = SEM_TETO; }
+    if (mk & MARCA.MAGNETICO) for (let k = -folga; k <= folga; k++) { const j = i + k; if ((j < 0 || j >= n) && !sup.fechada) continue; t[sup.idx(j)] = SEM_TETO; }
   }
   porRaio.set(raioRef, t);
   return t;

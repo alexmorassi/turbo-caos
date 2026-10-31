@@ -94,6 +94,12 @@ Pendências de cada fase vão no relatório `docs/fases/faseN_<nome>.md`; o maes
 
 ## 4. Pista (`js/pista.js` — núcleo pronto) e definição de pista (`js/pistas/<id>.js`)
 
+**Curvas para a criança** (30/10/2026): nas 10 pistas toda curva tem raio de desenho ≥ 50 m (`direita/esquerda` do construtor; os
+desvios de 90° viraram 60° onde o bojo cresceu demais) e a inspeção (`js/pistas/inspecao.js`, item 9) reprova curva cuja curvatura
+média em ±4 m dê raio abaixo de `raioDaCrianca()` = raio de giro do carro que menos vira na vMax ÷ `AJUDA.FRACAO_DA_CURVA` + 6 m de
+faixa de dentro (hoje 40,1 m; loop, paredão, saca-rolha e salto ficam fora). O construtor emite curva de 7,5° em 7,5° (era 15°: a
+curvatura da CatmullRom ondulava ~20 %).
+
 **Coordenadas da pista:** `(sup, s, d, h)` — superfície (0 = principal, k = atalho k), metros percorridos, metros à direita do
 centro, metros acima do asfalto. Quadro por amostra: `T` frente, `N` cima da pista, `R = T × N` direita.
 

@@ -46,16 +46,19 @@ sobrou fica para o próximo toque. Apertar o TURBO bem no **VAI!** dá uma larga
 
 | # | Pista | Volta | Destaques |
 |---|---|---|---|
-| 1 | Orla do Rio | 1,6 km | atalho de areia, salto sobre o canal |
-| 2 | Favela Morro Acima | 1,7 km | escadaria sem muro, curva fechada inclinada |
+| 1 | Orla do Rio | 1,9 km | atalho de areia, salto sobre o canal |
+| 2 | Favela Morro Acima | 1,8 km | escadaria sem muro, curva inclinada |
 | 3 | Deserto | 1,8 km | vale de terra com rampa, 2 saltos |
 | 4 | Gelo | 1,8 km | lago com impulso, 2 saltos |
-| 5 | Vulcão | 1,9 km | pulo do lago de lava, loop, ponte sem muro |
+| 5 | Vulcão | 2,1 km | pulo do lago de lava, loop, ponte sem muro |
 | 6 | Selva | 1,7 km | atalho de lama, loop da cachoeira |
-| 7 | Cidade Neon (noite) | 2,0 km | loop, saca-rolha, viaduto em oito |
-| 8 | Porto/Docas | 2,1 km | salto do cais (vão de 22 m), loop |
+| 7 | Cidade Neon (noite) | 2,1 km | loop, saca-rolha, viaduto em oito |
+| 8 | Porto/Docas | 2,2 km | salto do cais (vão de 22 m), loop |
 | 9 | Canyon | 1,9 km | 3 saltos, loop, paredão de 65° |
 | 10 | Pista Maluca | 2,2 km | 2 loops, saca-rolha, 2 paredões, 2 atalhos |
+
+**Curvas para a criança** (30/10/2026): toda curva das 10 pistas tem raio de 50 m ou mais — o carro que menos vira (o Vulcão) faz a
+volta inteira com o acelerador no fundo, sem frear nem diminuir. A inspeção das pistas (`teste_pistas`) reprova curva mais fechada.
 
 ## Estrutura
 
