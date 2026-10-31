@@ -6,7 +6,8 @@
 //   2. TROCA DE FAIXA: um toque para o lado e solta — o carro fica paralelo na faixa nova ou continua torto ate o muro;
 //   3. A "CRIANCA": um piloto de gente (ve onde o carro esta com ATRASO DE REACAO e arrasta o polegar para o meio — mais longe, mais
 //      arrasto —, sem olhar o rumo: ninguem le o angulo do carro numa tela de celular) numa reta comprida. E o zigue-zague do pedido;
-//   4. o dedo continua mandando: devagar nao ha ajuda, virar tudo continua possivel, derrapando e atravessado a ajuda sai.
+//   4. o dedo continua mandando: devagar nao ha ajuda, virar tudo continua possivel, derrapando e atravessado a ajuda sai;
+//   5. SOLTOU O ACELERADOR, PERDE VELOCIDADE (30/10/2026: o FREIO saiu da tela) — e parado nao vira re.
 // Os rivais ficam parados longe (chegou = true) e sem capsulas: a medida e do carro do jogador. O jogador e dirigido pela ENTRADA
 // (segura/solta), o mesmo caminho do dedo: js/entrada.js aplicaNoCarro -> direcaoAssistida / pedaisAssistidos.
 import { suite, ok, mede, quadros, segura, solta, apagaProgresso, corridaDeTeste, largada, entradaDeVolta } from './harness.js';
@@ -165,6 +166,28 @@ suite('direcao', async (G) => {
     e.ajuda = false; j2.colocaNaPista(0, sCurva - 30, 0, 0, 40); segura('direcao', 0.4); quadros(1);
     ok(j2.controle.direcao === 0.4 && j2.controle.acel === 1, 'ajuda desligada: o carro recebe o dedo cru (e o pé fica no fundo)');
     e.ajuda = true;
+  }
+
+  // ============================================================================ 5. SOLTOU O ACELERADOR
+  {
+    const r = {};
+    for (const freia of [false, true]) {
+      const c = await nova(G, { def: OVAL });
+      e.freioAoSoltar = freia;
+      const j = c.jogador;
+      j.colocaNaPista(0, 100, 0, 0, 36); quadros(1);
+      dirige(Math.round(2 / DT), () => 0, 0);
+      r[freia] = j.vf;
+    }
+    e.freioAoSoltar = true;
+    mede('2 s depois de soltar o acelerador a 36 m/s', `${r.true.toFixed(1)} m/s (só deslizando, como antes: ${r.false.toFixed(1)} m/s)`);
+    ok(r.true < 28 && r.false > 29, `soltou o acelerador: o carro perde velocidade (36 -> ${r.true.toFixed(0)} m/s em 2 s; deslizando era ${r.false.toFixed(0)})`);
+    const c = await nova(G, { def: OVAL });
+    const j = c.jogador;
+    j.colocaNaPista(0, 100, 0, 0, 4); quadros(1);
+    let menor = 0;
+    for (let k = 0; k < Math.round(4 / DT); k++) { dirige(1, () => 0, 0); menor = Math.min(menor, j.vf); }
+    ok(menor > -0.05 && Math.abs(j.vf) < 0.05, `soltou devagar: o carro para e NÃO vira ré (menor velocidade ${menor.toFixed(2)} m/s)`);
   }
 
   solta('acel'); solta('direcao'); entradaDeVolta();

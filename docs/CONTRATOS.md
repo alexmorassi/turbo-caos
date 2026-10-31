@@ -176,9 +176,11 @@ Morassi, 29/10/2026, no estilo dos jogos de corrida de celular): à esquerda o *
 `#stick-knob`; o modo `'joystick'`, **padrão desde 30/10/2026** a pedido da criança: progressivo, a ponta do trilho é a direção toda —
 `raioDoArrasto()` = (trilho − botão) / 2 —, solto volta ao meio com mola; é também a reserva da inclinação sem sensor). `'botoes'`
 (setas ◀ ▶) fica nas opções como "Setas"; `'botoes'` gravado antes de 30/10 sem a marca `opcoes.arrastarPadrao` vira o arrastar uma
-vez. À direita os PEDAIS `#btn-acel` (ACELERADOR,
-na ponta) e `#btn-freio` (FREIO), e a coluna redonda `#btn-turbo` (embaixo) + `#btn-poder` (em cima). **Aceleração automática
-DESLIGADA por padrão** (o acelerador aparece); ligada nas opções, o acelerador some. O pedal FREIO liga `freio` e `drift` juntos. `#btn-pausa` só liga `estado.pausa` (a fase 6 põe o botão de pausa dela por cima e lê `apertou('pausa')`).
+vez. À direita o ACELERADOR `#btn-acel` (pedal LARGO no canto) e, colada nele, a coluna redonda `#btn-turbo` (embaixo, ao lado do
+pedal) + `#btn-poder` (em cima) — o alcance do polegar no acelerador até o TURBO e o PODER é medido no `teste_mobile` (30/10/2026,
+pedido para a criança de 5 anos). **Sem FREIO na tela** (30/10/2026): soltar o acelerador freia (`freioAoSoltar`, `FREIO_AO_SOLTAR`
+= 0,2 do freio acima de 2 m/s; parado não vira ré); o teclado mantém S/↓ = freio e Ctrl = drift. **Aceleração automática
+DESLIGADA por padrão** (o acelerador aparece); ligada nas opções, o acelerador some e a coluna redonda vai para o canto. `#btn-pausa` só liga `estado.pausa` (a fase 6 põe o botão de pausa dela por cima e lê `apertou('pausa')`).
 **AJUDA NA DIREÇÃO** (30/10/2026, `js/assistencia.js`, números em `config/fisica.js` `AJUDA`): `aplicaNoCarro` passa a direção pela
 `direcaoAssistida(carro, dedo)` — o dedo pede um **ângulo em relação à estrada** (até `LATERAL_MAX` m/s de lado), solto = paralelo
 à pista, a curva da estrada vem sozinha — e o acelerador/freio pela `pedaisAssistidos` ("tira o pé" na curva que o carro não faz

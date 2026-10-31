@@ -2,7 +2,9 @@
 // e o estado que a corrida copia para o carro do jogador. Contrato: docs/CONTRATOS.md secao 6.
 //
 // O PADRAO DOS CONTROLES DE TOQUE E O DO "BRENO E O TESOURO DO PIRATA MORASSI" (js/core.js initInput e os botoes .big do index.html),
-// adaptado: direcao so no eixo X, botoes TURBO / PODER / FREIO (e ACELERA quando a aceleracao automatica esta desligada).
+// adaptado: direcao so no eixo X, botoes TURBO / PODER e o ACELERADOR (quando a aceleracao automatica esta desligada). O FREIO saiu da
+// tela em 30/10/2026 (pedido do Morassi): SOLTAR O ACELERADOR FREIA (`freioAoSoltar`, FREIO_AO_SOLTAR em config/fisica.js) — o teclado
+// ainda tem freio (S/seta para baixo) e derrapagem (Ctrl) para o desenvolvimento.
 //   * Pointer Events com pointerId: cada dedo segura UM controle — direcao + TURBO ao mesmo tempo (multitoque) sem um soltar o outro.
 //     setPointerCapture: o dedo que escorrega para fora do botao continua apertando (crianca nao mira com precisao).
 //   * ARRASTAR (o modo 'joystick'; PADRAO desde 30/10/2026 — a crianca pediu "um botao de arrastar progressivo para virar, que volta
@@ -112,16 +114,17 @@ const ESTILO = `
 #controles .tc-incl-barra { position: relative; width: clamp(150px, 40vh, 200px); height: 26px; border-radius: 14px; background: rgba(255,255,255,.25); border: 4px solid rgba(255,255,255,.75); }
 #controles .tc-incl-ponto { position: absolute; top: 50%; left: 50%; width: 30px; height: 30px; border-radius: 50%; transform: translate(-50%, -50%);
   background: radial-gradient(circle at 35% 30%, #fff, #ffe08a 60%, #f0b830); border: 3px solid #fffaf0; }
-/* DIREITA NO ESTILO DOS JOGOS DE CORRIDA DE CELULAR (pedido do Morassi, 29/10/2026, com a foto de referencia): dois PEDAIS em pe no
-   canto — ACELERADOR (o mais alto, na ponta, como no carro de verdade) e FREIO ao lado dele —, e a coluna dos botoes redondos a
-   esquerda dos pedais: TURBO embaixo (o polegar ja esta ali) e PODER em cima. Tudo medido em min(vh, vw): no iPhone deitado, com o
-   entalhe comendo ~47 px de cada lado, o grupo encolhe em vez de encostar nas setas. A coluna redonda fica fora da faixa do minimapa
-   da fase 6 (canto de cima a direita). Na aceleracao automatica (opcao) o ACELERADOR some e o FREIO vai para a ponta.
-   TURBO nunca abaixo de 80 px (a "area de toque generosa" da fase 2): no Safari do iPhone deitado, com a barra de endereco, a tela
-   tem 664 px de largura e o 11.5vw dava 76 px — o botao mais usado da corrida ficava menor que o minimo (teste_entrada no iPhone). */
+/* DIREITA (pedidos do Morassi de 29 e 30/10/2026): o ACELERADOR em pe no canto, LARGO — o polegar da crianca de 5 anos cai nele sem
+   mirar — e a coluna dos botoes redondos COLADA nele: TURBO embaixo, logo a esquerda do acelerador (o polegar so desliza para o
+   lado), e PODER em cima do TURBO. O FREIO saiu ("remover o freio"): soltar o acelerador ja freia (FREIO_AO_SOLTAR em
+   config/fisica.js) e a ajuda tira o pe sozinha na curva que nao da (js/assistencia.js). Antes o TURBO ficava depois do freio, a
+   ~190 px do centro do acelerador; agora a ~125 px e o PODER a ~150 (teste_mobile mede o alcance). Tudo em min(vh, vw): no iPhone
+   deitado, com o entalhe comendo ~47 px de cada lado, o grupo encolhe em vez de encostar na direcao. A coluna redonda fica fora da
+   faixa do minimapa da fase 6 (canto de cima a direita). Na aceleracao automatica (opcao) o ACELERADOR some e a coluna vai para o
+   canto. TURBO nunca abaixo de 84 px (a "area de toque generosa" da fase 2; o Safari do iPhone deitado, com a barra, tem 664 px). */
 #controles .tc-dir-grupo { position: absolute; right: calc(max(14px, var(--sar)) + 4px); bottom: calc(var(--sab) + 14px); width: 1px; height: 1px;
-  --pw: clamp(58px, min(18vh, 9vw), 92px); --ph: clamp(108px, min(37vh, 18.5vw), 170px); --fh: calc(var(--ph) * 0.74);
-  --t: clamp(80px, min(23vh, 11.5vw), 112px); --p: clamp(64px, min(20vh, 10vw), 100px); --g: clamp(12px, 3.4vh, 20px); }
+  --aw: clamp(84px, min(28vh, 14vw), 136px); --ph: clamp(108px, min(37vh, 18.5vw), 170px);
+  --t: clamp(84px, min(25vh, 12.5vw), 116px); --p: clamp(72px, min(21vh, 10.5vw), 104px); --g: clamp(12px, 3.4vh, 20px); }
 #controles .tc-dir-grupo > .tc-big, #controles .tc-dir-grupo > .tc-pedal { position: absolute; }
 #controles .tc-pedal { display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-sizing: border-box; margin: 0;
   padding: 9px 0 10px; border-radius: 18px; border: 4px solid #fffaf0; pointer-events: auto; touch-action: none; color: #fff; cursor: pointer;
@@ -132,16 +135,14 @@ const ESTILO = `
 #controles .tc-pedal .tc-faixa { width: 68%; height: 9px; border-radius: 5px; background: var(--cor); box-shadow: 0 0 10px var(--cor); flex: none; }
 #controles .tc-pedal svg { width: 62%; height: auto; flex: 1 1 auto; max-height: 46%; pointer-events: none; filter: drop-shadow(0 2px 0 rgba(0,0,0,.35)); }
 #controles .tc-pedal .tc-rotulo { position: static; transform: none; flex: none; font-size: clamp(9px, 2.4vh, 13px); letter-spacing: 0; }
-#controles #btn-acel { --cor: #5dff8a; right: 0; bottom: 0; width: var(--pw); height: var(--ph); }
-#controles #btn-freio { --cor: #ff4d4d; right: calc(var(--pw) + var(--g)); bottom: 0; width: var(--pw); height: var(--fh); }
-#controles #btn-turbo { right: calc(2 * var(--pw) + 2 * var(--g)); bottom: 0; width: var(--t); height: var(--t);
+#controles #btn-acel { --cor: #5dff8a; right: 0; bottom: 0; width: var(--aw); height: var(--ph); }
+#controles #btn-turbo { right: calc(var(--aw) + var(--g)); bottom: 0; width: var(--t); height: var(--t);
   background: radial-gradient(circle at 40% 30%, #ffd07a, #ff7a1a 60%, #e0400f); }
-#controles #btn-poder { right: calc(2 * var(--pw) + 2 * var(--g) + (var(--t) - var(--p)) / 2); bottom: calc(var(--t) + var(--g)); width: var(--p); height: var(--p);
+#controles #btn-poder { right: calc(var(--aw) + var(--g) + (var(--t) - var(--p)) / 2); bottom: calc(var(--t) + var(--g)); width: var(--p); height: var(--p);
   background: radial-gradient(circle at 40% 30%, #e2b8ff, #9b5cf6 60%, #6a3fd0); }
-/* aceleracao automatica: sem o ACELERADOR, o FREIO vai para a ponta e a coluna redonda chega junto */
-#controles .tc-ctl:not(.tc-manual) #btn-freio { right: 0; }
-#controles .tc-ctl:not(.tc-manual) #btn-turbo { right: calc(var(--pw) + var(--g)); }
-#controles .tc-ctl:not(.tc-manual) #btn-poder { right: calc(var(--pw) + var(--g) + (var(--t) - var(--p)) / 2); }
+/* aceleracao automatica: sem o ACELERADOR, a coluna redonda vai para o canto (onde o polegar descansa) */
+#controles .tc-ctl:not(.tc-manual) #btn-turbo { right: 0; }
+#controles .tc-ctl:not(.tc-manual) #btn-poder { right: calc((var(--t) - var(--p)) / 2); }
 #controles .tc-redondo { position: absolute; top: calc(var(--sat) + 10px); right: calc(max(12px, var(--sar)) + 4px); width: 54px; height: 54px; border-radius: 50%;
   background: rgba(255,250,240,.92); border: 4px solid #23324a; box-shadow: 0 5px 0 rgba(0,0,0,.25); pointer-events: auto; touch-action: none; display: grid;
   place-items: center; padding: 0; color: #23324a; font: 900 22px/1 system-ui, sans-serif; cursor: pointer; box-sizing: border-box; }
@@ -154,7 +155,6 @@ const SETA_DIR = '<svg viewBox="0 0 24 24"><path d="M8 4l10 8-10 8z" fill="#fff"
 const SETA_DUPLA = '<svg viewBox="0 0 24 24"><path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="#23324a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 /** Pedais: setas duplas para cima (acelera, verde) e para baixo (freia, vermelho) — leem sem texto para quem ainda nao le. */
 const PEDAL_ACEL = '<svg viewBox="0 0 24 24"><path d="M5 13l7-7 7 7M5 20l7-7 7 7" fill="none" stroke="#5dff8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const PEDAL_FREIO = '<svg viewBox="0 0 24 24"><path d="M5 4l7 7 7-7M5 11l7 7 7-7" fill="none" stroke="#ff5a5a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 const HTML = `
 <div class="tc-esq" data-so="botoes">
@@ -166,7 +166,6 @@ const HTML = `
 <div class="tc-dir-grupo">
   <button class="tc-big" id="btn-poder" data-acao="poder" aria-label="Poder"><span class="deco"></span><span class="tc-icone">⚡</span><span class="tc-rotulo">PODER</span></button>
   <button class="tc-big" id="btn-turbo" data-acao="turbo" aria-label="Turbo"><span class="deco"></span><span class="tc-icone">🔥</span><span class="tc-rotulo">TURBO</span></button>
-  <button class="tc-pedal" id="btn-freio" data-acao="freio" aria-label="Freio e derrapagem"><span class="tc-faixa"></span>${PEDAL_FREIO}<span class="tc-rotulo">FREIO</span></button>
   <button class="tc-pedal" id="btn-acel" data-acao="acel" aria-label="Acelerar"><span class="tc-faixa"></span>${PEDAL_ACEL}<span class="tc-rotulo">ACELERA</span></button>
 </div>
 <button class="tc-redondo" id="btn-pausa" data-acao="pausa" aria-label="Pausa">II</button>
@@ -203,6 +202,8 @@ export class Entrada {
     // AJUDA NA DIRECAO (js/assistencia.js): ligada salvo `opcoes.ajudaDirecao === false`. As suites que dirigem o jogador com um
     // piloto proprio (que ja e um controlador) desligam, para medir a fisica crua
     this.ajuda = o.ajudaDirecao !== false;
+    // SOLTOU O ACELERADOR = PERDE VELOCIDADE (sem o FREIO na tela, e o jeito de diminuir). As suites de fisica desligam (fisica crua)
+    this.freioAoSoltar = true;
     // toque: contadores por acao (cada pointerId segura uma)
     this._apertos = { esq: 0, dir: 0, acel: 0, freio: 0, turbo: 0, poder: 0, pausa: 0 };
     // tocado desde o ultimo passo (turbo, poder, pausa): o toque rapido que o quadro engasgado engoliria
@@ -494,6 +495,8 @@ export class Entrada {
     c.freio = Math.max(0, Math.min(1, e.freio || 0));
     // a direcao do jogador e RELATIVA A ESTRADA: solto, o carro segue a pista e fica paralelo (js/assistencia.js, pedido de 30/10/2026)
     c.direcao = this.ajuda ? direcaoAssistida(carro, e.direcao || 0) : Math.max(-1, Math.min(1, e.direcao || 0));
+    // soltou o acelerador (o dedo, nao a ajuda): freio leve. So andando para a frente: parado, o freio da fisica vira re (js/carro.js)
+    if (this.freioAoSoltar && !this.acelAuto && (e.acel || 0) <= LIMIAR && carro.vf > FISICA.FREIO_AO_SOLTAR_ACIMA) c.freio = Math.max(c.freio, FISICA.FREIO_AO_SOLTAR);
     // e TIRA O PE sozinho na curva que o carro nao faz naquela velocidade (a crianca segura o acelerador o tempo todo)
     if (this.ajuda) pedaisAssistidos(carro, c);
     c.drift = (e.drift || 0) > LIMIAR;

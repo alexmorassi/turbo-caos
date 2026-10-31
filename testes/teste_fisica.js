@@ -68,8 +68,9 @@ const embrulhaS = (sup, ds) => { const L = sup.comprimento; ds = ((ds % L) + L) 
 
 suite('fisica', async (G) => {
   apagaProgresso();
-  // o piloto desta suite JA e um controlador (le psi, d e a curva): sem a ajuda na direcao por cima (js/assistencia.js), a fisica crua
-  G.entrada.ajuda = false;
+  // o piloto desta suite JA e um controlador (le psi, d e a curva): sem a ajuda na direcao por cima (js/assistencia.js) e sem o freio
+  // ao soltar o acelerador (js/entrada.js) — a fisica crua
+  G.entrada.ajuda = false; G.entrada.freioAoSoltar = false;
   on('carro:batida', (e) => { if (e.carro === ev.alvo) ev.batidas.push({ tipo: e.tipo, forca: e.forca, outro: e.outro, s: e.carro.s }); });
   on('carro:decolou', (e) => { if (e.carro === ev.alvo) ev.decolou.push({ s: e.carro.s, t: G.relogio.t, v: e.carro.velocidade }); });
   on('carro:pouso', (e) => { if (e.carro === ev.alvo) ev.pouso.push({ s: e.carro.s, t: G.relogio.t, forca: e.forca }); });

@@ -67,27 +67,35 @@ suite('mobile', async (G) => {
   // --- controles grandes, dentro da tela, sem encostar (so em aparelho de toque: no desktop os botoes ficam escondidos de proposito)
   const deToque = (() => { try { return matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window; } catch (e) { return false; } })();
   mede('aparelho de toque', deToque ? 'sim' : 'nao (desktop: so mede o fps)');
-  const t = deToque ? caixa('#btn-turbo') : null, p = deToque ? caixa('#btn-poder') : null, f = deToque ? caixa('#btn-freio') : null;
+  const t = deToque ? caixa('#btn-turbo') : null, p = deToque ? caixa('#btn-poder') : null;
   const a = deToque ? caixa('#btn-acel') : null;
-  if (deToque) ok(t && p && f && a, 'ACELERADOR, FREIO, TURBO e PODER visíveis na corrida (padrão: pedais na tela)');
+  if (deToque) ok(t && p && a && !document.getElementById('btn-freio'), 'ACELERADOR, TURBO e PODER visíveis na corrida, e nenhum FREIO (soltar o acelerador freia)');
+  /** ALCANCE (30/10/2026: "o jogador de 5 anos, de mao pequena, nao alcanca"): distancia do centro do ACELERADOR — onde o polegar
+   *  descansa — ao centro do botao. Antes o TURBO ficava depois do freio, a ~190 px no Pixel; o PODER, a ~230. */
+  const ALCANCE_TURBO = 150, ALCANCE_PODER = 185;
+  const centroDe = (r) => ({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+  const distancia = (r1, r2) => { const c1 = centroDe(r1), c2 = centroDe(r2); return Math.hypot(c1.x - c2.x, c1.y - c2.y); };
   /** Confere o grupo inteiro: tamanho, dentro da tela, sem encostar (pedal = retangulo, TURBO/PODER = circulo). `sufixo` = cenario. */
   const confere = (sufixo) => {
-    const t = caixa('#btn-turbo'), p = caixa('#btn-poder'), f = caixa('#btn-freio'), a = caixa('#btn-acel');
+    const t = caixa('#btn-turbo'), p = caixa('#btn-poder'), a = caixa('#btn-acel');
     const esq = caixa('#btn-esq') || caixa('#stick-base') || caixa('#stick'), dir = caixa('#btn-dir');
-    if (!(t && p && f && a && esq)) { ok(false, `${sufixo}: todos os controles visíveis`); return; }
+    if (!(t && p && a && esq)) { ok(false, `${sufixo}: todos os controles visíveis`); return; }
     ok(Math.min(t.width, p.width) >= LADO_MINIMO, `${sufixo}: TURBO ${t.width.toFixed(0)} px e PODER ${p.width.toFixed(0)} px (mínimo ${LADO_MINIMO})`);
-    ok(a.width >= 56 && a.height >= 100 && f.height >= 80, `${sufixo}: pedais grandes (acelerador ${a.width.toFixed(0)}x${a.height.toFixed(0)}, freio ${f.width.toFixed(0)}x${f.height.toFixed(0)})`);
+    ok(a.width >= 84 && a.height >= 100, `${sufixo}: ACELERADOR largo (${a.width.toFixed(0)} x ${a.height.toFixed(0)} px; era 60-74 de largura)`);
+    const aT = distancia(a, t), aP = distancia(a, p);
+    mede(`${sufixo}: alcance do polegar no ACELERADOR até o TURBO / o PODER (px)`, `${aT.toFixed(0)} / ${aP.toFixed(0)}`);
+    ok(aT <= ALCANCE_TURBO && aP <= ALCANCE_PODER, `${sufixo}: TURBO (${aT.toFixed(0)} px) e PODER (${aP.toFixed(0)} px) perto do polegar que está no ACELERADOR (até ${ALCANCE_TURBO} e ${ALCANCE_PODER})`);
     const dentro = (r) => r.left >= 0 && r.top >= 0 && r.right <= W + 0.5 && r.bottom <= H + 0.5;
-    ok([t, p, f, a, esq].every(dentro), `${sufixo}: controles inteiros dentro da tela`);
+    ok([t, p, a, esq].every(dentro), `${sufixo}: controles inteiros dentro da tela`);
     const folgaRet = (x, y) => Math.max(y.left - x.right, x.left - y.right, y.top - x.bottom, x.top - y.bottom);
-    const folga = Math.min(folgaRedonda(t, p), folgaRet(t, f), folgaRet(p, f), folgaRet(f, a), folgaRet(t, a), folgaRet(p, a));
+    const folga = Math.min(folgaRedonda(t, p), folgaRet(t, a), folgaRet(p, a));
     mede(`${sufixo}: menor folga entre botões (px)`, folga);
     ok(folga >= FOLGA_MINIMA, `${sufixo}: botões da direita não se encostam (folga ${folga.toFixed(0)} px >= ${FOLGA_MINIMA})`);
     const vao = Math.min(t.left, p.left) - Math.max(esq.right, dir ? dir.right : esq.right);
     mede(`${sufixo}: vão entre a direção e os botões (px)`, vao);
     ok(vao >= 24, `${sufixo}: direção à esquerda e botões à direita com vão para ver o carro (${vao.toFixed(0)} px)`);
     const mapa = caixa('#hud canvas');
-    if (mapa) ok(![t, p, f, a].some((r) => encosta(mapa, r)), `${sufixo}: minimapa não cobre os botões`);
+    if (mapa) ok(![t, p, a].some((r) => encosta(mapa, r)), `${sufixo}: minimapa não cobre os botões`);
   };
   if (deToque) {
     const trilho = caixa('#stick-base'), botao = caixa('#stick-knob');
@@ -104,8 +112,9 @@ suite('mobile', async (G) => {
     ctl.style.removeProperty('--sal'); ctl.style.removeProperty('--sar'); ctl.style.removeProperty('--sab');
     // aceleracao automatica (opcao): o acelerador some e o resto continua inteiro
     G.entrada.configura({ acelAuto: true });
-    const t2 = caixa('#btn-turbo'), p2 = caixa('#btn-poder'), f2 = caixa('#btn-freio');
-    ok(!caixa('#btn-acel') && t2 && p2 && f2, 'acelerar sozinho: some o ACELERADOR, ficam FREIO, TURBO e PODER');
+    const t2 = caixa('#btn-turbo'), p2 = caixa('#btn-poder');
+    const canto = t2 && W - t2.right < 70 && H - t2.bottom < 60;
+    ok(!caixa('#btn-acel') && t2 && p2 && canto && !encosta(t2, p2), 'acelerar sozinho: some o ACELERADOR e o TURBO vai para o canto (o PODER em cima)');
     G.entrada.configura({ acelAuto: false });
     // as SETAS continuam nas opcoes: o mesmo layout tem de caber com elas
     G.entrada.configura({ modo: 'botoes' }); quadros(1);
@@ -119,7 +128,7 @@ suite('mobile', async (G) => {
     const telaCorrida = document.querySelector('#tela-corrida');
     ok(!!telaCorrida && !telaCorrida.hidden, 'a tela de corrida (camada do botão de pausa) está aberta por cima dos controles');
     const confere = (sufixo) => {
-      for (const id of ['btn-esq', 'btn-dir', 'btn-acel', 'btn-freio', 'btn-turbo', 'btn-poder']) {
+      for (const id of ['btn-esq', 'btn-dir', 'btn-acel', 'btn-turbo', 'btn-poder']) {
         const el = document.getElementById(id);
         if (!el || !caixa('#' + id)) continue;
         ok(alcancavel(el), `${sufixo}: o dedo no centro de ${id} acerta o botão (por cima: ${quemCobre(el)})`);
@@ -147,13 +156,11 @@ suite('mobile', async (G) => {
     ok(G.entrada.estado.turbo > 0, 'tocar no TURBO liga o turbo');
     toque(bt, 'pointerup'); quadros(2);
     ok(!G.entrada.estado.turbo, 'soltar o TURBO desliga');
-    const pa = document.querySelector('#btn-acel'), pf = document.querySelector('#btn-freio');
+    const pa = document.querySelector('#btn-acel');
     toque(pa, 'pointerdown', 8); quadros(2);
     ok(G.entrada.estado.acel === 1, 'pisar no ACELERADOR acelera');
-    toque(pf, 'pointerdown', 9); quadros(2);
-    ok(G.entrada.estado.freio > 0, 'pisar no FREIO junto (dois dedos) freia');
-    toque(pf, 'pointerup', 9); toque(pa, 'pointerup', 8); quadros(2);
-    ok(!G.entrada.estado.acel && !G.entrada.estado.freio, 'soltar os pedais solta acelerador e freio');
+    toque(pa, 'pointerup', 8); quadros(2);
+    ok(!G.entrada.estado.acel, 'soltar o ACELERADOR solta');
     // ARRASTAR com o dedo no botao: pouco vira pouco, a ponta do trilho vira tudo, soltou = zero e o botao volta ao meio
     const knob = document.getElementById('stick-knob'), kc = alvoDoDedo(knob), raio = G.entrada.raioDoArrasto();
     const pegou = dedoEm(kc.x, kc.y, 'pointerdown', 11); quadros(2);

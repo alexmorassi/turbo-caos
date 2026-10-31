@@ -3,8 +3,8 @@
 // Rode tambem com `--mobile pixel` / `--mobile iphone` (tela de toque de verdade na emulacao: os controles aparecem sozinhos). No desktop a
 // suite liga `entrada.toque` na mao — sem tela de toque os botoes nao aparecem, de proposito.
 //
-// O que prova: botao vira estado e afunda; MULTITOQUE (direcao + turbo juntos, soltar um nao solta o outro); `apertou` e borda; FREIO e
-// freio + derrapagem (a fisica decide); as TRAVAS ANTI-DEDO-PRESO do Breno (blur, touchend sem dedos, pointercancel, vigia do elemento que
+// O que prova: botao vira estado e afunda; MULTITOQUE (direcao + turbo juntos, soltar um nao solta o outro); `apertou` e borda; SEM
+// FREIO na tela (30/10/2026: soltar o acelerador freia; o teclado ainda tem freio e derrapagem); as TRAVAS ANTI-DEDO-PRESO do Breno (blur, touchend sem dedos, pointercancel, vigia do elemento que
 // sumiu); joystick de base fixa so no X com zona morta; inclinacao com a conta da gravidade em qualquer angulo de tela; aceleracao
 // automatica liga/desliga o botao ACELERA; configura grava em G.save('opcoes') sem apagar o resto; teclado; esqueceTudo; simulada.
 import { suite, ok, perto, mede, quadros, segura, solta, apagaProgresso, corridaDeTeste, largada, entradaDeVolta } from './harness.js';
@@ -55,8 +55,9 @@ suite('entrada', async (G) => {
   e.toque = true; // desktop: liga na mao (com --mobile ja vem ligado)
 
   // ------------------------------------------------------------------ DOM
-  const ids = ['tc-controles', 'btn-esq', 'btn-dir', 'btn-turbo', 'btn-poder', 'btn-freio', 'btn-acel', 'btn-pausa', 'stick', 'stick-base', 'stick-knob', 'incl'];
+  const ids = ['tc-controles', 'btn-esq', 'btn-dir', 'btn-turbo', 'btn-poder', 'btn-acel', 'btn-pausa', 'stick', 'stick-base', 'stick-knob', 'incl'];
   ok(ids.every((id) => !!$(id)), 'controles de toque montados em #controles (ids estaveis para a fase 6)');
+  ok(!$('btn-freio') && !document.querySelector('#tc-controles [data-acao=freio]'), 'sem FREIO na tela (pedido de 30/10/2026: soltar o acelerador freia)');
   ok($('tc-controles').parentElement === $('controles'), 'dentro do #controles do index.html');
   ok(!!$('btn-turbo').querySelector(':scope > .deco') && !!$('btn-poder').querySelector(':scope > .deco'), '#btn-turbo e #btn-poder tem o filho .deco (decoracao da fase 6)');
   ok(!!document.getElementById('tc-estilo-controles'), 'CSS dos controles injetado num <style> proprio');
@@ -71,17 +72,17 @@ suite('entrada', async (G) => {
   e.mostraControles(false);
   ok(!visivel($('btn-dir')), 'mostraControles(false) esconde');
   e.mostraControles(true);
-  ok(visivel($('btn-esq')) && visivel($('btn-dir')) && visivel($('btn-turbo')) && visivel($('btn-poder')) && visivel($('btn-freio')), 'modo botoes: setas, TURBO, PODER e FREIO na tela');
+  ok(visivel($('btn-esq')) && visivel($('btn-dir')) && visivel($('btn-turbo')) && visivel($('btn-poder')), 'modo botoes: setas, TURBO e PODER na tela');
   ok(!visivel($('stick')) && !visivel($('btn-acel')), 'sem joystick e sem ACELERA (aceleracao automatica)');
   quadros(1);
   ok(e.estado.acel === 1, 'aceleracao automatica: acel = 1 sem tocar em nada');
-  const bt = $('btn-turbo').getBoundingClientRect(), bp = $('btn-poder').getBoundingClientRect(), bf = $('btn-freio').getBoundingClientRect();
-  ok(!cruza(bt, bp) && !cruza(bt, bf) && !cruza(bp, bf), 'botoes da direita nao se sobrepoem');
+  const bt = $('btn-turbo').getBoundingClientRect(), bp = $('btn-poder').getBoundingClientRect();
+  ok(!cruza(bt, bp), 'botoes da direita nao se sobrepoem');
   mede('tamanho do TURBO (px)', bt.width);
   ok(bt.width >= 80 && $('btn-dir').getBoundingClientRect().width >= 80, 'areas de toque generosas (>= 80 px)');
 
   // ------------------------------------------------------------------ toque, multitoque, borda
-  const dir = $('btn-dir'), esq = $('btn-esq'), turbo = $('btn-turbo'), poder = $('btn-poder'), freio = $('btn-freio');
+  const dir = $('btn-dir'), esq = $('btn-esq'), turbo = $('btn-turbo'), poder = $('btn-poder');
   dedo(dir, 'pointerdown', 1); quadros(1);
   ok(e.estado.direcao === 1, 'tocar em ▶ = direcao +1');
   ok(dir.classList.contains('down'), 'o botao afunda (classe down, como o .big do Breno)');
@@ -110,10 +111,6 @@ suite('entrada', async (G) => {
   tecla('keydown', 'Space'); tecla('keyup', 'Space'); quadros(1);
   const tecRapida = e.apertou('turbo'); quadros(1);
   ok(tecRapida && e.estado.turbo === 0, 'espaço rápido (desce e sobe antes do passo) também vale');
-  dedo(freio, 'pointerdown', 6); quadros(1);
-  ok(e.estado.freio === 1 && e.estado.drift === 1, 'FREIO e um botao so para freio e derrapagem (andando e virando a fisica derrapa)');
-  dedo(freio, 'pointerup', 6); quadros(1);
-  ok(e.estado.freio === 0 && e.estado.drift === 0, 'soltou o FREIO');
 
   // ------------------------------------------------------------------ travas anti-dedo-preso (Breno)
   dedo(dir, 'pointerdown', 7); quadros(1);
@@ -193,8 +190,9 @@ suite('entrada', async (G) => {
   G.save.grava('opcoes', { volumeGeral: 0.7 });
   e.configura({ modo: 'botoes', acelAuto: false });
   ok(visivel($('btn-acel')), 'aceleracao automatica desligada: aparece o botao ACELERA');
-  const ba = $('btn-acel').getBoundingClientRect(), bt2 = $('btn-turbo').getBoundingClientRect(), bp2 = $('btn-poder').getBoundingClientRect(), bf2 = $('btn-freio').getBoundingClientRect();
-  ok(![[ba, bt2], [ba, bp2], [ba, bf2], [bt2, bp2], [bt2, bf2], [bp2, bf2]].some(([x, y]) => cruza(x, y)), 'com o ACELERA, os quatro botoes da direita nao se sobrepoem');
+  const ba = $('btn-acel').getBoundingClientRect(), bt2 = $('btn-turbo').getBoundingClientRect(), bp2 = $('btn-poder').getBoundingClientRect();
+  ok(![[ba, bt2], [ba, bp2], [bt2, bp2]].some(([x, y]) => cruza(x, y)), 'com o ACELERA, os tres botoes da direita nao se sobrepoem');
+  ok(bt2.right <= ba.left && ba.left - bt2.right < 30 && bt2.bottom > ba.bottom - 10, 'o TURBO fica colado no ACELERA, do lado esquerdo e embaixo (o polegar so desliza)');
   quadros(1);
   ok(e.estado.acel === 0, 'sem tocar no ACELERA, acel = 0');
   dedo($('btn-acel'), 'pointerdown', 31); quadros(1);

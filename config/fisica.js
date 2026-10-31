@@ -100,6 +100,11 @@ export const FISICA = {
 
   // ------------------------------------------------------------------ longitudinal
   FREIO: 22,               // m/s2 (2,2 g): de 36 m/s ate parar em 1,6 s
+  // SOLTOU O ACELERADOR (so o jogador; js/entrada.js aplicaNoCarro): o FREIO saiu da tela em 30/10/2026 e o Morassi pediu "ao soltar o
+  // acelerador, o carro perde velocidade". So o rolamento + ar (abaixo) davam 2,9 m/s2 a 36 m/s ("desliza um bom pedaco"): de 36 a 20
+  // m/s em ~7 s. Com 0,2 do FREIO por cima (4,4 m/s2) cai de 36 a 20 m/s em ~2,3 s — a crianca sente o carro diminuir
+  FREIO_AO_SOLTAR: 0.2,
+  FREIO_AO_SOLTAR_ACIMA: 2, // m/s: abaixo disto nada (parado, freio na fisica vira re)
   RE_VEL: 7,               // m/s: re lenta (sair de um encosto no muro)
   RE_ACEL: 6,              // m/s2
   ROLAMENTO: 0.8,          // m/s2 sem acelerar (solta o acelerador e o carro desliza um bom pedaco)
