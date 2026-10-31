@@ -24,7 +24,7 @@ const OVAL = {
 };
 /** Carro dono de cada poder (config/carros.js) — a corrida de cada bloco e com ele. */
 const DONO = {};
-for (const c of CARROS) DONO[c.poder] = c.id;
+for (const c of CARROS) if (!DONO[c.poder]) DONO[c.poder] = c.id;   // o PRIMEIRO dono (os 10 de antes): os carros do Cidade Aberta de 30/10/2026 repetem poder
 const RIVAIS = (eu) => CARROS.map((c) => c.id).filter((id) => id !== eu).slice(0, 5);
 
 // ---------------------------------------------------------------- eventos (um ouvinte por nome, para a suite toda)

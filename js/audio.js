@@ -51,9 +51,9 @@ const ALCANCE = 80;
 /** Alcance do motor dos rivais (m): mais curto que o dos efeitos — motor longe vira zumbido de fundo. */
 const ALCANCE_DO_MOTOR = 45;
 /** Velocidade (m/s) que leva o motor ao topo do giro. ~ a maxima dos carros (config/fisica.js e da fase 2; 38 m/s = 137 km/h). */
-const VEL_REF = 38;
+export const VEL_REF = 38;   // (js/pipoco.js usa as mesmas marchas: o estouro da reducao sai junto com o giro que sobe)
 /** Pseudo-marchas, em fracao de VEL_REF: o giro sobe dentro da marcha e cai na troca. */
-const MARCHAS = [0, 0.16, 0.34, 0.55, 0.78];
+export const MARCHAS = [0, 0.16, 0.34, 0.55, 0.78];
 /** Musica mais baixa no menu de pausa (a crianca esta escolhendo, nao correndo). */
 const PAUSA_ABAIXA = 0.45;
 
@@ -202,6 +202,12 @@ export const EFEITOS = {
     S.nota(0, 90, 0.5, { tipo: 'sawtooth', f2: 220, vol: 0.2, passaBaixa: 900 });
   },
   turbo_vazio: (S) => { S.ruido(0, 0.35, { f: 1200, f2: 250, q: 1.5, vol: 0.25 }); S.nota(0, 320, 0.3, { tipo: 'triangle', f2: 150, vol: 0.2 }); },
+  estouro: (S) => { // PIPOCO no escapamento (js/pipoco.js): o estouro do Cidade Aberta (js/audio.js estouro: estalo agudo + soco grave +
+    // "tum" quadrado curtinho). A forca vem no vol (0,3 a 1,6) e o tom varia um pouco a cada um
+    S.ruido(0, 0.04, { tipo: 'highpass', f: 2600, q: 1.3, vol: 0.28 });
+    S.ruido(0, 0.11, { tipo: 'lowpass', f: 230, q: 0.9, vol: 0.5 });
+    S.nota(0, 95, 0.07, { tipo: 'square', f2: 55, vol: 0.32 });
+  },
   turbo_cheio: (S) => { arpejo(S, 0, [N.G5, N.C6, N.E6, N.G6], 0.05, { tipo: 'square', vol: 0.08, dur: 0.12 }); S.nota(0.2, N.C7, 0.3, { tipo: 'triangle', vol: 0.18 }); },
   batida: (S) => { // "PAM!" com um boing de desenho
     S.ruido(0, 0.25, { tipo: 'lowpass', f: 1400, f2: 200, vol: 0.5 });
@@ -286,7 +292,7 @@ export const NOMES_DOS_EFEITOS = Object.keys(EFEITOS);
 
 /** Equalizacao: curtos e agudos sobem para aparecerem sobre a musica (o LOUD do Breno). */
 const REFORCO = { clique: 2.5, voltar: 2.2, trocar: 2.2, bipe: 1.6, pouso: 1.6, decolou: 2, capsula: 1.5, ultrapassou: 1.8, estrela: 2,
-  raspao: 2.5, esquiva: 2, trocatroca: 1.5, encolhedor: 1.6, emp: 1.4, bloqueado: 1.8 };
+  raspao: 2.5, esquiva: 2, trocatroca: 1.5, encolhedor: 1.6, emp: 1.4, bloqueado: 1.8, estouro: 1.3 };
 
 // ---------------------------------------------------------------- motores (ver o cabecalho)
 /** Timbre do motor por carro (ids de config/carros.js, fase 1). Quem nao esta aqui e 'motor'. */
@@ -298,7 +304,8 @@ const CAMADAS = {
   eletrico: [['sawtooth', 1, 0.35], ['triangle', 2, 0.4], ['sine', 3.03, 0.22]],
   jato: [['sine', 1, 0.4], ['triangle', 1.5, 0.25]],
 };
-export function timbreDoCarro(cfg) { return (cfg && TIMBRE_DO_CARRO[cfg.id]) || 'motor'; }
+// os carros do Cidade Aberta de 30/10/2026 trazem o timbre na config (cfg.timbre: o Prius zune como o Faisca, Pro Stock e Furgao roncam grave)
+export function timbreDoCarro(cfg) { return (cfg && (cfg.timbre || TIMBRE_DO_CARRO[cfg.id])) || 'motor'; }
 
 /** Uma voz de motor continua (jogador). Nada e criado por quadro: `atualiza` so mexe em AudioParam. */
 class VozDeMotor {

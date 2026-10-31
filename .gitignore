@@ -7,3 +7,4 @@ tools/carros/cache/
 Thumbs.db
 dist/
 docs/fotos/**/*.png
+__pycache__/

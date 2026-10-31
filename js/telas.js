@@ -38,6 +38,8 @@ import { ROTULOS, ehCelular } from './qualidade.js';
 const FONTES = 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Bungee&display=swap';
 /** Arrasto horizontal (px) que troca de carro na vitrine; menos que isso so gira o carro. */
 const ARRASTO_TROCA = 48;
+/** Folga (px) entre o nome do carro e o botao de voltar (e a mesma do outro lado: o nome e centralizado). */
+const NOME_FOLGA = 8;
 /** Espera maxima (ms) pelo carro do menu antes de esconder a tela de carga: o menu nao fica refem de um GLB lento. */
 const ESPERA_DO_CARRO_DO_MENU = 5000;
 
@@ -313,6 +315,10 @@ export class Telas {
     ui.addEventListener('input', (e) => { const r = e.target.closest('[data-op]'); if (r) this._volume(r.dataset.op, Number(r.value), false); });
     ui.addEventListener('change', (e) => { const r = e.target.closest('[data-op]'); if (r) this._volume(r.dataset.op, Number(r.value), true); });
     this._ligaArrasto($(s.selecao_carro, '.sc-arrasto'));
+    // o nome comprido se mede de novo quando a tela muda de tamanho (girou o celular) e quando a fonte do titulo chega da internet
+    const refazNome = () => { if (this.atual === 'selecao_carro') this._cabeNome(s.selecao_carro, $(s.selecao_carro, '.sc-nome span')); };
+    window.addEventListener('resize', refazNome);
+    if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', refazNome);
     // o botao de tela cheia so existe onde a pagina pode pedir (no iPhone nao pode)
     const el = document.documentElement;
     if (!(el.requestFullscreen || el.webkitRequestFullscreen)) $(s.menu, '[data-acao=tela_cheia]').hidden = true;
@@ -693,6 +699,7 @@ export class Telas {
     const s = this._secoes.selecao_carro, cfg = CARROS[this.indiceCarro];
     const nome = $(s, '.sc-nome span');
     nome.textContent = cfg.nome;
+    this._cabeNome(s, nome);
     if (trocou) { nome.style.animation = 'none'; void nome.offsetWidth; nome.style.animation = ''; }
     $(s, '.sc-desc').textContent = cfg.descricao || '';
     const at = cfg.atributos || {};
@@ -709,6 +716,18 @@ export class Telas {
     $(s, '.sc-esquiva').innerHTML = `<span class="emo">🛡️</span> ${escapa(pd.esquiva)}`;
     s.querySelectorAll('.sc-pontos i').forEach((p, i) => p.classList.toggle('on', i === this.indiceCarro));
     this.vitrine.mostraCarro(cfg, 'selecao');
+  }
+
+  /** Nome comprido encolhe para caber entre o botao de voltar e o painel: "Camaro Hot Wheels" (os carros do Cidade Aberta, 30/10/2026)
+   *  passava por baixo do botao no iPhone deitado. Mede o que o navegador desenhou (a fonte do titulo pode nao ter carregado). */
+  _cabeNome(s, nome) {
+    nome.style.fontSize = '';
+    const caixa = nome.parentElement, voltar = $(s, '.tc-voltar');
+    if (!caixa || !caixa.clientWidth) return;   // tela ainda escondida: mede de novo quando aparecer (_entra_selecao_carro)
+    const cx = caixa.getBoundingClientRect(), vb = voltar ? voltar.getBoundingClientRect() : null;
+    const margem = vb && vb.width ? Math.max(0, vb.right - cx.left) + NOME_FOLGA : NOME_FOLGA;
+    const livre = cx.width - 2 * margem, w = nome.offsetWidth;   // centralizado: a mesma margem dos dois lados
+    if (livre > 0 && w > livre) nome.style.fontSize = (parseFloat(getComputedStyle(nome).fontSize) * livre / w).toFixed(1) + 'px';
   }
 
   _trocaCarro(passo) {

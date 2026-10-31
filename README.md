@@ -1,6 +1,6 @@
 # 🏁 Turbo Caos
 
-Corrida maluca 3D que roda **direto no navegador do celular**, sem instalar nada. Escolha um dos 10 carros do Cidade Aberta — cada um
+Corrida maluca 3D que roda **direto no navegador do celular**, sem instalar nada. Escolha um dos 26 carros do Cidade Aberta — cada um
 com atributos próprios e um **superpoder** para atrapalhar os rivais —, junte cápsulas de turbo pelo caminho e encare 10 pistas
 temáticas, da Orla do Rio à Pista Maluca final, com atalhos, rampas e loops. Modos **Campeonato** (as pistas abrem em sequência) e
 **Corrida Livre**; 8 corredores, 3 voltas; a dificuldade sobe aos poucos e se ajusta sozinha ao jogador.
@@ -42,6 +42,31 @@ sobrou fica para o próximo toque. Apertar o TURBO bem no **VAI!** dá uma larga
 | Faísca | 4 | 5 | 3 | 2 | 2 | ⚡ Pulso EMP (desliga o turbo de quem está perto) | sair do círculo azul |
 | Jatinho | 3 | 4 | 5 | 1 | 3 | 🔄 Troca-Troca (troca de lugar com o da frente) | ligar o turbo durante a mira |
 
+**Os 16 do Cidade Aberta** (30/10/2026): o **Prius** e os carros que fazem **pops and bangs** lá. Os poderes se repetem (são 10).
+
+| Carro | Vel | Acel | Curva | Peso | Turbo | Poder | Pops and bangs |
+|---|---|---|---|---|---|---|---|
+| Prius | 2 | 3 | 4 | 2 | 5 | ⚡ Pulso EMP | — (híbrido: o motor zune) |
+| Fusca Teto Solar | 2 | 3 | 3 | 3 | 5 | 🛢️ Mancha de Óleo | de rua: estoura nas reduções |
+| Voyage | 3 | 3 | 3 | 3 | 4 | 🛡️ Escudo Refletor | de rua |
+| Gol GTI | 3 | 4 | 3 | 1 | 5 | 🔻 Encolhedor | de rua |
+| HB20 Turbo | 4 | 3 | 4 | 2 | 3 | ❄️ Raio Congelante | de rua |
+| Monza | 3 | 2 | 3 | 4 | 4 | 🧲 Ímã | de rua |
+| speed up! | 2 | 4 | 5 | 1 | 4 | 🔄 Troca-Troca | de rua |
+| Celta | 2 | 4 | 4 | 2 | 4 | 🌪️ Mini Tornado | de rua |
+| Furgão | 2 | 2 | 3 | 5 | 4 | 💨 Cortina de Fumaça | de rua |
+| Gol Pro Stock | 4 | 5 | 3 | 1 | 3 | ❄️ Raio Congelante | Pro Stock: labaredas dos lados |
+| Mustang Porters | 5 | 5 | 3 | 2 | 1 | 💨 Cortina de Fumaça | Pro Stock |
+| Camaro Summit | 5 | 5 | 3 | 1 | 2 | 🌋 Terremoto | Pro Stock |
+| Mustang Laranja | 5 | 4 | 3 | 3 | 1 | 🌪️ Mini Tornado | Pro Stock |
+| Camaro RAD | 4 | 5 | 3 | 2 | 2 | 🧲 Ímã | Pro Stock |
+| Camaro Bandeira | 5 | 4 | 3 | 2 | 2 | 🛡️ Escudo Refletor | Pro Stock |
+| Camaro Hot Wheels | 4 | 5 | 2 | 2 | 3 | 🔄 Troca-Troca | Pro Stock |
+
+**Pops and bangs** (do Cidade Aberta): o carro **de rua** estoura no escapamento a cada redução — soltou o acelerador e a marcha
+caiu; o **Pro Stock** estoura em cada marcha que sobe, solta uma rajada longa ao tirar o pé e tem labareda maior, dos lados; a
+**Lagartixa** (que é o Porsche GT3 RS) estala logo que tira o pé embalado. Ligar o **turbo** de quem estoura solta um **BANG**.
+
 ## As pistas
 
 | # | Pista | Volta | Destaques |
@@ -69,7 +94,7 @@ js/                   código do jogo, um módulo por responsabilidade (contrato
 js/pistas/            as 10 pistas (construtor de peças -> spline CatmullRom) + a pista de teste
 js/poderes/           um arquivo por poder
 config/               PARÂMETROS DE JOGO: carros, física, turbo, poderes, dificuldade, pistas, corrida
-assets/cars/          os 10 carros (GLB meshopt + KTX2, 400–830 KB, vindos do cidadeaberta)
+assets/cars/          os 26 carros (GLB meshopt + KTX2, 380–830 KB, vindos do cidadeaberta)
 lib/                  three.js r170 + GLTFLoader/KTX2Loader + decoders meshopt e Basis (sem CDN)
 tools/                monta.js (HTML único + pasta do artefato), carros/ (otimização dos GLB), fotos
 testes/               bateria Playwright (node testes/rodar.js)

@@ -203,3 +203,24 @@ Do zero (apagando GLB e medidas) os 5 comandos rodam em ~1 min; o mesmo carro re
    de arcade o carro anda sobre a pista, não sobre a malha da roda — só visual.
 5. Materiais `doubleSided` (herdado; custa preenchimento no celular). Tirar exige conferir normais/ordem dos cantos do Meshy.
 6. Pacote npm instalado **sem salvar** no `package.json`: `gltf-validator` (só para `tools/carros/valida.mjs`).
+
+## 9. Os 16 do Cidade Aberta (30/10/2026)
+
+Pedido do Morassi: "coloque o Toyota Prius e os carros com pops and bangs do jogo Cidade Aberta disponíveis para jogar". Entraram o
+**Prius** e os 15 SPECS do `cidadeaberta/js/carmodels.js` que estouram (`turbo`, `proStock`; o `pops` é o Porsche, que já era a
+Lagartixa). Todos na fonte `lo`, pelo mesmo `otimiza.mjs` (378–513 KB, 18,6–23,4 mil triângulos); `confere.mjs` aprova os 26.
+
+- **Furgão**: as `wheel2_lo` e `wheel4_lo` cortam o pneu (setor com 90–91 % do raio): `espelha: { wheel2: 'wheel1', wheel4: 'wheel3' }`.
+- **Fusca Teto Solar**: a `body_lo` do Cidade Aberta tem o defeito de geometria da seção 2. `tools/carros/refaz_lod.mjs` (+
+  `refaz_lod.py`, as funções do `cidadeaberta/tools/lodatlas.py`) refaz a versão leve numa cópia do GLB em `tools/carros/cache/`
+  (`refeita: true` na tabela): (1) só a **pele de fora** da malha cheia (z-buffer de pontos em 9 vistas, a amostra conta só virada para
+  quem olha), (2) as **rachaduras** da lataria (laço de borda < 60 cm) tampadas em leque e a visibilidade de novo, (3) redução com o
+  meshopt soldando só por posição, (4) a malha leve vista de fora (o triângulo escondido sai; o resto fica virado para o lado de onde
+  foi visto; furos < 60 cm tampados de novo), (5) **cartas novas na faixa** de 2048 × 256 (a carroceria e as quatro rodas leves de
+  origem, que apontavam para a mesma faixa) e cada texel pintado pela amostra **vista de fora** mais "de fora" entre as 16 mais perto
+  que concordam com a normal suave. O otimiza lê PNG ou KTX2. Resultado: sem o forro claro e sem os furos grandes; de perto, a porta
+  ainda tem pontinhos escuros (frestas entre pedaços de camadas a menos de 2,5 mm uma da outra). Tentado e descartado: exigir metade
+  das amostras do triângulo vistas (tirou os vidros, que ficam 2 mm para dentro da moldura) e refazer a lataria por voxel + marching
+  cubes (fechou as frestas, mas a casca saiu dos dois lados da lataria e ficou facetada e manchada).
+- **Escapamento**: os canos do Cidade Aberta (`SPECS.<tipo>.exhaust`, metros do GLB de origem) vão para o carro daqui pela mesma conta
+  da normalização — o otimiza grava `transforma: { origem, escala }` em `medidas.json` e o `gera_config.mjs` converte.

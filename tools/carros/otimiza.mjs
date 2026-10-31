@@ -164,6 +164,13 @@ function malhaGLTF(doc, buf, nome, p, material) {
   return doc.createMesh(nome).addPrimitive(prim);
 }
 
+// a textura de origem e KTX2 (Cidade Aberta) ou PNG (a copia do refaz_lod.mjs): { largura, altura, rgba } nos dois casos
+async function decodificaImagem(t) {
+  if (t.getMimeType() !== 'image/png') return decodificaKTX2(t.getImage());
+  const { data, info } = await sharp(Buffer.from(t.getImage())).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  return { largura: info.width, altura: info.height, rgba: new Uint8Array(data.buffer, data.byteOffset, data.byteLength), info: { png: true } };
+}
+
 function infoTextura(ti) {
   // CLAMP: a textura recortada vai de borda a borda; com REPEAT o filtro linear puxaria a borda oposta para a primeira
   // e a ultima linha de texel (a UV nunca sai de 0..1, entao clamp nao muda mais nada)
@@ -174,7 +181,10 @@ function infoTextura(ti) {
 // ---------------------------------------------------------------------------------------------------------- um carro
 async function processa(car) {
   log(`== ${car.id} (${car.origem}, fonte ${car.fonte})`);
-  const src = await io.read(path.join(ORIGEM, car.origem));
+  // refeita: a *_lo de origem tinha defeito e o tools/carros/refaz_lod.mjs fez outra numa copia do GLB (o fusca_teto, 30/10/2026)
+  const arqOrigem = car.refeita ? path.join(AQUI, 'cache', car.origem.replace(/\.glb$/, '_lo.glb')) : path.join(ORIGEM, car.origem);
+  if (!fs.existsSync(arqOrigem)) throw new Error(`${car.id}: falta ${arqOrigem} - rode node tools/carros/refaz_lod.mjs ${car.id}`);
+  const src = await io.read(arqOrigem);
   const nos = nosDeOrigem(src), escolha = escolheMalhas(car, nos);
   const matSrc = escolha.corpo[0].getMesh().listPrimitives()[0].getMaterial();
 
@@ -213,7 +223,7 @@ async function processa(car) {
   for (const papel of ['cor', 'mr', 'normal']) {
     if (!fontes[papel]) continue;
     if (papel === 'normal' && lo) continue;
-    const img = await decodificaKTX2(fontes[papel].getImage()); origemTex[papel] = img;
+    const img = await decodificaImagem(fontes[papel]); origemTex[papel] = img;
     const w = img.largura, h = Math.round(img.altura * (janela[1] - janela[0]));
     janelaTex[papel] = { rgba: await recorta(img, janela, w, h), w, h };
   }
@@ -278,7 +288,7 @@ async function processa(car) {
     if (volta.info.tf !== tfEsperado) throw new Error(`${car.id} ${papel}: OETF ${volta.info.tf}, esperado ${tfEsperado}`);
     const img = origemTex[papel];
     texturas[papel] = { bytes, w, h, kb: +(bytes.length / 1024).toFixed(1), modo: TEX[papel].modo, oetf: papel === 'cor' ? 'srgb' : 'linear', niveis: volta.info.niveis,
-      psnr: +psnr(rgba, volta.rgba, papel === 'cor' ? [0, 1, 2] : papel === 'mr' ? [1, 2] : [0, 1]).toFixed(2), origem: `${img.largura}x${img.altura} ${img.info.uastc ? 'UASTC' : 'ETC1S'}` };
+      psnr: +psnr(rgba, volta.rgba, papel === 'cor' ? [0, 1, 2] : papel === 'mr' ? [1, 2] : [0, 1]).toFixed(2), origem: `${img.largura}x${img.altura} ${img.info.png ? 'PNG (refaz_lod)' : img.info.uastc ? 'UASTC' : 'ETC1S'}` };
     log(`   ${papel.padEnd(6)} ${img.largura}x${img.altura} -> ${w}x${h} ${TEX[papel].modo} ${texturas[papel].kb} KB  psnr ${texturas[papel].psnr} dB  (${volta.info.niveis} mips, oetf ${texturas[papel].oetf})`);
   }
   const pal = paleta([corpo, ...pivos.map((q) => q.parte)], corDecod.rgba, corDecod.w, corDecod.h);
@@ -332,6 +342,9 @@ async function processa(car) {
     rodas: ehVoador ? { tem: false } : (() => { const fr = pivos.filter((q) => q.extras.front), tr = pivos.filter((q) => !q.extras.front); const m = (l) => r3(l.reduce((a, q) => a + q.raio, 0) / l.length); return { tem: true, raioFrente: m(fr), raioTras: m(tr) }; })(),
     pecas: pivos.map((q) => ({ nome: q.nome, centro: q.centro.map(r3), raio: r3(q.raio), difEixoOrigemCm: +(q.difPivo * 100).toFixed(1), difCaixaCm: +(q.difCaixa * 100).toFixed(1) })),
     flutua: extrasRaiz.flutua, pods: extrasRaiz.pods,
+    // p_jogo = (p_origem - origem) * escala: com isto o gera_config.mjs leva um ponto medido no GLB de origem (o escapamento do
+    // Cidade Aberta, tabela.mjs) para o carro daqui sem reprocessar nada
+    transforma: { origem: origem.map((v) => +v.toFixed(5)), escala: +s.toFixed(6) },
     texturas: Object.fromEntries(Object.entries(texturas).map(([k, t]) => [k, t.bytes ? { w: t.w, h: t.h, kb: t.kb, modo: t.modo, oetf: t.oetf, niveis: t.niveis, psnr: t.psnr, origem: t.origem } : t])),
     paleta: pal,
   };

@@ -16,6 +16,7 @@ import { colide } from './colisoes.js';
 import { CameraCorrida } from './camera.js';
 import { montaVisualDaPista } from './visual_pista.js';
 import { Turbo } from './turbo.js';
+import { Pipoco } from './pipoco.js';
 import { Capsulas } from './capsulas.js';
 import { Poderes } from './poderes.js';
 import { IA } from './ia.js';
@@ -101,6 +102,7 @@ export class Corrida {
 
     // sistemas (cada um de uma fase)
     this.turbo = new Turbo(G, this);
+    this.pipoco = new Pipoco(G, this);   // pops and bangs dos carros do Cidade Aberta que estouram (30/10/2026)
     this.capsulas = new Capsulas(G, this);
     this.poderes = new Poderes(G, this);
     this.dificuldade = new Dificuldade(G, this);
@@ -118,7 +120,7 @@ export class Corrida {
     return this;
   }
 
-  _sistemas() { return [this.turbo, this.capsulas, this.poderes, this.dificuldade, this.ia, this.camera].filter(Boolean); }
+  _sistemas() { return [this.turbo, this.pipoco, this.capsulas, this.poderes, this.dificuldade, this.ia, this.camera].filter(Boolean); }
 
   pausa(sim) {
     if (this.estado === 'terminou' || this.pausada === !!sim) return;
@@ -156,7 +158,7 @@ export class Corrida {
     }
     for (const c of this.carros) c.passo(dt);
     colide(this);
-    if (this.estado === 'correndo') { this.capsulas.passo(dt); this._regras(); }
+    if (this.estado === 'correndo') { this.capsulas.passo(dt); this.pipoco.passo(dt); this._regras(); }
     this.camera.passo(dt);
     if (this.fimEm !== null && this.t >= this.fimEm) this._termina();
     if (this.estado === 'correndo' && this.t >= CORRIDA.TETO_DA_CORRIDA) this._termina();

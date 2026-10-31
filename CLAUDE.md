@@ -81,6 +81,17 @@ Flags de URL: `?pista=<id>&carro=<id>` (larga direto), `?auto=1` (IA dirige o jo
   dedo: quem corrige com 0,3 s de atraso passa do ponto. O jogador comanda um **ângulo em relação à estrada** (`js/assistencia.js`) e a
   curva vem sozinha; medido com uma "criança" simulada em `teste_direcao`. Suíte que pilota com controlador próprio desliga
   `G.entrada.ajuda` (30/10/2026).
+- **Com `G.flags.auto` a IA dirige o JOGADOR por cima do piloto da suíte** (`js/ia.js`): o controle escrito antes do passo some.
+  Suíte que pilota o jogador com `flags.auto` desliga a IA da corrida (`c.ia.passo = () => {}`) — no `teste_pipoco` o Celta
+  "estourava acelerando" porque a IA tirava o pé (30/10/2026).
+- **Efeito do Cidade Aberta copiado com os números de lá some na tela do celular**: a câmera de corrida daqui fica mais longe e a
+  labareda do pops and bangs virava um pontinho. Partícula maior + uma forma que sempre aparece (o clarão, que olha para a câmera; o
+  cone de fogo, que de trás aparece de ponta). E **`efeitos.clarao()` nasce parado**: preso a um carro a 35 m/s ele escorrega 3 m para
+  trás num décimo de segundo — solte o brilho com a velocidade do carro. Foto de efeito: chame `G.quadro` a cada passo, senão a
+  partícula velha fica parada no mundo e aparece gigante perto da câmera (30/10/2026).
+- **`*_lo` do Cidade Aberta com defeito de geometria se refaz, não se repinta**: `tools/carros/refaz_lod.mjs` (pele de fora +
+  rachaduras tampadas + cartas novas). Rodas leves dividem a MESMA faixa de textura com a carroceria: trocar a faixa sem levar as rodas
+  junto deixa a roda da cor da lataria (30/10/2026).
 
 ## Fluxo
 

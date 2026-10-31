@@ -138,6 +138,14 @@ Visual da pista (fase 3): `export async function montaVisualDaPista(G, pista) ->
 `criaModeloCarro(G, cfg) -> Promise<{ grupo, carroceria, rodas: [{ no, raio, frente, lado }], cfg }>` — clona o GLB normalizado
 (`config/carros.js`), frente +Z, chão em y = 0. Usado pela corrida (fase 2) e pela vitrine/pódio (fase 6).
 
+`config/carros.js` (gerado por `tools/carros/gera_config.mjs`): 26 carros desde 30/10/2026 — os 10 da fase 1 (um poder cada) e os 16 do
+Cidade Aberta (o Prius e os que fazem pops and bangs lá), que repetem poder. Campos opcionais dos novos: `timbre` (`'eletrico'`,
+`'grave'`: o som do motor em `js/audio.js`), `pops` (`'turbo'` | `'esportivo'` | `'prostock'`) e `escapamento: { canos: [[x, y, z]…],
+dir: [x, y, z] }` — a boca de cada cano NO CARRO DAQUI (m, x = esquerda, y = cima, z = frente; o x de `dir` espelha pelo lado do cano).
+Regra dos atributos: soma 16 **e** velocidade 5 só com controle ≥ 3, velocidade 4 só com controle ≥ 2 (senão o raio da curva para a
+criança passa de 40,1 m e as pistas têm curva de 45 m). O campeonato continua com os 10 primeiros como rivais (`rivaisDoCampeonato`);
+a corrida livre sorteia entre os 26.
+
 ```
 class Carro { constructor(G, corrida, { cfg, indice, ehJogador, nome }) }
   // identidade
@@ -236,6 +244,12 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
   Eventos: `turbo:vazio` também no aperto com a barra vazia; `poder:fim` para todo efeito com tempo (Escudo inclusive);
   `poder:esquivou` só quando o alvo escapou de verdade.
   Configuração de cada poder em `config/poderes.js`. Todo poder: efeito visual, som (`G.audio.toca`), esquiva/contra-ataque.
+- `corrida.pipoco` (`js/pipoco.js`, 30/10/2026): o **pops and bangs** dos carros com `cfg.pops`, com as regras do Cidade Aberta — de
+  rua estoura na redução (as pseudo-marchas `MARCHAS` do `js/audio.js`, pé abaixo de 0,3), o esportivo também ao tirar o pé embalado, o
+  Pro Stock também em cada marcha que sobe; ligar o turbo (`turbo:liga`) de quem estoura solta um BANG. `passo(dt)` decide (sorteio do
+  visual, `aleatorio()`: não mexe na física), `quadro(dt)` desenha a língua de fogo de cada cano (pool `chamas` de `js/efeitos.js`, 48
+  slots: 2 do turbo por carro + até 4 canos), `estoura(carro, k)` (k > 1 = BANG: tufo de fumaça e tranco da câmera do jogador) toca
+  `estouro` e solta fagulha/clarão. `pipoco.e[indice].n` conta os estouros de cada carro (a suíte `pipoco` lê).
 
 ## 9. IA e dificuldade (fase 5)
 
@@ -261,7 +275,7 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
   uma onda e balança o ícone (`css/jogo.css`); última volta = `.hud-pilula.ultima` (vermelha, pulsa).
 - `G.audio`: `desbloqueia()` (no primeiro toque), `toca(nome, { vol, tom, pos }) -> bool`, `motor(carro)`, `musica(nome|pista|null)`
   (devolve o tema; `temaAtual`), `suspende()`/`retoma()`, `volume(geral, musica, efeitos)` em 0..1 (null mantém), `passo(dt)`; ouve os
-  eventos da seção 3 para os efeitos (o som de cada poder toca no `poder:usa`; nomes extras: `gelo_quebra`, `acerto_bom`,
+  eventos da seção 3 para os efeitos (o som de cada poder toca no `poder:usa`; nomes extras: `estouro` (o pops and bangs), `gelo_quebra`, `acerto_bom`,
   `acerto_ruim`, `esquiva`, `escudo_bloqueia`).
 - `G.vibracao.vibra(ms | padrão)` (respeita a opção; `navigator.vibrate` em try/catch).
 - `G.save`: `le(chave, padrao)`, `grava(chave, valor)`, `apaga()`, `remove(chave)`, `opcoes()`, `mudaOpcoes(parcial)`, `OPCOES_PADRAO`

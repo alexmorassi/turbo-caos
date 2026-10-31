@@ -26,6 +26,7 @@ export const TABELA = [
     porque: 'carro de corrida classico com aerofolio: a maior velocidade final do grid (velocidade 5); o escudo dourado combina com a pintura e compensa o peso leve',
     descricao: 'O carro de corrida dourado: rápido, firme e protegido por um escudo brilhante.' },
   { id: 'lagartixa', origem: 'porsche.glb', fonte: 'lo', rodas: 'rodas', nome: 'Lagartixa', poder: 'oleo',
+    pops: 'esportivo', escapamento: { canos: [[0.065, 0.31, -2.26], [-0.065, 0.31, -2.26]] },   // SPECS.porsche (pops: true)
     cor: '#57c61c', porqueCor: 'verde-limao da lataria (15 % da area)',
     atributos: { velocidade: 3, aceleracao: 4, controle: 5, peso: 2, turbo: 2 },
     porque: 'esportivo baixo verde-limao: gruda na curva como lagartixa na parede (controle 5); deixa a mancha de oleo para quem vem atras',
@@ -68,6 +69,116 @@ export const TABELA = [
     atributos: { velocidade: 3, aceleracao: 4, controle: 5, peso: 1, turbo: 3 },
     porque: 'kart com turbinas: leve (peso 1) e o mais agil (controle 5); o trocatroca troca de lugar com quem esta na frente, golpe de quem e pequeno e esperto',
     descricao: 'O kart a jato que troca de lugar com quem está na frente. Zum!' },
+
+  // ---------------------------------------------------------------- 30/10/2026, pedido do Morassi: "coloque o Toyota Prius e os
+  // carros com pops and bangs do jogo Cidade Aberta disponiveis para jogar". Os com pops sao os SPECS do cidadeaberta/js/carmodels.js
+  // com `turbo` (pipoco na reducao), `pops` (o Porsche, que aqui ja era a Lagartixa) ou `proStock` (arrancada): 15 + o Prius = 16.
+  // NOME: o do Cidade Aberta sem a montadora (a crianca procura "o Prius", "o Camaro"); os 10 de antes tem apelido.
+  // ATRIBUTOS: soma 16 e, ALEM disso, a curva para a crianca (inspecao item 9: o carro mais rapido no fundo do acelerador faz
+  // todas as curvas): velocidade 5 pede controle >= 3 e velocidade 4 pede controle >= 2 — com velocidade 5 e controle 2 o raio
+  // da crianca iria de 40,1 para 44,6 m e as pistas tem curva de 45 m (js/pistas/inspecao.js raioDaCrianca).
+  // PODER: 26 carros e 10 poderes, entao poder repete; nenhum poder novo.
+  { id: 'prius', origem: 'prius.glb', fonte: 'lo', rodas: 'rodas', nome: 'Prius', poder: 'emp', timbre: 'eletrico',
+    cor: '#e1ded4', porqueCor: 'branco perola da lataria (33 % somando os tons claros; o mesmo branco do Faisca)',
+    atributos: { velocidade: 2, aceleracao: 3, controle: 4, peso: 2, turbo: 5 },
+    porque: 'hibrido (SPECS.prius hybrid, sem pops): economiza, entao o turbo dura mais (turbo 5) e e o mais lento de ponta; o motor eletrico zune (timbre do Faisca) e da o choque',
+    descricao: 'O híbrido que economiza: o turbo dura mais e o choque elétrico desliga os rivais!' },
+  { id: 'fusca_teto', origem: 'fusca_teto.glb', fonte: 'lo', rodas: 'rodas', nome: 'Fusca Teto Solar', poder: 'oleo',
+    // a body_lo do Cidade Aberta tem o forro da porta atravessando a lataria (fase 1: por isso o Fusca ficou fora); refeita a partir da
+    // pele de fora da malha cheia pelo tools/carros/refaz_lod.mjs (rode antes do otimiza: a copia fica em tools/carros/cache/)
+    refeita: true,
+    pops: 'turbo', escapamento: { canos: [[0.35, 0.137, -2.04], [0.255, 0.137, -2.04], [-0.265, 0.137, -2.04], [-0.35, 0.137, -2.04]] },   // SPECS.fuscaTeto
+    cor: '#c60505', porqueCor: 'vermelho da lataria (40 % somando os tons)',
+    atributos: { velocidade: 2, aceleracao: 3, controle: 3, peso: 3, turbo: 5 },
+    porque: 'o Fusca vermelho com turbo do Cidade Aberta: velhinho e devagar de ponta, mas o turbo e a alma dele; Fusca velho vaza oleo',
+    descricao: 'O Fusca turbinado: pipoca no escapamento e deixa óleo na pista!' },
+  { id: 'voyage', origem: 'voyage.glb', fonte: 'lo', rodas: 'rodas', nome: 'Voyage', poder: 'escudo',
+    pops: 'turbo', escapamento: { canos: [[0.47, 0.21, -2.03]] },   // SPECS.voyage
+    cor: '#8b9aa9', porqueCor: 'azul-acinzentado da lataria (28 %)',
+    atributos: { velocidade: 3, aceleracao: 3, controle: 3, peso: 3, turbo: 4 },
+    porque: 'sedan turbo equilibrado (3 em tudo, turbo 4); o escudo combina com o carro de familia',
+    descricao: 'O Voyage turbinado: estoura no escapamento e se protege com um escudo.' },
+  { id: 'gol_gti', origem: 'gol_gti.glb', fonte: 'lo', rodas: 'rodas', nome: 'Gol GTI', poder: 'encolhedor',
+    pops: 'turbo', escapamento: { canos: [[0.49, 0.215, -1.92]] },   // SPECS.golGti
+    cor: '#fee768', porqueCor: 'amarelo-claro da lataria (21 %)',
+    atributos: { velocidade: 3, aceleracao: 4, controle: 3, peso: 1, turbo: 5 },
+    porque: 'hatch pequeno com o turbo mais forte da rua no Cidade Aberta (turboBar 2): turbo 5, leve (peso 1); encolher os outros e golpe de pequeno',
+    descricao: 'Pequeno e bravo: turbo forte, pipoco no escapamento e encolhe os adversários!' },
+  { id: 'hb20', origem: 'hb20.glb', fonte: 'lo', rodas: 'rodas', nome: 'HB20 Turbo', poder: 'congelante',
+    pops: 'turbo', escapamento: { canos: [[-0.22, 0.21, -1.97]] },   // SPECS.hb20
+    cor: '#5c6470', porqueCor: 'preto da lataria (76 %) levantado para cinza-grafite: preto some no HUD escuro',
+    atributos: { velocidade: 4, aceleracao: 3, controle: 4, peso: 2, turbo: 3 },
+    porque: 'o mais rapido de ponta entre os de rua no Cidade Aberta (vmax 67) e firme (controle 4); turbo fraco (turboBar 0,6): turbo 3',
+    descricao: 'Rápido e firme na curva, pipoca no escapamento e congela quem está na frente.' },
+  { id: 'monza', origem: 'monza_prata.glb', fonte: 'lo', rodas: 'rodas', nome: 'Monza', poder: 'ima',
+    pops: 'turbo', escapamento: { canos: [[0.4, 0.205, -2.2]] },   // SPECS.monzaPrata
+    cor: '#a3a5aa', porqueCor: 'prata da lataria (25 %)',
+    atributos: { velocidade: 3, aceleracao: 2, controle: 3, peso: 4, turbo: 4 },
+    porque: 'sedan grande dos anos 80 com turbo: pesado (peso 4) e lento para sair; o ima puxa os rivais como o carrao puxa o olhar',
+    descricao: 'O Monza turbo: grandão, estoura no escapamento e puxa todo mundo com o ímã.' },
+  { id: 'speedup', origem: 'speedup.glb', fonte: 'lo', rodas: 'rodas', nome: 'speed up!', poder: 'trocatroca',
+    pops: 'turbo', escapamento: { canos: [[-0.32, 0.19, -1.71]] },   // SPECS.speedup
+    cor: '#ebebeb', porqueCor: 'branco da lataria (26 %; o teto e preto)',
+    atributos: { velocidade: 2, aceleracao: 4, controle: 5, peso: 1, turbo: 4 },
+    porque: 'o menor carro do grid: o mais agil (controle 5) e o mais leve; troca de lugar com quem esta na frente, golpe de quem e pequeno e esperto',
+    descricao: 'Pequenininho e esperto: estala no escapamento e troca de lugar com quem está na frente!' },
+  { id: 'celta', origem: 'celta.glb', fonte: 'lo', rodas: 'rodas', nome: 'Celta', poder: 'tornado',
+    pops: 'turbo', escapamento: { canos: [[-0.42, 0.2, -1.78]] },   // SPECS.celta
+    cor: '#454c59', porqueCor: 'preto da lataria (58 %) levantado, mais escuro que o do HB20 para os dois nao virarem a mesma bolinha',
+    atributos: { velocidade: 2, aceleracao: 4, controle: 4, peso: 2, turbo: 4 },
+    porque: 'popular leve com turbo: arranca bem e e facil de guiar; o tornado e vento, combina com o carro leve',
+    descricao: 'O Celta turbinado: pipoca no escapamento e solta um tornado na pista!' },
+  { id: 'furgao', origem: 'furgao.glb', fonte: 'lo', rodas: 'rodas', nome: 'Furgão', poder: 'fumaca', timbre: 'grave',
+    espelha: { wheel2: 'wheel1', wheel4: 'wheel3' },   // as *_lo do lado esquerdo cortam o pneu (setor com 90-91 % do raio no confere.mjs)
+    pops: 'turbo', escapamento: { canos: [[0.42, 0.22, -2.12], [0.58, 0.22, -2.12]] },   // SPECS.furgao
+    cor: '#ebebeb', porqueCor: 'branco da lataria (45 %)',
+    atributos: { velocidade: 2, aceleracao: 2, controle: 3, peso: 5, turbo: 4 },
+    porque: 'van turbo de 1,5 t (a mais pesada do Cidade Aberta entre estes): peso 5 empurra todo mundo, devagar para sair; a fumaca e a do escapamento',
+    descricao: 'O furgão turbo: grandão, empurra todo mundo e solta uma nuvem de fumaça.' },
+  // PRO STOCK (arrancada): o escapamento sai dos LADOS, na frente das rodas de tras (headers), apontando para fora e para tras
+  // (SPECS.*.exhaustDir [0,86, -0,08, -0,5], o x espelhado pelo lado do cano); labareda maior e rajada mais longa (fx.js popFx)
+  { id: 'gol_prostock', origem: 'gol_prostock.glb', fonte: 'lo', rodas: 'rodas', nome: 'Gol Pro Stock', poder: 'congelante', timbre: 'grave',
+    pops: 'prostock', escapamento: { canos: [[0.86, 0.17, 0.47], [-0.86, 0.17, 0.47]], dir: [0.86, -0.08, -0.5] },   // SPECS.golProStock
+    cor: '#d30605', porqueCor: 'vermelho da pintura (14 % somando os tons; o resto e preto e cinza)',
+    atributos: { velocidade: 4, aceleracao: 5, controle: 3, peso: 1, turbo: 3 },
+    porque: 'o Pro Stock pequeno: arranca como os outros (aceleracao 5), mais leve (peso 1) e mais facil de guiar',
+    descricao: 'O Gol de arrancada: sai como um foguete, solta labaredas e congela os rivais.' },
+  { id: 'mustang', origem: 'mustang.glb', fonte: 'lo', rodas: 'rodas', nome: 'Mustang Porters', poder: 'fumaca', timbre: 'grave',
+    pops: 'prostock', escapamento: { canos: [[0.95, 0.25, 0.9], [-0.95, 0.25, 0.9]], dir: [0.86, -0.08, -0.5] },   // SPECS.mustang
+    cor: '#b1331b', porqueCor: 'vermelho-ferrugem da pintura (34 %)',
+    atributos: { velocidade: 5, aceleracao: 5, controle: 3, peso: 2, turbo: 1 },
+    porque: 'Pro Stock de arrancada: o mais rapido e o que mais arranca do grid (5 e 5), aspirado (turbo 1); a fumaca e a do burnout',
+    descricao: 'O Mustang de arrancada: solta labaredas e uma fumaceira de burnout!' },
+  { id: 'camaro', origem: 'camaro.glb', fonte: 'lo', rodas: 'rodas', nome: 'Camaro Summit', poder: 'terremoto', timbre: 'grave',
+    pops: 'prostock', escapamento: { canos: [[0.86, 0.25, 0.79], [-0.86, 0.25, 0.79]], dir: [0.86, -0.08, -0.5] },   // SPECS.camaro
+    cor: '#1c3bb0', porqueCor: 'azul-marinho da pintura (#0a1a76, 34 %) com o brilho levantado: o marinho some no HUD escuro',
+    atributos: { velocidade: 5, aceleracao: 5, controle: 3, peso: 1, turbo: 2 },
+    porque: 'Pro Stock de arrancada, o mais leve deles; cada BANG do escapamento faz a pista tremer: o terremoto',
+    descricao: 'O Camaro de arrancada: cada estouro do escapamento faz a pista tremer!' },
+  { id: 'mustang_laranja', origem: 'mustang_laranja.glb', fonte: 'lo', rodas: 'rodas', nome: 'Mustang Laranja', poder: 'tornado', timbre: 'grave',
+    pops: 'prostock', escapamento: { canos: [[0.95, 0.25, 0.85], [-0.95, 0.25, 0.85]], dir: [0.86, -0.08, -0.5] },   // SPECS.mustangLaranja
+    cor: '#e76d2a', porqueCor: 'laranja da pintura (47 % somando os tons)',
+    atributos: { velocidade: 5, aceleracao: 4, controle: 3, peso: 3, turbo: 1 },
+    porque: 'Pro Stock mais pesado (peso 3), um pouco menos de arrancada; o tornado e o vento que ele deixa para tras',
+    descricao: 'O Mustang laranja de arrancada: labaredas no escapamento e um tornado na pista!' },
+  { id: 'camaro_rad', origem: 'camaro_rad.glb', fonte: 'lo', rodas: 'rodas', nome: 'Camaro RAD', poder: 'ima', timbre: 'grave',
+    pops: 'prostock', escapamento: { canos: [[1.01, 0.25, 0.83], [-1.01, 0.25, 0.83]], dir: [0.86, -0.08, -0.5] },   // SPECS.camaroRad
+    cor: '#c8141c', porqueCor: 'vermelho do letreiro RAD: a lataria e branca (33 %) e branco ja tem quatro',
+    atributos: { velocidade: 4, aceleracao: 5, controle: 3, peso: 2, turbo: 2 },
+    porque: 'Pro Stock de arrancada com um pouco menos de ponta (velocidade 4); o ima puxa os rivais para perto das labaredas',
+    descricao: 'O Camaro RAD de arrancada: labaredas no escapamento e um ímã para puxar os rivais.' },
+  { id: 'camaro_bandeira', origem: 'camaro_bandeira.glb', fonte: 'lo', rodas: 'rodas', nome: 'Camaro Bandeira', poder: 'escudo', timbre: 'grave',
+    pops: 'prostock', escapamento: { canos: [[0.97, 0.25, 0.88], [-0.97, 0.25, 0.88]], dir: [0.86, -0.08, -0.5] },   // SPECS.camaroBandeira
+    cor: '#1e46b4', porqueCor: 'azul das estrelas da bandeira (#052884) com o brilho levantado',
+    atributos: { velocidade: 5, aceleracao: 4, controle: 3, peso: 2, turbo: 2 },
+    porque: 'Pro Stock de arrancada com a bandeira na pintura; o escudo brilhante protege a pintura',
+    descricao: 'O Camaro da bandeira: labaredas no escapamento e um escudo brilhante.' },
+  { id: 'camaro_hotwheels', origem: 'camaro_hotwheels.glb', fonte: 'lo', rodas: 'rodas', nome: 'Camaro Hot Wheels', poder: 'trocatroca', timbre: 'grave',
+    pops: 'prostock', escapamento: { canos: [[1, 0.25, 0.75], [-1, 0.25, 0.75]], dir: [0.86, -0.08, -0.5] },   // SPECS.camaroHotWheels
+    cor: '#0a6ad8', porqueCor: 'azul da pintura (23 % somando os tons) com o brilho levantado',
+    atributos: { velocidade: 4, aceleracao: 5, controle: 2, peso: 2, turbo: 3 },
+    porque: 'Pro Stock de arrancada com a pintura de carrinho de brinquedo; troca de lugar com quem esta na frente, como na pista de brinquedo',
+    descricao: 'O Camaro de arrancada de brinquedo: solta labaredas e troca de lugar com quem está na frente!' },
 ];
 
 export const CARRO_PADRAO = 'vulcao';   // o do modelo de config pedido na fase 1

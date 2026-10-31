@@ -26,8 +26,21 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
      construtor fecha o circuito sozinho.
 3. **No artefato do Claude** o iframe bloqueia o sensor de movimento: a direção por **inclinação** cai sozinha para as setas
    (funciona no `TurboCaos.html` e pelo servidor local). Também não há query string, então as flags (`?pista=`…) só valem fora dele.
-4. **Logotipos nas texturas herdadas** do Cidade Aberta (VW na Kombosa, Toyota/GR no Voador, brasão no Lagartixa). Os nomes no jogo
-   não têm marca.
+4. **Logotipos nas texturas herdadas** do Cidade Aberta (VW na Kombosa, Toyota/GR no Voador, brasão no Lagartixa; e nos 16 de
+   30/10/2026, os patrocinadores e emblemas das pinturas, como o Hot Wheels do Camaro). Os 10 primeiros têm apelido; os 16 novos usam
+   o nome do Cidade Aberta sem a montadora ("Prius", "Camaro Summit"), para a criança achar o carro que ela conhece.
+6. **Os 16 carros do Cidade Aberta** (30/10/2026), para conferir no celular:
+   - **Fusca Teto Solar**: a versão leve do Cidade Aberta tem o forro da porta atravessando a lataria (por isso ele ficou fora na fase
+     1). Refeita aqui (`tools/carros/refaz_lod.mjs`: só a pele de fora da malha cheia, rachaduras tampadas, faixa de textura nova).
+     Ficou bom de longe; **de perto, na vitrine, a porta ainda tem pontinhos escuros** (frestas pequenas entre pedaços de camadas da
+     lataria do Meshy). Se incomodar: refazer a `body_lo` no próprio Cidade Aberta, com a lataria fechada antes da redução.
+   - **Pro Stock menores**: com a regra de escala (4,2 m de comprimento para todos) o Pro Stock, que é comprido e baixo, fica mais estreito
+     e baixo que os outros (1,5 m de largura e ~1 m de altura contra ~2 m dos de rua).
+   - **O pops and bangs é do Cidade Aberta** (as reduções, o estalo de tirar o pé, as trocas do Pro Stock); só o BANG de ligar o turbo
+     é daqui. Rival também estoura (a labareda sempre; o som mais baixo e só perto). Se o som ficar "metralhadora" com 8 carros, o
+     próximo passo é tocar o som só do jogador e do rival mais perto.
+   - **HTML único maior**: com 26 carros o `TurboCaos.html` passou de 9,6 para ~19 MB (abre em `file://`; o artefato carrega só os
+     carros da corrida).
 5. **Fonte com internet**: as fotos foram tiradas sem internet (fonte do sistema). Com o Baloo 2/Bungee carregados o texto fica um
    pouco mais largo; as larguras têm folga, mas vale olhar uma vez.
 
@@ -53,6 +66,13 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
 - **Carros** (fase 1): o Fuscão saiu (o `fusca.glb` é branco como o Faísca e a versão leve tem defeitos de malha) e entrou o
   **Buguinho** (laranja, chassi de Fusca, mesmo poder). O **Voador** fica com as turbinas recolhidas (abertas ele teria 2,7 m). Pela
   regra de escala (4,2 × 2,3 × 2,6 m), o Picolé (3,25 m) e o Tubarão (3,34 m) ficam mais curtos. Atributos somam 16 em todos.
+- **Os 16 carros do Cidade Aberta** (30/10/2026, pedido: "coloque o Toyota Prius e os carros com pops and bangs"): os com pops são os
+  SPECS do `cidadeaberta/js/carmodels.js` com `turbo` (Fusca Teto Solar, Voyage, Gol GTI, HB20, Monza, speed up!, Celta, Furgão),
+  `proStock` (os 7 de arrancada) ou `pops` (o Porsche GT3 RS, que aqui já era a **Lagartixa**: ela ganhou o estouro). Atributos somam 16
+  e respeitam a curva para a criança (velocidade 5 só com controle ≥ 3); o poder repete entre os 26 (são 10 poderes); o Prius zune como
+  o Faísca e o Pro Stock e o Furgão roncam grave. O campeonato continua com os 10 primeiros de rivais (os pontos de um campeonato
+  salvo não mudam de dono); a corrida livre sorteia entre os 26. Na seleção, as bolinhas encolheram (26 cabem numa linha) e o nome
+  comprido ("Camaro Hot Wheels") encolhe para caber.
 - **Física** (fase 2): crista da rampa lança 8° mais para cima (sem isso a rampa da pista de teste virava lombada); quem cai num vão
   volta DEPOIS do buraco; parede invisível no ar acima dos muros; FREIO e DRIFT num botão só; loop nunca derruba (mínimo 18 m/s).
 - **Turbo × faixa de impulso não empilham** (maestro): os dois juntos davam 1,69 × a vMax (66 m/s antes do loop da Neon).

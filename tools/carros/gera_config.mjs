@@ -13,7 +13,16 @@ const PODERES = ['oleo', 'emp', 'congelante', 'ima', 'trocatroca', 'encolhedor',
 // conferencias que reprovam a geracao (melhor falhar aqui do que o jogo abrir com carro torto)
 const erros = [];
 const poderes = TABELA.map((c) => c.poder);
-for (const p of PODERES) if (poderes.filter((x) => x === p).length !== 1) erros.push(`poder ${p} aparece ${poderes.filter((x) => x === p).length} vez(es): tem de ser 1 por carro`);
+// cada poder tem pelo menos um dono (eram 10 carros e 10 poderes, um de cada; com os 16 do Cidade Aberta de 30/10/2026 o poder repete)
+for (const p of PODERES) if (!poderes.includes(p)) erros.push(`poder ${p} sem nenhum carro`);
+for (const c of TABELA) if (!PODERES.includes(c.poder)) erros.push(`${c.id}: poder ${c.poder} nao existe`);
+// pops and bangs (js/pipoco.js): o tipo do Cidade Aberta e o escapamento dele
+const POPS = ['turbo', 'esportivo', 'prostock'];
+for (const c of TABELA) {
+  if (c.pops && !POPS.includes(c.pops)) erros.push(`${c.id}: pops ${c.pops} desconhecido (${POPS.join(', ')})`);
+  if (c.pops && !(c.escapamento && c.escapamento.canos && c.escapamento.canos.length)) erros.push(`${c.id}: pops sem escapamento`);
+  if (c.pops && medidas[c.id] && !medidas[c.id].transforma) erros.push(`${c.id}: medidas sem 'transforma' (rode node tools/carros/otimiza.mjs ${c.id})`);
+}
 for (const c of TABELA) {
   const a = c.atributos, soma = a.velocidade + a.aceleracao + a.controle + a.peso + a.turbo;
   if (soma !== 16) erros.push(`${c.id}: soma dos atributos ${soma}, tem de ser 16`);
@@ -33,6 +42,15 @@ const quebra = (txt, largura = 120, prefixo = '  // ') => {   // comentario long
   if (l) linhas.push(prefixo + l); return linhas.join('\n');
 };
 
+// ESCAPAMENTO: os canos do Cidade Aberta (SPECS.<tipo>.exhaust, metros do GLB de origem: x = esquerda, y = cima, z = frente) vao para o
+// carro daqui pela mesma conta da normalizacao (medidas.json 'transforma': p = (p_origem - origem) * escala). dir = exhaustDir (o x
+// espelha pelo lado do cano: o Pro Stock sopra para fora dos dois lados); sem dir, para tras.
+function escapamento(c, m) {
+  const t = m.transforma, canos = c.escapamento.canos.map((p) => p.map((v, k) => n3((v - t.origem[k]) * t.escala)));
+  const dir = c.escapamento.dir ? (() => { const d = c.escapamento.dir, n = Math.hypot(...d); return d.map((v) => n3(v / n)); })() : [0, 0, -1];
+  return `{ canos: ${JSON.stringify(canos).replace(/,/g, ', ')}, dir: ${JSON.stringify(dir).replace(/,/g, ', ')} }`;
+}
+
 const entradas = TABELA.map((c) => {
   const m = medidas[c.id], a = c.atributos;
   const rodas = m.rodas.tem ? `{ tem: true, raioFrente: ${n3(m.rodas.raioFrente)}, raioTras: ${n3(m.rodas.raioTras)} }`
@@ -45,6 +63,8 @@ const entradas = TABELA.map((c) => {
     `    poder: ${q(c.poder)},`,
     `    medidas: { comprimento: ${n2(m.medidas.comprimento)}, largura: ${n2(m.medidas.largura)}, altura: ${n2(m.medidas.altura)} },  // escala ${m.escala} (limitada ${m.limitadaPor === 'comprimento' ? 'pelo' : 'pela'} ${m.limitadaPor})`,
     `    rodas: ${rodas},`,
+    ...(c.timbre ? [`    timbre: ${q(c.timbre)},   // som do motor (js/audio.js CAMADAS)`] : []),
+    ...(c.pops ? [`    pops: ${q(c.pops)}, escapamento: ${escapamento(c, m)},`] : []),
     `    descricao: ${q(c.descricao)},`,
     `    kb: ${Math.round(m.kb)}, tris: ${m.tris} },`,
   ].join('\n');
@@ -67,7 +87,11 @@ const texto = `// CARROS DO TURBO CAOS (fase 1). ARQUIVO GERADO por tools/carros
 // REGRA DOS ATRIBUTOS: 1 a 5 em velocidade, aceleracao, controle, peso e turbo, SOMA 16 em todos - nenhum carro e melhor em
 // tudo, a escolha vira estilo de corrida. Cada atributo tem pelo menos um carro com 5 (velocidade: Dourado; aceleracao:
 // Faisca; controle: Lagartixa e Jatinho; peso: Picole e Tubarao; turbo: Voador). O peso decide quem empurra quem na batida.
-// Um poder por carro (os 10 de config/poderes.js). cor = destaque do carro na interface, minimapa e rastro, tirada da pintura.
+// Os 10 primeiros tem um poder cada (os 10 de config/poderes.js); os 16 do Cidade Aberta (30/10/2026: o Prius e os carros com pops and
+// bangs) repetem poder. cor = destaque do carro na interface, minimapa e rastro, tirada da pintura.
+// pops = pops and bangs do Cidade Aberta (js/pipoco.js): 'turbo' estoura em cada reducao, 'esportivo' (o Porsche) tambem quando tira
+// o pe embalado, 'prostock' tudo isso com rajada longa, labareda maior e estouro na troca de marcha. escapamento.canos = boca de cada
+// cano NO CARRO DAQUI (m, x = esquerda, y = cima, z = frente), dir = para onde a labareda sai (o x espelha pelo lado do cano).
 // rodas.raio* = raio de CONTATO (do eixo ao ponto mais baixo do pneu, media das duas rodas do eixo), em metros.
 // rodas.tem false = o jogo so inclina a carroceria; flutua = quanto ele pairava no Cidade Aberta (ja na escala nova).
 
