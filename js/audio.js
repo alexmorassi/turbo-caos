@@ -304,7 +304,7 @@ const CAMADAS = {
   eletrico: [['sawtooth', 1, 0.35], ['triangle', 2, 0.4], ['sine', 3.03, 0.22]],
   jato: [['sine', 1, 0.4], ['triangle', 1.5, 0.25]],
 };
-// os carros do Cidade Aberta de 30/10/2026 trazem o timbre na config (cfg.timbre: o Prius zune como o Faisca, Pro Stock e Furgao roncam grave)
+// os carros do Cidade Aberta de 30/10/2026 trazem o timbre na config (cfg.timbre: o Toyota Prius zune como o BYD Seal, o Furgao ronca grave)
 export function timbreDoCarro(cfg) { return (cfg && (cfg.timbre || TIMBRE_DO_CARRO[cfg.id])) || 'motor'; }
 
 /** Uma voz de motor continua (jogador). Nada e criado por quadro: `atualiza` so mexe em AudioParam. */

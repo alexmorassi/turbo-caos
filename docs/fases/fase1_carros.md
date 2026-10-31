@@ -204,11 +204,14 @@ Do zero (apagando GLB e medidas) os 5 comandos rodam em ~1 min; o mesmo carro re
 5. Materiais `doubleSided` (herdado; custa preenchimento no celular). Tirar exige conferir normais/ordem dos cantos do Meshy.
 6. Pacote npm instalado **sem salvar** no `package.json`: `gltf-validator` (só para `tools/carros/valida.mjs`).
 
-## 9. Os 16 do Cidade Aberta (30/10/2026)
+## 9. Os carros novos do Cidade Aberta (30/10/2026; Pro Stock fora e nomes do Cidade Aberta em 31/10/2026)
 
 Pedido do Morassi: "coloque o Toyota Prius e os carros com pops and bangs do jogo Cidade Aberta disponíveis para jogar". Entraram o
 **Prius** e os 15 SPECS do `cidadeaberta/js/carmodels.js` que estouram (`turbo`, `proStock`; o `pops` é o Porsche, que já era a
-Lagartixa). Todos na fonte `lo`, pelo mesmo `otimiza.mjs` (378–513 KB, 18,6–23,4 mil triângulos); `confere.mjs` aprova os 26.
+Lagartixa). Todos na fonte `lo`, pelo mesmo `otimiza.mjs` (378–513 KB, 18,6–23,4 mil triângulos). No dia seguinte (31/10/2026) os 7
+**Pro Stock saíram** ("remover os carros pro stock": GLB, medidas e o tipo de pipoco `prostock`) e **todos os 19 passaram a usar o
+nome do Cidade Aberta** (o `name` do SPECS sem o emoji; os 10 da fase 1 tinham apelido — Vulcão, Lagartixa, Picolé, Buguinho,
+Kombosa, Tubarão, Voador, Faísca, Jatinho, Dourado B7). O `id` não muda: o save guarda o carro pelo id. `confere.mjs` aprova os 19.
 
 - **Furgão**: as `wheel2_lo` e `wheel4_lo` cortam o pneu (setor com 90–91 % do raio): `espelha: { wheel2: 'wheel1', wheel4: 'wheel3' }`.
 - **Fusca Teto Solar**: a `body_lo` do Cidade Aberta tem o defeito de geometria da seção 2. `tools/carros/refaz_lod.mjs` (+

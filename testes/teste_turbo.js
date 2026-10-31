@@ -83,7 +83,7 @@ suite('turbo', async (G) => {
     const c = await nova(G);
     ok(c.carros.every((x) => x.turbo && x.turbo.capacidade === capacidadeDoTurbo(x.cfg) && x.turbo.carga === TURBO.CARGA_INICIAL && x.turbo.ativo === false), `cada carro larga com ${Math.round(TURBO.CARGA_INICIAL * 100)}% e a sua capacidade`);
     const voador = CARROS.find((x) => x.id === 'voador'), faisca = CARROS.find((x) => x.id === 'faisca');
-    ok(capacidadeDoTurbo(voador) > capacidadeDoTurbo(faisca), 'Voador (turbo 5) dura mais que Faísca (turbo 2)');
+    ok(capacidadeDoTurbo(voador) > capacidadeDoTurbo(faisca), 'Toyota GR Yaris Voador (turbo 5) dura mais que o BYD Seal (turbo 2)');
   }
 
   // =============================================================================================== o sistema (como a IA usa): gasta so ligado

@@ -718,7 +718,7 @@ export class Telas {
     this.vitrine.mostraCarro(cfg, 'selecao');
   }
 
-  /** Nome comprido encolhe para caber entre o botao de voltar e o painel: "Camaro Hot Wheels" (os carros do Cidade Aberta, 30/10/2026)
+  /** Nome comprido encolhe para caber entre o botao de voltar e o painel: "Toyota GR Yaris Voador" (o nome do Cidade Aberta, 31/10/2026)
    *  passava por baixo do botao no iPhone deitado. Mede o que o navegador desenhou (a fonte do titulo pode nao ter carregado). */
   _cabeNome(s, nome) {
     nome.style.fontSize = '';

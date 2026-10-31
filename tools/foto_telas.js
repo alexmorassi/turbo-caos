@@ -5,6 +5,7 @@
 //   node tools/foto_telas.js                         # Pixel 7 deitado (padrao)
 //   node tools/foto_telas.js --aparelho todos        # pixel, iphone, pequeno (360 px de altura), tablet, desktop
 //   node tools/foto_telas.js --aparelho pequeno --so menu,resultado
+//   node tools/foto_telas.js --carro voador          # escolhe o carro antes (o nome mais comprido: "Toyota GR Yaris Voador")
 //   node tools/foto_telas.js --porta 8136
 //
 // ?foto=1 fixa as sementes (o mesmo podio a cada rodada) e o qualidade.js nao mede fps. ?mudo=1: sem som.
@@ -24,6 +25,7 @@ const argv = process.argv.slice(2);
 const pega = (n, p) => { const i = argv.indexOf(n); return i >= 0 && argv[i + 1] ? argv[i + 1] : p; };
 const PORTA = Number(pega('--porta', 8136));
 const SO = (pega('--so', '') || '').split(',').filter(Boolean);
+const CARRO = pega('--carro', null);
 /** nome -> dispositivo do Playwright (deitado) ou viewport de desktop */
 const APARELHOS = { pixel: 'Pixel 7', iphone: 'iPhone 14', pequeno: 'Galaxy S8', tablet: 'iPad (gen 7)', desktop: null };
 const escolha = pega('--aparelho', 'pixel');
@@ -67,6 +69,7 @@ async function fotografa(nav, pw, aparelho) {
   // um toque de dedo de verdade (a entrada da fase 2 so mostra os controles de toque depois do primeiro toque)
   if (APARELHOS[aparelho]) { try { await p.touchscreen.tap(vp.width * 0.5, vp.height * 0.04); } catch (e) { /* sem toque */ } }
 
+  if (CARRO) await p.evaluate((id) => { window.G.jogo.escolheCarro(id); window.G.telas.mostra('menu'); }, CARRO);
   await esperaVitrine(); await foto('menu');
   await clica('[data-acao=livre]'); await esperaVitrine(); await foto('selecao_carro');
   for (let k = 0; k < 6; k++) await clica('[data-acao=carro_proximo]');
@@ -80,7 +83,8 @@ async function fotografa(nav, pw, aparelho) {
   await p.waitForFunction(() => window.G.corrida && window.G.corrida.estado === 'contagem' && window.G.telas.atual === 'corrida', null, { timeout: 120000 });
   await p.waitForTimeout(350); await foto('corrida_contagem');
   // corrida: avanca a simulacao na mao (o laco tambem anda; tanto faz para a foto)
-  await p.evaluate(() => { const G = window.G; for (let k = 0; k < 60 * 9; k++) G.passo(G.PASSO); G.hud.aviso('Turbo cheio!', 'turbo', '🔥'); });
+  // (sem aviso no meio da tela desde 30/10/2026: o hud.aviso saiu)
+  await p.evaluate(() => { const G = window.G; for (let k = 0; k < 60 * 9; k++) G.passo(G.PASSO); });
   await p.waitForTimeout(500); await foto('corrida');
   await clica('[data-acao=pausar]'); await p.waitForTimeout(500); await foto('pausa');
   await clica('[data-acao=continuar]');

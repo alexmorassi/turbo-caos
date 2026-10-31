@@ -13,11 +13,11 @@ const PODERES = ['oleo', 'emp', 'congelante', 'ima', 'trocatroca', 'encolhedor',
 // conferencias que reprovam a geracao (melhor falhar aqui do que o jogo abrir com carro torto)
 const erros = [];
 const poderes = TABELA.map((c) => c.poder);
-// cada poder tem pelo menos um dono (eram 10 carros e 10 poderes, um de cada; com os 16 do Cidade Aberta de 30/10/2026 o poder repete)
+// cada poder tem pelo menos um dono (eram 10 carros e 10 poderes, um de cada; com os carros do Cidade Aberta de 30/10/2026 o poder repete)
 for (const p of PODERES) if (!poderes.includes(p)) erros.push(`poder ${p} sem nenhum carro`);
 for (const c of TABELA) if (!PODERES.includes(c.poder)) erros.push(`${c.id}: poder ${c.poder} nao existe`);
 // pops and bangs (js/pipoco.js): o tipo do Cidade Aberta e o escapamento dele
-const POPS = ['turbo', 'esportivo', 'prostock'];
+const POPS = ['turbo', 'esportivo'];   // (os Pro Stock, com o tipo 'prostock', sairam em 31/10/2026)
 for (const c of TABELA) {
   if (c.pops && !POPS.includes(c.pops)) erros.push(`${c.id}: pops ${c.pops} desconhecido (${POPS.join(', ')})`);
   if (c.pops && !(c.escapamento && c.escapamento.canos && c.escapamento.canos.length)) erros.push(`${c.id}: pops sem escapamento`);
@@ -44,7 +44,7 @@ const quebra = (txt, largura = 120, prefixo = '  // ') => {   // comentario long
 
 // ESCAPAMENTO: os canos do Cidade Aberta (SPECS.<tipo>.exhaust, metros do GLB de origem: x = esquerda, y = cima, z = frente) vao para o
 // carro daqui pela mesma conta da normalizacao (medidas.json 'transforma': p = (p_origem - origem) * escala). dir = exhaustDir (o x
-// espelha pelo lado do cano: o Pro Stock sopra para fora dos dois lados); sem dir, para tras.
+// espelha pelo lado do cano: cano que sopra de lado sai para fora dos dois lados); sem dir, para tras.
 function escapamento(c, m) {
   const t = m.transforma, canos = c.escapamento.canos.map((p) => p.map((v, k) => n3((v - t.origem[k]) * t.escala)));
   const dir = c.escapamento.dir ? (() => { const d = c.escapamento.dir, n = Math.hypot(...d); return d.map((v) => n3(v / n)); })() : [0, 0, -1];
@@ -85,13 +85,15 @@ const texto = `// CARROS DO TURBO CAOS (fase 1). ARQUIVO GERADO por tools/carros
 // wheelN.rotation.x gira a roda no proprio eixo. Voador: sem wheel; pod0..3 filhos do body (extras { side, slide, aberto }).
 //
 // REGRA DOS ATRIBUTOS: 1 a 5 em velocidade, aceleracao, controle, peso e turbo, SOMA 16 em todos - nenhum carro e melhor em
-// tudo, a escolha vira estilo de corrida. Cada atributo tem pelo menos um carro com 5 (velocidade: Dourado; aceleracao:
-// Faisca; controle: Lagartixa e Jatinho; peso: Picole e Tubarao; turbo: Voador). O peso decide quem empurra quem na batida.
-// Os 10 primeiros tem um poder cada (os 10 de config/poderes.js); os 16 do Cidade Aberta (30/10/2026: o Prius e os carros com pops and
-// bangs) repetem poder. cor = destaque do carro na interface, minimapa e rastro, tirada da pintura.
+// tudo, a escolha vira estilo de corrida. Cada atributo tem pelo menos um carro com 5 (velocidade: Carro Dourado B7; aceleracao:
+// BYD Seal; controle: Porsche, Kart a Jato e speed up!; peso: Carro de Sorvete, Monster Truck e Furgao; turbo: Yaris Voador e outros).
+// O peso decide quem empurra quem na batida.
+// Os 10 primeiros tem um poder cada (os 10 de config/poderes.js); os 9 do Cidade Aberta de 30/10/2026 (o Prius e os carros de rua com
+// pops and bangs) repetem poder. nome = o do Cidade Aberta em todos (31/10/2026; o id continua o de antes: o save guarda o id).
+// cor = destaque do carro na interface, minimapa e rastro, tirada da pintura.
 // pops = pops and bangs do Cidade Aberta (js/pipoco.js): 'turbo' estoura em cada reducao, 'esportivo' (o Porsche) tambem quando tira
-// o pe embalado, 'prostock' tudo isso com rajada longa, labareda maior e estouro na troca de marcha. escapamento.canos = boca de cada
-// cano NO CARRO DAQUI (m, x = esquerda, y = cima, z = frente), dir = para onde a labareda sai (o x espelha pelo lado do cano).
+// o pe embalado. escapamento.canos = boca de cada cano NO CARRO DAQUI (m, x = esquerda, y = cima, z = frente), dir = para onde a
+// labareda sai (o x espelha pelo lado do cano).
 // rodas.raio* = raio de CONTATO (do eixo ao ponto mais baixo do pneu, media das duas rodas do eixo), em metros.
 // rodas.tem false = o jogo so inclina a carroceria; flutua = quanto ele pairava no Cidade Aberta (ja na escala nova).
 

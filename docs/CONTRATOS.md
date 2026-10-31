@@ -138,13 +138,14 @@ Visual da pista (fase 3): `export async function montaVisualDaPista(G, pista) ->
 `criaModeloCarro(G, cfg) -> Promise<{ grupo, carroceria, rodas: [{ no, raio, frente, lado }], cfg }>` — clona o GLB normalizado
 (`config/carros.js`), frente +Z, chão em y = 0. Usado pela corrida (fase 2) e pela vitrine/pódio (fase 6).
 
-`config/carros.js` (gerado por `tools/carros/gera_config.mjs`): 26 carros desde 30/10/2026 — os 10 da fase 1 (um poder cada) e os 16 do
-Cidade Aberta (o Prius e os que fazem pops and bangs lá), que repetem poder. Campos opcionais dos novos: `timbre` (`'eletrico'`,
-`'grave'`: o som do motor em `js/audio.js`), `pops` (`'turbo'` | `'esportivo'` | `'prostock'`) e `escapamento: { canos: [[x, y, z]…],
+`config/carros.js` (gerado por `tools/carros/gera_config.mjs`): 19 carros desde 31/10/2026 — os 10 da fase 1 (um poder cada) e 9 do
+Cidade Aberta (o Toyota Prius e os de rua que fazem pops and bangs lá), que repetem poder. `nome` = o do Cidade Aberta em todos (sem
+o emoji); o `id` é o de sempre (o save guarda o carro pelo id). Campos opcionais dos novos: `timbre` (`'eletrico'`,
+`'grave'`: o som do motor em `js/audio.js`), `pops` (`'turbo'` | `'esportivo'`) e `escapamento: { canos: [[x, y, z]…],
 dir: [x, y, z] }` — a boca de cada cano NO CARRO DAQUI (m, x = esquerda, y = cima, z = frente; o x de `dir` espelha pelo lado do cano).
 Regra dos atributos: soma 16 **e** velocidade 5 só com controle ≥ 3, velocidade 4 só com controle ≥ 2 (senão o raio da curva para a
 criança passa de 40,1 m e as pistas têm curva de 45 m). O campeonato continua com os 10 primeiros como rivais (`rivaisDoCampeonato`);
-a corrida livre sorteia entre os 26.
+a corrida livre sorteia entre os 19.
 
 ```
 class Carro { constructor(G, corrida, { cfg, indice, ehJogador, nome }) }
@@ -245,8 +246,8 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
   `poder:esquivou` só quando o alvo escapou de verdade.
   Configuração de cada poder em `config/poderes.js`. Todo poder: efeito visual, som (`G.audio.toca`), esquiva/contra-ataque.
 - `corrida.pipoco` (`js/pipoco.js`, 30/10/2026): o **pops and bangs** dos carros com `cfg.pops`, com as regras do Cidade Aberta — de
-  rua estoura na redução (as pseudo-marchas `MARCHAS` do `js/audio.js`, pé abaixo de 0,3), o esportivo também ao tirar o pé embalado, o
-  Pro Stock também em cada marcha que sobe; ligar o turbo (`turbo:liga`) de quem estoura solta um BANG. `passo(dt)` decide (sorteio do
+  rua estoura na redução (as pseudo-marchas `MARCHAS` do `js/audio.js`, pé abaixo de 0,3), o esportivo também ao tirar o pé
+  embalado; ligar o turbo (`turbo:liga`) de quem estoura solta um BANG. `passo(dt)` decide (sorteio do
   visual, `aleatorio()`: não mexe na física), `quadro(dt)` desenha a língua de fogo de cada cano (pool `chamas` de `js/efeitos.js`, 48
   slots: 2 do turbo por carro + até 4 canos), `estoura(carro, k)` (k > 1 = BANG: tufo de fumaça e tranco da câmera do jogador) toca
   `estouro` e solta fagulha/clarão. `pipoco.e[indice].n` conta os estouros de cada carro (a suíte `pipoco` lê).

@@ -117,7 +117,7 @@
 #ui .sc-poder-nome { font-family: var(--fonte-titulo); font-weight: 900; font-size: clamp(14px, 4.4vh, 28px); display: block; line-height: 1.05; }
 #ui .sc-poder p { margin: 2px 0 0; font-weight: 600; font-size: clamp(11px, 3.2vh, 20px); line-height: 1.12; }
 #ui .sc-poder .sc-esquiva { color: #2a5a3a; }
-/* 26 carros desde 30/10/2026 (o Prius e os com pops and bangs do Cidade Aberta): 26 x (13 + 7) px nao cabia nos 56 % do iPhone deitado
+/* 26 carros em 30/10/2026 (19 desde 31/10, sem os Pro Stock): 26 x (13 + 7) px nao cabia nos 56 % do iPhone deitado
    (473 px); bolinha de 9 com 4 de folga cabe numa linha ate no Galaxy S8 (334 de 398 px) e quebra em duas se um dia faltar lugar */
 #ui .sc-pontos { position: absolute; left: 0; width: 56%; bottom: calc(var(--sab) + 14px); display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 4px; padding: 0 8px; box-sizing: border-box; pointer-events: none; }
 #ui .sc-pontos i { width: 9px; height: 9px; border-radius: 50%; background: var(--cor); border: 2px solid var(--creme); opacity: .55; transition: transform .2s, opacity .2s; }

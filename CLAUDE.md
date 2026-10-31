@@ -1,6 +1,6 @@
 # TURBO CAOS — instruções do projeto
 
-Corrida maluca 3D para o **navegador do celular** (Chrome Android / Safari iOS), sem instalar nada: 10 carros do Cidade Aberta com
+Corrida maluca 3D para o **navegador do celular** (Chrome Android / Safari iOS), sem instalar nada: 19 carros do Cidade Aberta com
 superpoderes, turbo limitado recarregado por cápsulas, 10 pistas temáticas (loops, rampas, atalhos), Campeonato e Corrida Livre,
 dificuldade adaptativa. Público: crianças de 6 a 20 anos. **Fale português comigo neste projeto.**
 

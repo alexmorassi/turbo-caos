@@ -1,6 +1,6 @@
 # 🏁 Turbo Caos
 
-Corrida maluca 3D que roda **direto no navegador do celular**, sem instalar nada. Escolha um dos 26 carros do Cidade Aberta — cada um
+Corrida maluca 3D que roda **direto no navegador do celular**, sem instalar nada. Escolha um dos 19 carros do Cidade Aberta — cada um
 com atributos próprios e um **superpoder** para atrapalhar os rivais —, junte cápsulas de turbo pelo caminho e encare 10 pistas
 temáticas, da Orla do Rio à Pista Maluca final, com atalhos, rampas e loops. Modos **Campeonato** (as pistas abrem em sequência) e
 **Corrida Livre**; 8 corredores, 3 voltas; a dificuldade sobe aos poucos e se ajusta sozinha ao jogador.
@@ -10,7 +10,7 @@ temáticas, da Orla do Rio à Pista Maluca final, com atalhos, rampas e loops. M
 | Onde | Como |
 |---|---|
 | **Celular (principal)** | Abra **https://claude.ai/artifact/FWWGVVDUhpoUng3w8aTfUZ** e jogue deitado. |
-| **Sem internet / PC** | Dois cliques no `TurboCaos.html` (ou no `Jogar.bat`). É um arquivo único (9,6 MB): dá para copiar para o celular. |
+| **Sem internet / PC** | Dois cliques no `TurboCaos.html` (ou no `Jogar.bat`). É um arquivo único (15 MB): dá para copiar para o celular. |
 | **Desenvolvimento** | `Servidor.bat` (ou `python server.py 8125`) e `http://localhost:8125`. Com `--rede`, abre no celular pela Wi-Fi de casa. |
 
 **Controles de toque** (no estilo dos jogos de corrida de celular): à esquerda o **botão de arrastar** — arraste o botão amarelo para o
@@ -31,41 +31,36 @@ sobrou fica para o próximo toque. Apertar o TURBO bem no **VAI!** dá uma larga
 
 | Carro | Vel | Acel | Curva | Peso | Turbo | Poder | Como escapar |
 |---|---|---|---|---|---|---|---|
-| Vulcão | 4 | 3 | 2 | 4 | 3 | 🌋 Terremoto (todo mundo escorrega) | estar no ar na hora do tremor |
-| Dourado B7 | 5 | 3 | 3 | 2 | 3 | 🛡️ Escudo Refletor (bloqueia e devolve) | esperar o escudo acabar |
-| Lagartixa | 3 | 4 | 5 | 2 | 2 | 🛢️ Mancha de Óleo (quem passa roda) | desviar da poça |
-| Picolé | 2 | 2 | 3 | 5 | 4 | ❄️ Raio Congelante (congela o da frente) | mudar de faixa |
-| Buguinho | 3 | 4 | 4 | 2 | 3 | 🔻 Encolhedor (rivais pequenos e lentos) | pegar uma cápsula |
-| Kombosa | 2 | 3 | 3 | 4 | 4 | 💨 Cortina de Fumaça (embaça quem vem atrás) | passar pelo lado |
-| Tubarão | 3 | 2 | 2 | 5 | 4 | 🧲 Ímã (puxa cápsulas, segura quem está perto) | ficar longe |
-| Voador | 4 | 3 | 3 | 1 | 5 | 🌪️ Mini Tornado (levanta e gira) | desviar na hora certa |
-| Faísca | 4 | 5 | 3 | 2 | 2 | ⚡ Pulso EMP (desliga o turbo de quem está perto) | sair do círculo azul |
-| Jatinho | 3 | 4 | 5 | 1 | 3 | 🔄 Troca-Troca (troca de lugar com o da frente) | ligar o turbo durante a mira |
+| Carro Vulcão | 4 | 3 | 2 | 4 | 3 | 🌋 Terremoto (todo mundo escorrega) | estar no ar na hora do tremor |
+| Carro Dourado B7 | 5 | 3 | 3 | 2 | 3 | 🛡️ Escudo Refletor (bloqueia e devolve) | esperar o escudo acabar |
+| Porsche 911 GT3 RS | 3 | 4 | 5 | 2 | 2 | 🛢️ Mancha de Óleo (quem passa roda) | desviar da poça |
+| Carro de Sorvete | 2 | 2 | 3 | 5 | 4 | ❄️ Raio Congelante (congela o da frente) | mudar de faixa |
+| Buggy | 3 | 4 | 4 | 2 | 3 | 🔻 Encolhedor (rivais pequenos e lentos) | pegar uma cápsula |
+| Kombi | 2 | 3 | 3 | 4 | 4 | 💨 Cortina de Fumaça (embaça quem vem atrás) | passar pelo lado |
+| Monster Truck Tubarão | 3 | 2 | 2 | 5 | 4 | 🧲 Ímã (puxa cápsulas, segura quem está perto) | ficar longe |
+| Toyota GR Yaris Voador | 4 | 3 | 3 | 1 | 5 | 🌪️ Mini Tornado (levanta e gira) | desviar na hora certa |
+| BYD Seal | 4 | 5 | 3 | 2 | 2 | ⚡ Pulso EMP (desliga o turbo de quem está perto) | sair do círculo azul |
+| Kart a Jato | 3 | 4 | 5 | 1 | 3 | 🔄 Troca-Troca (troca de lugar com o da frente) | ligar o turbo durante a mira |
 
-**Os 16 do Cidade Aberta** (30/10/2026): o **Prius** e os carros que fazem **pops and bangs** lá. Os poderes se repetem (são 10).
+**Mais 9 do Cidade Aberta** (30/10/2026): o **Toyota Prius** e os carros de rua que fazem **pops and bangs** lá. Os poderes se
+repetem (são 10). Os 7 Pro Stock entraram junto e saíram no dia seguinte, a pedido.
 
 | Carro | Vel | Acel | Curva | Peso | Turbo | Poder | Pops and bangs |
 |---|---|---|---|---|---|---|---|
-| Prius | 2 | 3 | 4 | 2 | 5 | ⚡ Pulso EMP | — (híbrido: o motor zune) |
+| Toyota Prius | 2 | 3 | 4 | 2 | 5 | ⚡ Pulso EMP | — (híbrido: o motor zune) |
 | Fusca Teto Solar | 2 | 3 | 3 | 3 | 5 | 🛢️ Mancha de Óleo | de rua: estoura nas reduções |
-| Voyage | 3 | 3 | 3 | 3 | 4 | 🛡️ Escudo Refletor | de rua |
-| Gol GTI | 3 | 4 | 3 | 1 | 5 | 🔻 Encolhedor | de rua |
-| HB20 Turbo | 4 | 3 | 4 | 2 | 3 | ❄️ Raio Congelante | de rua |
-| Monza | 3 | 2 | 3 | 4 | 4 | 🧲 Ímã | de rua |
-| speed up! | 2 | 4 | 5 | 1 | 4 | 🔄 Troca-Troca | de rua |
-| Celta | 2 | 4 | 4 | 2 | 4 | 🌪️ Mini Tornado | de rua |
+| VW Voyage | 3 | 3 | 3 | 3 | 4 | 🛡️ Escudo Refletor | de rua |
+| VW Gol GTI | 3 | 4 | 3 | 1 | 5 | 🔻 Encolhedor | de rua |
+| Hyundai HB20 Turbo | 4 | 3 | 4 | 2 | 3 | ❄️ Raio Congelante | de rua |
+| Chevrolet Monza SL/E | 3 | 2 | 3 | 4 | 4 | 🧲 Ímã | de rua |
+| VW speed up! TSI | 2 | 4 | 5 | 1 | 4 | 🔄 Troca-Troca | de rua |
+| Chevrolet Celta | 2 | 4 | 4 | 2 | 4 | 🌪️ Mini Tornado | de rua |
 | Furgão | 2 | 2 | 3 | 5 | 4 | 💨 Cortina de Fumaça | de rua |
-| Gol Pro Stock | 4 | 5 | 3 | 1 | 3 | ❄️ Raio Congelante | Pro Stock: labaredas dos lados |
-| Mustang Porters | 5 | 5 | 3 | 2 | 1 | 💨 Cortina de Fumaça | Pro Stock |
-| Camaro Summit | 5 | 5 | 3 | 1 | 2 | 🌋 Terremoto | Pro Stock |
-| Mustang Laranja | 5 | 4 | 3 | 3 | 1 | 🌪️ Mini Tornado | Pro Stock |
-| Camaro RAD | 4 | 5 | 3 | 2 | 2 | 🧲 Ímã | Pro Stock |
-| Camaro Bandeira | 5 | 4 | 3 | 2 | 2 | 🛡️ Escudo Refletor | Pro Stock |
-| Camaro Hot Wheels | 4 | 5 | 2 | 2 | 3 | 🔄 Troca-Troca | Pro Stock |
 
 **Pops and bangs** (do Cidade Aberta): o carro **de rua** estoura no escapamento a cada redução — soltou o acelerador e a marcha
-caiu; o **Pro Stock** estoura em cada marcha que sobe, solta uma rajada longa ao tirar o pé e tem labareda maior, dos lados; a
-**Lagartixa** (que é o Porsche GT3 RS) estala logo que tira o pé embalado. Ligar o **turbo** de quem estoura solta um **BANG**.
+caiu; o **Porsche 911 GT3 RS** também estala logo que tira o pé embalado. Ligar o **turbo** de quem estoura solta um **BANG**.
+
+Os nomes são **os do Cidade Aberta**, iguais para todos (31/10/2026): os 10 primeiros tinham apelido (Vulcão, Lagartixa, Picolé…).
 
 ## As pistas
 
@@ -82,7 +77,7 @@ caiu; o **Pro Stock** estoura em cada marcha que sobe, solta uma rajada longa ao
 | 9 | Canyon | 1,9 km | 3 saltos, loop, paredão de 65° |
 | 10 | Pista Maluca | 2,2 km | 2 loops, saca-rolha, 2 paredões, 2 atalhos |
 
-**Curvas para a criança** (30/10/2026): toda curva das 10 pistas tem raio de 50 m ou mais — o carro que menos vira (o Vulcão) faz a
+**Curvas para a criança** (30/10/2026): toda curva das 10 pistas tem raio de 50 m ou mais — o carro que menos vira (o Carro Vulcão) faz a
 volta inteira com o acelerador no fundo, sem frear nem diminuir. A inspeção das pistas (`teste_pistas`) reprova curva mais fechada.
 
 ## Estrutura
@@ -94,7 +89,7 @@ js/                   código do jogo, um módulo por responsabilidade (contrato
 js/pistas/            as 10 pistas (construtor de peças -> spline CatmullRom) + a pista de teste
 js/poderes/           um arquivo por poder
 config/               PARÂMETROS DE JOGO: carros, física, turbo, poderes, dificuldade, pistas, corrida
-assets/cars/          os 26 carros (GLB meshopt + KTX2, 380–830 KB, vindos do cidadeaberta)
+assets/cars/          os 19 carros (GLB meshopt + KTX2, 380–830 KB, vindos do cidadeaberta)
 lib/                  three.js r170 + GLTFLoader/KTX2Loader + decoders meshopt e Basis (sem CDN)
 tools/                monta.js (HTML único + pasta do artefato), carros/ (otimização dos GLB), fotos
 testes/               bateria Playwright (node testes/rodar.js)
