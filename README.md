@@ -1,7 +1,7 @@
 # 🏁 Turbo Caos
 
-Corrida maluca 3D que roda **direto no navegador do celular**, sem instalar nada. Escolha um dos 19 carros do Cidade Aberta — cada um
-com atributos próprios e um **superpoder** para atrapalhar os rivais —, junte cápsulas de turbo pelo caminho e encare 10 pistas
+Corrida maluca 3D que roda **direto no navegador do celular**, sem instalar nada. Escolha um dos 19 carros do Cidade Aberta — todos com
+o mesmo nível, cada um com um **superpoder** para atrapalhar os rivais —, junte cápsulas de turbo pelo caminho e encare 10 pistas
 temáticas, da Orla do Rio à Pista Maluca final, com atalhos, rampas e loops. Modos **Campeonato** (as pistas abrem em sequência) e
 **Corrida Livre**; 8 corredores, 3 voltas; a dificuldade sobe aos poucos e se ajusta sozinha ao jogador.
 
@@ -26,6 +26,8 @@ No PC: setas/WASD, espaço = turbo, E = poder, S = freio, Ctrl = drift, Esc = pa
 **Turbo:** a barra é limitada e só enche com as **cápsulas** azuis da pista (+30 %); as **douradas**, raras e nos lugares arriscados,
 enchem tudo. Cápsula pega com o turbo aceso soma e ele continua até acabar; o Pulso EMP, o gelo e o rodopio apagam o turbo, e o que
 sobrou fica para o próximo toque. Apertar o TURBO bem no **VAI!** dá uma largada turbo (na contagem o toque não gasta a barra).
+**Nenhuma cápsula perto do pouso dos saltos** (01/11/2026): da crista até 12 m depois do ponto mais longe em que o carro mais rápido,
+de turbo aceso, pode pousar (~80–130 m depois da crista).
 
 ## Os carros e os poderes
 

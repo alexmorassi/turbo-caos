@@ -41,12 +41,16 @@ definição entram):
 1. fileiras atravessadas na principal a cada **125 ± 20 m** (a primeira a 70 m da largada), 3 por fileira em pista ≥ 12 m (2 nas
    estreitas), cobrindo a largura: todo mundo pega um pouco;
 2. **atalhos**: fileiras a cada **45 m** (mais cápsula por metro que a principal — conferido nas 10 pistas);
-3. **risco/recompensa**: uma linha colada na beira **sem muro** (≥ 30 m), uma no meio da **terra** e um par no **pouso** de cada salto,
-   fora do centro (8 m depois do pouso);
-4. **douradas: 1 a 3 por volta** — as da definição; sem nenhuma, uma no meio de cada atalho e no pouso do primeiro salto; no máximo 3,
-   atalho tem preferência (na Maluca o viaduto perde a dele);
+3. **risco/recompensa**: uma linha colada na beira **sem muro** (≥ 30 m) e uma no meio da **terra** (o par no **pouso** de cada salto
+   saiu em 01/11/2026, ver o item 5);
+4. **douradas: 1 a 3 por volta** — as da definição; sem nenhuma, uma no meio de cada atalho (sem atalho, no meio da principal); no
+   máximo 3, atalho tem preferência (na Maluca o viaduto perde a dele);
 5. **nunca** em loop/saca-rolha/paredão (marca MAGNÉTICO), vão, crista, boca de atalho nem a 12 m da largada: o lugar ruim empurra a
    cápsula até 30 m para a frente, senão ela não existe. Nenhuma a menos de 6 m de figura, todas dentro da faixa que o carro alcança.
+   E, desde 01/11/2026 (o Morassi: "não colocar turbos próximos ao pouso dos saltos"), **nenhuma na zona de pouso**: da crista até
+   `POUSO_FOLGA` (12 m) depois do pouso mais longe possível — a balística do carro mais rápido com o turbo aceso (+3 %), saindo como a
+   física o lança (`zonasDePouso` em `js/capsulas.js`): 69–116 m depois da crista. A cápsula que cairia lá dentro vai para depois dela.
+   Conferido com a física de verdade em 9 pistas: o pouso real com turbo ficou sempre antes da conta (5 a 31 m).
 
 Resultado (cápsulas, douradas, atalhos): teste 30 (2) / Orla 56 (3) / Favela 58 (3) / Deserto 72 (3) / Gelo 61 (2) / Vulcão 65 (3) /
 Selva 60 (2) / Neon 56 (2) / Porto 66 (2) / Canyon 71 (3) / Maluca 61 (3).

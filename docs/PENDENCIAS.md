@@ -102,6 +102,11 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
   continua segurando**: liga o turbo na reta e solta antes da curva, então gasta melhor que o jogador (que pode entrar numa curva
   com o turbo aceso). O DDA compensa; se nos testes com a criança os rivais parecerem espertos demais no turbo, dá para fazer a IA
   também de um toque (só acende quando a reta à frente comporta a barra inteira).
+- **Nenhuma cápsula perto do pouso dos saltos** (01/11/2026, pedido: "não colocar turbos próximos ao pouso dos saltos"). Havia um par
+  de cápsulas 8 m depois de cada vão, as douradas que as pistas marcam no salto caíam no pouso (empurradas para fora da crista) e as
+  fileiras também: de 18 a 68 m depois da crista. Agora nenhuma da crista até 12 m depois do pouso mais longe possível (o carro mais
+  rápido com turbo; a conta cobre o pouso de verdade medido em 9 pistas). A cápsula que cairia lá vai para depois; a pista perde
+  poucas (Deserto 75 → 65, Vulcão 73 → 66, Canyon 71 → 63) e todas continuam com 1 a 3 douradas.
 - **Mesmo nível em todos os carros** (31/10/2026, pedido: "o carro dourado está muito rápido, está impossível de ganhar dele. Deixe
   todos os carros com o mesmo nível, a ideia é que ganhe quem utilizar melhor os turbos e os poderes"): velocidade 4, arrancada 3,
   curva 3, peso 3, turbo 3 em todos (`MESMO_NIVEL` em `tools/carros/tabela.mjs`; o `gera_config.mjs` reprova diferença). Velocidade

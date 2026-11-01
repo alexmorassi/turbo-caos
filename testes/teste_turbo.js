@@ -2,8 +2,9 @@
 // sem carga nao liga, EMP/gelo/rodopio impedem, eventos), o TURBO DE UM TOQUE do jogador (pedido de 30/10/2026: o toque acende e gasta a
 // barra inteira sozinho, com o dedo de volta no acelerador), o efeito na fisica (vMax sobe ~30 % no oval de retas de 900 m), as capsulas (normal soma,
 // dourada enche, reaparece no tempo, encolhido volta ao normal, Ima puxa, proximas() no formato da IA) e ONDE elas ficam em TODAS as
-// pistas (fileiras na principal, mais nos atalhos, linha na beira sem muro, terra e pouso de salto, 1 a 3 douradas, nunca em loop/vao/
-// crista/boca). Por fim a IA (a de verdade, fase 5) pegando capsula numa corrida.
+// pistas (fileiras na principal, mais nos atalhos, linha na beira sem muro e na terra, 1 a 3 douradas, nunca em loop/vao/crista/boca nem
+// perto do POUSO de um salto — e a zona de pouso calculada cobre o pouso de verdade do carro mais rapido com turbo). Por fim a IA (a de
+// verdade, fase 5) pegando capsula numa corrida.
 // Os rivais nao usados ficam "fora" (chegou = true: nao pegam capsula, nao batem) e os usados andam pelo piloto da suite.
 import { suite, ok, perto, mede, quadros, segura, solta, apagaProgresso, corridaDeTeste, largada, simulaAte } from './harness.js';
 import { FISICA } from '../config/fisica.js';
@@ -13,7 +14,7 @@ import { CARROS } from '../config/carros.js';
 import { PISTAS } from '../config/pistas.js';
 import { Pista, MARCA } from '../js/pista.js';
 import { capacidadeDoTurbo } from '../js/turbo.js';
-import { geraCapsulas } from '../js/capsulas.js';
+import { geraCapsulas, zonasDePouso } from '../js/capsulas.js';
 import { on } from '../js/eventos.js';
 import PISTA_TESTE from '../js/pistas/teste.js';
 
@@ -275,7 +276,7 @@ suite('turbo', async (G) => {
   {
     const defs = [PISTA_TESTE, ...PISTAS];
     const PROIBIDO = MARCA.MAGNETICO | MARCA.VAO | MARCA.LANCA;
-    let ruins = 0, foraDaPista = 0, semDourada = 0, muitas = 0, atalhoSem = 0, atalhoMenos = 0, riscoSem = [], pousoSem = [], terraSem = [];
+    let ruins = 0, foraDaPista = 0, semDourada = 0, muitas = 0, atalhoSem = 0, atalhoMenos = 0, riscoSem = [], noPouso = [], terraSem = [], saltos = 0;
     for (const def of defs) {
       const p = new Pista(def), L = geraCapsulas(p);
       const dour = L.filter((x) => x.dourada).length;
@@ -298,7 +299,16 @@ suite('turbo', async (G) => {
       const temEm = (a, b) => L.some((x) => x.sup === 0 && x.s >= a - 1 && x.s <= b + 1);
       for (const [a, b] of runs((m) => (!(m & MARCA.MURO_DIR) || !(m & MARCA.MURO_ESQ)) && !(m & (MARCA.ABRE_DIR | MARCA.ABRE_ESQ | PROIBIDO)), 30)) if (!temEm(a, b)) riscoSem.push(def.id + '@' + a.toFixed(0));
       for (const [a, b] of runs((m) => (m & MARCA.TERRA) !== 0, 30)) if (!temEm(a, b)) terraSem.push(def.id + '@' + a.toFixed(0));
-      for (const [, b] of runs((m) => (m & MARCA.VAO) !== 0, 2)) if (!L.some((x) => x.sup === 0 && x.s > b && x.s < b + CAPSULAS.POUSO_DEPOIS + CAPSULAS.ANDA_ATE + 2)) pousoSem.push(def.id + '@' + b.toFixed(0));
+      // NADA PERTO DO POUSO (01/11/2026, pedido: "nao colocar turbos proximos ao pouso dos saltos"): nenhuma capsula, de nenhum tipo, na
+      // zona de pouso de nenhum salto (principal e atalhos)
+      for (const S of p.superficies) for (const z of zonasDePouso(S)) {
+        saltos++;
+        for (const x of L) {
+          if (x.sup !== S.id) continue;
+          const u = S.fechada ? (((x.s - z.s0) % S.comprimento) + S.comprimento) % S.comprimento : x.s - z.s0;
+          if (u >= 0 && u <= z.s1 - z.s0) noPouso.push(`${def.id}@${x.s.toFixed(0)}(${x.origem}${x.dourada ? ', dourada' : ''})`);
+        }
+      }
       mede(`${def.id}: capsulas (douradas) / atalhos`, `${L.length} (${dour}) / ${p.atalhos.map((a) => L.filter((x) => x.sup === a.sup.id).length).join('+') || '-'}`);
     }
     ok(ruins === 0, 'nenhuma capsula dentro (ou a menos de 6 m) de loop, vao ou crista — so onde o carro alcanca');
@@ -308,7 +318,31 @@ suite('turbo', async (G) => {
     ok(atalhoMenos === 0, 'os atalhos tem MAIS capsulas por metro que a principal');
     ok(riscoSem.length === 0, 'todo trecho sem muro (30 m ou mais) tem capsula' + (riscoSem.length ? ': falta ' + riscoSem.join(', ') : ''));
     ok(terraSem.length === 0, 'todo trecho de terra tem capsula' + (terraSem.length ? ': falta ' + terraSem.join(', ') : ''));
-    ok(pousoSem.length === 0, 'todo salto tem capsula logo depois do pouso' + (pousoSem.length ? ': falta ' + pousoSem.join(', ') : ''));
+    ok(saltos >= 10 && noPouso.length === 0, `nenhuma capsula perto do pouso dos ${saltos} saltos (da crista ate ${CAPSULAS.POUSO_FOLGA} m depois do pouso mais longe)` + (noPouso.length ? ': ' + noPouso.join(', ') : ''));
+  }
+
+  // =============================================================================================== a zona de pouso cobre o salto de verdade
+  // o pouso mais longe da conta (balistica do carro mais rapido com turbo) tem de estar DEPOIS de onde a fisica de verdade pousa o carro:
+  // o salto da pista de teste com o turbo aceso desde longe e sem turbo
+  {
+    const pousos = {};
+    for (const comTurbo of [true, false]) {
+      const c = await nova(G, { def: PISTA_TESTE });
+      const j = c.jogador, z = zonasDePouso(c.pista.principal)[0];
+      j.colocaNaPista(0, z.sCrista - 160, 0, 0, comTurbo ? 45 : 36);
+      j.turbo.carga = 1; j.turbo.capacidade = 99;   // aceso a reta inteira: a maior velocidade possivel na crista
+      let decolou = null, pousou = null;
+      const d1 = on('carro:decolou', (e) => { if (e.carro === j && decolou === null) decolou = { s: j.s, v: j.velocidade }; });
+      const d2 = on('carro:pouso', (e) => { if (e.carro === j && decolou && pousou === null) pousou = j.s; });
+      pilota(G, j, 60 * 7, { turbo: comTurbo, cada: () => { if (pousou !== null) j.controle.turbo = false; } });
+      d1(); d2();
+      pousos[comTurbo ? 'turbo' : 'sem'] = { decolou, pousou, z };
+      G.jogo.encerraCorrida();
+    }
+    const t = pousos.turbo, n = pousos.sem, dist = (o) => (o.pousou === null ? NaN : o.pousou - o.z.sCrista);
+    mede('salto da pista de teste: pouso com turbo / sem turbo / o mais longe da conta (m depois da crista)', `${dist(t).toFixed(0)} / ${dist(n).toFixed(0)} / ${(t.z.sPouso - t.z.sCrista).toFixed(0)}`);
+    ok(t.decolou && t.decolou.v > 46 && dist(t) > 0 && dist(t) <= t.z.sPouso - t.z.sCrista + 2, `com turbo (${t.decolou ? t.decolou.v.toFixed(1) : '?'} m/s na crista) pousa ${dist(t).toFixed(0)} m depois da crista: dentro da zona sem capsula (pouso mais longe da conta ${(t.z.sPouso - t.z.sCrista).toFixed(0)} m)`);
+    ok(n.decolou && dist(n) > 0 && dist(n) < dist(t), `sem turbo pousa antes (${dist(n).toFixed(0)} m), tambem dentro da zona`);
   }
 
   // =============================================================================================== a IA (fase 5) pega capsula

@@ -238,7 +238,8 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
   `turbo.soma(carro, fracao)`, `turbo.bloqueado(carro)`, `capacidadeDoTurbo(cfg)`. A faixa IMPULSO leva a 1,3 × a vMax do carro e
   NÃO empilha com o turbo.
 - `corrida.capsulas`: `proximas(carro, alcance) -> [{ sup, s, d, dourada, pos }]` (ativas, à frente), `atrai(pos, raio, carro)` (Ímã),
-  `contaPerto(pos, raio)`; geração automática em `geraCapsulas(pista)` (+ `capsulas`/`douradas` da definição e dos atalhos).
+  `contaPerto(pos, raio)`; geração automática em `geraCapsulas(pista)` (+ `capsulas`/`douradas` da definição e dos atalhos), nunca
+  na zona de pouso de um salto (`zonasDePouso(sup) -> [{ s0, s1, sCrista, sPouso }]`, 01/11/2026).
 - `corrida.poderes`: `podeUsar(carro)`, `usa(carro)`, `iaDeveUsar(carro) -> bool` (heurística do poder daquele carro: Raio Congelante
   só com alvo à frente em linha, etc.), `recarga(carro) -> 0..1` (anel do botão), `ativosEm(carro)` (efeitos atuais, para o HUD),
   `perigos() -> [{ tipo: 'oleo'|'fumaca'|'tornado', sup, s, d, raio, comprimento, dono, alvo }]` (o que se desvia pela faixa; pulsos e

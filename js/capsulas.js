@@ -5,13 +5,18 @@
 // ONDE FICAM (geradas sozinhas de QUALQUER pista, principal e atalhos — `geraCapsulas` exportada, as suites conferem):
 //   1. FILEIRAS ATRAVESSADAS na principal a cada ~125 m (+-20), 3 capsulas que cobrem a largura: todo mundo pega um pouco;
 //   2. fileiras mais juntas nos ATALHOS (a cada 45 m): "mais nos atalhos";
-//   3. RISCO/RECOMPENSA: uma linha colada na beira SEM MURO (a crianca passa com a roda perto do vazio), uma linha no meio da TERRA e
-//      um par no POUSO de cada salto, fora do centro (quem caiu volta no centro da pista e nao ganha o premio de quem pulou);
+//   3. RISCO/RECOMPENSA: uma linha colada na beira SEM MURO (a crianca passa com a roda perto do vazio) e uma linha no meio da TERRA;
 //   4. as `capsulas`/`douradas` da definicao da pista (principal e atalhos, indice de ponto -> s por js/pistas/consulta.js); sem
-//      nenhuma dourada na definicao, poe no meio de cada atalho e no pouso do primeiro salto. No maximo 3 douradas por volta (as do
-//      atalho tem preferencia: e o lugar arriscado);
-//   5. NUNCA dentro de loop/saca-rolha/paredao (magnetico), no vao, na crista, na boca de atalho nem em cima da linha de chegada: um
-//      lugar ruim empurra a capsula para a frente (ate 30 m); nao achou chao bom, ela nao existe.
+//      nenhuma dourada na definicao, poe no meio de cada atalho (sem atalho, no meio da principal). No maximo 3 douradas por volta (as
+//      do atalho tem preferencia: e o lugar arriscado);
+//   5. NUNCA dentro de loop/saca-rolha/paredao (magnetico), no vao, na crista, na boca de atalho, em cima da linha de chegada nem na
+//      ZONA DE POUSO de um salto: um lugar ruim empurra a capsula para a frente (ate 30 m; a zona de pouso ela pula inteira); nao achou
+//      chao bom, ela nao existe.
+// ZONA DE POUSO (01/11/2026, pedido do Morassi: "nao colocar turbos proximos ao pouso dos saltos"): da crista ate POUSO_FOLGA m depois
+// do pouso MAIS LONGE possivel — o carro mais rapido do grid com o turbo aceso (vMax x TURBO.VEL_MAX) saindo da crista no angulo dela +
+// ANGULO_EXTRA_DA_RAMPA, em balistica com G_AR sobre o perfil da propria pista (zonasDePouso). Antes havia um par de capsulas 8 m
+// depois do vao, as douradas da definicao marcadas no salto caiam no pouso (empurradas para fora da crista) e as fileiras tambem: de
+// 18 a 68 m depois da crista, onde o carro sem turbo pousa (~45 m) e onde o com turbo ainda esta no ar.
 // PEGAR: distancia 3D do centro do carro ao centro da capsula (raio x mod.escala) — qualquer carro, IA tambem. Quem voa por cima nao
 // pega. Encolhido que pega volta ao tamanho (o js/poderes.js ouve `capsula:pega`). Quem ja cruzou a chegada nao pega (nao rouba de
 // quem ainda corre).
@@ -21,7 +26,9 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { MARCA } from './pista.js';
 import { sDoPontoNaSup } from './pistas/consulta.js';
-import { CAPSULAS as K } from '../config/turbo.js';
+import { CAPSULAS as K, TURBO } from '../config/turbo.js';
+import { FISICA, indiceDoAtributo } from '../config/fisica.js';
+import { CARROS } from '../config/carros.js';
 import { emite } from './eventos.js';
 import { efeitosDaCorrida, largaEfeitos, aleatorio } from './efeitos.js';
 
@@ -31,6 +38,13 @@ const PROIBIDO = MARCA.MAGNETICO | MARCA.VAO | MARCA.LANCA | MARCA.ABRE_ESQ | MA
 const MEIA_CARRO = 1.15;
 /** Teto de capsulas por pista (instancias): a maior pista (2,2 km) gera ~70. */
 const MAXIMO = 160;
+/** A maior velocidade que um carro pode ter na crista (m/s): o mais rapido do grid com o turbo aceso (a faixa de impulso leva ao mesmo
+ *  teto e nao empilha com o turbo: config/fisica.js IMPULSO_VEL), + 3 %: acima do teto a fisica corta aos poucos (ACIMA_TAXA) e a
+ *  descida empurra — medido 51,0 m/s na crista do Deserto contra 50,7 do teto. E dela que sai o pouso mais longe de cada salto. */
+const VEL_DO_SALTO = Math.max(...CARROS.map((c) => FISICA.POR_ATRIBUTO.VEL_MAX[indiceDoAtributo(c.atributos && c.atributos.velocidade)])) *
+  Math.max(TURBO.VEL_MAX, FISICA.IMPULSO_VEL) * 1.03;
+/** m depois da crista ate onde se procura o pouso (o salto mais longo do jogo pousa a ~90 m). */
+const ALCANCE_DO_SALTO = 220;
 
 // --- aparencia (nao e jogabilidade)
 const COR_AZUL = { r: 0.12, g: 0.55, b: 1.0 }, COR_OURO = { r: 1.0, g: 0.72, b: 0.12 };
@@ -45,8 +59,9 @@ const EIXO_Y = new THREE.Vector3(0, 1, 0), EIXO_Z = new THREE.Vector3(0, 0, 1);
 
 // =====================================================================================================  geracao (funcao pura da pista)
 /** Lugar bom para capsula na tira `sup` em `s`? (sem figura perto, fora da boca, longe da linha de chegada, dentro de tira aberta). */
-function lugarBom(pista, sup, s) {
+function lugarBom(pista, sup, s, zonas) {
   if (!sup.fechada && (s < K.BOCA_LIVRE || s > sup.comprimento - K.BOCA_LIVRE)) return false;
+  if (naZona(sup, zonas, s)) return false;
   if (sup.id === 0) {
     const L = sup.comprimento, x = ((s % L) + L) % L;
     if (x < K.FOLGA_LARGADA || x > L - K.FOLGA_LARGADA) return false;
@@ -54,14 +69,58 @@ function lugarBom(pista, sup, s) {
   for (let k = -K.FOLGA_FIGURA; k <= K.FOLGA_FIGURA; k += 1) if (sup.marcasEm(s + k) & PROIBIDO) return false;
   return true;
 }
-/** Anda para a frente ate ANDA_ATE procurando lugar bom. Devolve o s ou -1. */
-function achaLugar(pista, sup, s) {
+/** Anda para a frente ate ANDA_ATE procurando lugar bom; caiu numa zona de pouso, pula para o fim dela e procura dali (a fileira do
+ *  pouso vai para depois dele em vez de sumir). Devolve o s ou -1. */
+function achaLugar(pista, sup, s, zonas) {
+  let base = s;
   for (let k = 0; k <= K.ANDA_ATE; k += 2) {
-    const x = sup.fechada ? sup.normaliza(s + k) : s + k;
+    const x = sup.fechada ? sup.normaliza(base + k) : base + k;
     if (!sup.fechada && x > sup.comprimento) return -1;
-    if (lugarBom(pista, sup, x)) return x;
+    const z = naZona(sup, zonas, x);
+    if (z) { base = x + (z.s1 - z.s0) - distanciaNaZona(sup, z, x) + 1 - k; continue; }
+    if (lugarBom(pista, sup, x, zonas)) return x;
   }
   return -1;
+}
+/** Quantos m de `z` ja ficaram para tras em `s` (na tira fechada a zona pode atravessar a amostra 0). */
+function distanciaNaZona(sup, z, s) {
+  if (!sup.fechada) return s - z.s0;
+  const L = sup.comprimento;
+  return (((s - z.s0) % L) + L) % L;
+}
+/** A zona de pouso de `zonas` que contem `s` (ou null). */
+function naZona(sup, zonas, s) {
+  if (!zonas) return null;
+  for (const z of zonas) { const u = distanciaNaZona(sup, z, s); if (u >= 0 && u <= z.s1 - z.s0) return z; }
+  return null;
+}
+
+/** ZONAS DE POUSO da tira (ver o cabecalho): [{ s0, s1, sCrista, sPouso }] — de FOLGA_FIGURA m antes da crista ate POUSO_FOLGA m depois do
+ *  pouso mais longe. O pouso: o primeiro chao (fora do vao) em que a parabola do carro mais rapido encosta, saindo como a fisica o lanca
+ *  (js/carro.js _decola: no PRIMEIRO ponto marcado `lanca`, na tangente dali girada ANGULO_EXTRA_DA_RAMPA para a normal). Exportada: a
+ *  suite do turbo confere que nenhuma capsula fica la dentro e que o pouso de verdade cai antes do `sPouso`. */
+export function zonasDePouso(sup) {
+  const out = [], G = FISICA.G_AR, v = VEL_DO_SALTO, ext = (FISICA.ANGULO_EXTRA_DA_RAMPA * Math.PI) / 180;
+  for (const f of corridas(sup, (m) => (m & MARCA.LANCA) !== 0, 0)) {
+    const sl = f.s0, sc = f.s1;                          // onde decola e o fim da crista
+    sup.quadro(sl, _T, _N, _R);
+    sup.ponto(sl, 0, 0, _a);
+    _c.copy(_T).multiplyScalar(Math.cos(ext)).addScaledVector(_N, Math.sin(ext));   // a direcao da saida
+    const vh = v * Math.hypot(_c.x, _c.z), vy = v * _c.y, hl = Math.hypot(_c.x, _c.z) || 1, hx = _c.x / hl, hz = _c.z / hl;
+    let sPouso = sl + ALCANCE_DO_SALTO;
+    for (let ds = 1; ds <= ALCANCE_DO_SALTO; ds += 1) {
+      const s = sl + ds;
+      if (!sup.fechada && s > sup.comprimento) { sPouso = sup.comprimento; break; }
+      if (sup.marcasEm(s) & MARCA.VAO) continue;         // no vao nao ha chao
+      sup.ponto(s, 0, 0, _b);
+      const x = (_b.x - _a.x) * hx + (_b.z - _a.z) * hz; // distancia na direcao em que o carro saiu
+      if (x <= 0) continue;
+      const t = x / vh;
+      if (_a.y + vy * t - 0.5 * G * t * t <= _b.y) { sPouso = s; break; }
+    }
+    out.push({ s0: sl - K.FOLGA_FIGURA, s1: sPouso + K.POUSO_FOLGA, sCrista: sc, sPouso });
+  }
+  return out;
 }
 /** Corridas (faixas de s) em que `teste(marca)` vale, com o comprimento minimo. [{ s0, s1 }] */
 function corridas(sup, teste, minimo) {
@@ -79,6 +138,8 @@ function corridas(sup, teste, minimo) {
 /** Todas as capsulas de uma pista: [{ sup, s, d, dourada, origem }]. Funcao pura (as suites chamam com qualquer Pista). */
 export function geraCapsulas(pista) {
   const lista = [];
+  const zonas = new Map(pista.superficies.map((S) => [S.id, zonasDePouso(S)]));
+  const zonasDe = (S) => zonas.get(S.id);
   const poe = (sup, s, d, dourada, origem) => {
     const meia = sup.larguraEm(s) * 0.5 - MEIA_CARRO;
     lista.push({ sup: sup.id, s, d: Math.max(-meia, Math.min(meia, d)), dourada: !!dourada, origem });
@@ -92,25 +153,25 @@ export function geraCapsulas(pista) {
   const P = pista.principal;
   let alterna = 1;
   for (let s = K.PRIMEIRA_FILEIRA; s < P.comprimento - K.FOLGA_LARGADA; s += K.ESPACO_FILEIRAS + alterna * K.VARIA_FILEIRAS, alterna = -alterna) {
-    const x = achaLugar(pista, P, s);
+    const x = achaLugar(pista, P, s, zonasDe(P));
     if (x >= 0 && x < P.comprimento - K.FOLGA_LARGADA) fileira(P, x, 'fileira');
   }
   // 2. fileiras dos atalhos
   for (const a of pista.atalhos) {
     const S = a.sup;
     for (let s = K.BOCA_LIVRE + 2; s <= S.comprimento - K.BOCA_LIVRE; s += K.ESPACO_ATALHO) {
-      const x = achaLugar(pista, S, s);
+      const x = achaLugar(pista, S, s, zonasDe(S));
       if (x >= 0) fileira(S, x, 'atalho');
     }
   }
-  // 3. risco: beira sem muro, terra, pouso de salto (em todas as tiras)
+  // 3. risco: beira sem muro e terra (em todas as tiras). O pouso de salto foi risco/recompensa ate 01/11/2026 (cabecalho)
   for (const S of pista.superficies) {
     const linha = (faixa, dDe, origem) => {
       const comp = faixa.s1 - faixa.s0, n = Math.min(K.RISCO_MAXIMO, Math.max(1, Math.floor(comp / K.RISCO_ESPACO)));
       const passo = comp / n;
       for (let j = 0; j < n; j++) {
         const s = faixa.s0 + passo * (j + 0.5);
-        if (lugarBom(pista, S, s)) poe(S, s, dDe(s, j), false, origem);
+        if (lugarBom(pista, S, s, zonasDe(S))) poe(S, s, dDe(s, j), false, origem);
       }
     };
     const semMuro = (bitMuro, bitAbre) => (m) => !(m & bitMuro) && !(m & bitAbre) && !(m & (MARCA.VAO | MARCA.LANCA | MARCA.MAGNETICO));
@@ -121,10 +182,6 @@ export function geraCapsulas(pista) {
     for (const f of dir) linha(f, (s, j) => (ambos(f) && j % 2 === 1 ? -1 : 1) * (S.larguraEm(s) * 0.5 - K.BEIRA), 'beira');
     for (const f of esq) if (!dir.some((x) => x.s0 <= f.s1 && x.s1 >= f.s0)) linha(f, (s) => -(S.larguraEm(s) * 0.5 - K.BEIRA), 'beira');
     for (const f of corridas(S, (m) => (m & MARCA.TERRA) !== 0, K.RISCO_MINIMO)) linha(f, () => 0, 'terra');
-    for (const f of corridas(S, (m) => (m & MARCA.VAO) !== 0, 2)) {
-      const x = achaLugar(pista, S, f.s1 + K.POUSO_DEPOIS);
-      if (x >= 0) { const W = S.larguraEm(x) * K.POUSO_LADO; poe(S, x, -W, false, 'pouso'); poe(S, x, W, false, 'pouso'); }
-    }
   }
   // 4. as da definicao (indice de ponto -> s; lugar ruim anda para a frente)
   const daDef = (supId, itens, dourada) => {
@@ -134,7 +191,7 @@ export function geraCapsulas(pista) {
       let s;
       try { s = sDoPontoNaSup(pista, supId, Number(it.em) || 0); } catch (e) { continue; }
       if (!Number.isFinite(s)) continue;
-      const x = achaLugar(pista, S, s);
+      const x = achaLugar(pista, S, s, zonasDe(S));
       if (x >= 0) poe(S, x, Number(it.d) || 0, dourada, 'definicao');
     }
   };
@@ -149,19 +206,14 @@ export function geraCapsulas(pista) {
   daDef(0, def.douradas, true);
   for (let i = antes2; i < lista.length; i++) douradasPrincipal.push(lista[i]);
   lista.length = antes;
-  // sem dourada na definicao: no meio de cada atalho e no pouso do primeiro salto da principal
+  // sem dourada na definicao: no meio de cada atalho e, sem atalho, no meio da principal (no pouso do primeiro salto, nao mais)
   if (!douradasAtalho.length && !douradasPrincipal.length) {
     for (const a of pista.atalhos) {
-      const x = achaLugar(pista, a.sup, a.sup.comprimento * 0.5);
+      const x = achaLugar(pista, a.sup, a.sup.comprimento * 0.5, zonasDe(a.sup));
       if (x >= 0) douradasAtalho.push({ sup: a.sup.id, s: x, d: 0, dourada: true, origem: 'auto' });
     }
-    const vaos = corridas(P, (m) => (m & MARCA.VAO) !== 0, 2);
-    if (vaos.length) {
-      const x = achaLugar(pista, P, vaos[0].s1 + K.POUSO_DEPOIS + 6);
-      if (x >= 0) douradasPrincipal.push({ sup: 0, s: x, d: P.larguraEm(x) * K.POUSO_LADO, dourada: true, origem: 'auto' });
-    }
     if (!douradasAtalho.length && !douradasPrincipal.length) {
-      const x = achaLugar(pista, P, P.comprimento * 0.5);
+      const x = achaLugar(pista, P, P.comprimento * 0.5, zonasDe(P));
       if (x >= 0) douradasPrincipal.push({ sup: 0, s: x, d: 0, dourada: true, origem: 'auto' });
     }
   }

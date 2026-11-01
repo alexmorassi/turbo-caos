@@ -48,13 +48,15 @@ export const CAPSULAS = {
   LARGURA_DE_3: 12,
   FRACAO_DA_FILEIRA: 0.3,  // d = +-30 % da largura: com 3 capsulas e o raio de 2,2 m a fileira cobre a pista toda (todo mundo pega
                            // uma: e a "fileira atravessada" de kart); com 2, sobra o meio livre
-  // risco/recompensa (pedido: "mais ... nos trechos de risco (sem muro, terra, vao — recompensa do risco)")
+  // risco/recompensa (pedido: "mais ... nos trechos de risco (sem muro, terra, vao — recompensa do risco)"; o vao saiu em 01/11/2026:
+  // nada perto do pouso dos saltos)
   RISCO_ESPACO: 15,        // m entre as capsulas de uma linha de risco
   RISCO_MINIMO: 20,        // m: trecho de risco mais curto que isto nao ganha linha
   RISCO_MAXIMO: 5,         // capsulas no maximo por linha de risco (a ponte de 110 m sem muro nao vira um colar de 8)
   BEIRA: 2.6,              // m da beira sem muro ate o centro da capsula: o carro passa com as rodas a ~1,5 m do vazio
-  POUSO_DEPOIS: 8,         // m depois do fim do vao: o par de capsulas do pouso (premio de quem pulou)
-  POUSO_LADO: 0.3,         // x largura para cada lado: FORA do centro, onde o carro que caiu volta (js/carro.js respawn: d = 0)
+  POUSO_FOLGA: 12,         // m depois do pouso MAIS LONGE de cada salto ainda sem capsula (01/11/2026, pedido: "nao colocar turbos
+                           // proximos ao pouso dos saltos"): o carro quica e assenta. A zona vai da crista ate la (js/capsulas.js
+                           // zonasDePouso); o par de capsulas que ficava 8 m depois do vao saiu
   JUNTAS: 3,               // m: duas capsulas mais perto que isto viram uma (a dourada fica)
   // douradas
   MAX_DOURADAS: 3,         // pedido: "1-3 douradas por volta nos lugares arriscados"; as do atalho tem preferencia
