@@ -9,7 +9,7 @@ temáticas, da Orla do Rio à Pista Maluca final, com atalhos, rampas e loops. M
 
 | Onde | Como |
 |---|---|
-| **Compartilhar (qualquer celular)** | Mande o link **https://alexmorassi.github.io/turbo-caos/** (GitHub Pages, atualiza a cada push no `main`) e jogue deitado. |
+| **Compartilhar (qualquer celular)** | Mande o link **https://alexmorassi.github.io/turbo-caos/** (GitHub Pages, publicado do branch `gh-pages`) e jogue deitado. |
 | **Celular (artefato do Claude)** | Abra **https://claude.ai/artifact/FWWGVVDUhpoUng3w8aTfUZ** (o mesmo jogo; ali a inclinação não funciona). |
 | **Sem internet / PC** | Dois cliques no `TurboCaos.html` (ou no `Jogar.bat`). É um arquivo único (15 MB): dá para copiar para o celular. |
 | **Desenvolvimento** | `Servidor.bat` (ou `python server.py 8125`) e `http://localhost:8125`. Com `--rede`, abre no celular pela Wi-Fi de casa. |

@@ -7,7 +7,8 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
 
 1. **Repositório e link para compartilhar** (01/11/2026): o código está em https://github.com/alexmorassi/turbo-caos (público) e o
    jogo no **GitHub Pages: https://alexmorassi.github.io/turbo-caos/** — é esse o link para os amigos (o artefato do Claude é
-   privado). Cada push no `main` republica o Pages em 1–2 minutos.
+   privado). O Pages sai do branch `gh-pages` (uma cópia do `main`, empurrada junto a cada atualização); se preferir que ele saia
+   direto do `main`, é em Settings → Pages → Branch: `main` / `(root)`.
 2. **Playtest no celular de verdade** (o que a bateria não mede):
    - **fps real**: a bateria roda em SwiftShader (renderização por software), onde os números só comparam níveis entre si
      (BAIXA 12 fps, ALTA 2–4 fps a 839×412). No celular, a qualidade AUTO desce de nível sozinha abaixo de 50 fps e trava em 30 fps

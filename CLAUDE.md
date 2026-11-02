@@ -15,8 +15,10 @@ Arquitetura do jogo de referência **Breno e o Tesouro do Pirata Morassi** (arte
    string (sem flags), o sensor de inclinação é bloqueado pelo iframe (a direção cai para as setas) e fetch a outros hosts é bloqueado.
 2. **`TurboCaos.html`** (extra, commitado): HTML único que abre em `file://` sem internet (dois cliques, Jogar.bat).
 3. **GitHub Pages** (para compartilhar, desde 01/11/2026): **https://alexmorassi.github.io/turbo-caos/** — o `index.html` da raiz do
-   `main` de https://github.com/alexmorassi/turbo-caos (público), servido como está (`.nojekyll`: o Jekyll pularia pasta com `_` e
-   tropeçaria em `{{` dos .md). Cada push no `main` republica sozinho em ~1–2 min; ali funcionam as flags de URL e a inclinação.
+   branch **`gh-pages`** de https://github.com/alexmorassi/turbo-caos (público), uma cópia do `main` servida como está (`.nojekyll`:
+   o Jekyll pularia pasta com `_` e tropeçaria em `{{` dos .md). **Publique com `git push origin main main:gh-pages`** (republica em
+   ~1 min). Por que `gh-pages` e não o `main`: o proxy desta sessão bloqueia a API de Pages (`POST /pages` dá 403) e o push de um
+   branch `gh-pages` liga o Pages sozinho. Ali funcionam as flags de URL e a inclinação (não há iframe).
 Os contratos entre módulos estão em **`docs/CONTRATOS.md`** — leia antes de mexer.
 
 ## Regras
