@@ -107,4 +107,5 @@ Flags de URL: `?pista=<id>&carro=<id>` (larga direto), `?auto=1` (IA dirige o jo
 ## Fluxo
 
 Fases em `docs/fases/`, pendências consolidadas em `docs/PENDENCIAS.md`. Ao fechar cada fase: bateria verde, `node tools/monta.js`,
-`--html --artefato` verdes, commit, push e republicar o artefato (pedido do Morassi).
+`--html --artefato` verdes, commit, `git push origin main main:gh-pages` (o push atualiza o GitHub Pages) e republicar o artefato
+(pedido do Morassi).
