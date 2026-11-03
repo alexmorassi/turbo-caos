@@ -2,12 +2,18 @@
 // estoura), os 10 poderes tem som proprio, cada tema de musica soa, tres trocas de musica seguidas deixam so a ultima tocando (a
 // armadilha do dinotrails-web), o motor segue a velocidade, o posicional cala longe, suspende/retoma, volumes — e sem AudioContext
 // (navegador velho) tudo vira no-op sem erro.
+// AS FAIXAS DO SUNO (02/11/2026): as 12 decodificam, o loop cabe no arquivo e a emenda nao estala (renderizada offline atravessando o
+// pulo), toda pista tem a sua, tres trocas seguidas com uma faixa ainda decodificando acabam na ultima, no maximo 2 decodificadas na
+// memoria, faixa que falha toca a sintetizada, faixa lenta deixa a sintetizada entrar em 1,5 s e entra por cima quando chega, e
+// ?mudo=1 nao busca nada.
 //
 // A bateria abre com ?mudo=1, entao o G.audio do jogo nao tem contexto: a suite cria instancias proprias (`new Audio(G, { mudo: false })`)
 // e destroi no fim. O Chromium da bateria roda com --autoplay-policy=no-user-gesture-required: o contexto nasce rodando.
 import { suite, ok, mede, quadros, corridaDeTeste, largada, apagaProgresso } from './harness.js';
 import { Audio, NOMES_DOS_EFEITOS, renderizaOffline, FADE_DA_MUSICA, timbreDoCarro } from '../js/audio.js';
 import { NOMES_DOS_TEMAS, TEMAS, temaDaPista, compoe } from '../js/musica.js';
+import { buscaFaixa, decodificadas, DECODIFICADAS_MAX, _falsificaFaixa } from '../js/faixas.js';
+import { MUSICAS } from '../config/musicas.js';
 import { ORDEM_DOS_PODERES } from '../config/poderes.js';
 import { PISTAS } from '../config/pistas.js';
 import { emite } from '../js/eventos.js';
@@ -26,6 +32,9 @@ suite('audio', async (G) => {
   // ------------------------------------------------------------ ?mudo=1
   G.audio.desbloqueia();
   ok(!G.flags.mudo || !G.audio.ctx, '?mudo=1: o áudio do jogo não cria AudioContext');
+  G.audio.musica('menu'); G.audio.preparaMusica('orla');
+  await espera(100);
+  ok(!G.flags.mudo || performance.getEntriesByType('resource').every((e) => !/assets\/musica\//.test(e.name)), '?mudo=1: o áudio do jogo não busca nenhuma faixa');
 
   // ------------------------------------------------------------ sem WebAudio
   const AC = window.AudioContext, WAC = window.webkitAudioContext;
@@ -88,19 +97,88 @@ suite('audio', async (G) => {
   ok(temaDaPista({ id: 'x', nome: 'Qualquer', ordem: 3, tema: { musica: 'gelo' } }) === 'gelo', 'tema.musica da pista (fase 3) manda');
   ok(PISTAS.every((d) => !!TEMAS[temaDaPista(d)]), `toda pista do config ganha um tema (${PISTAS.map((d) => d.id + '=' + temaDaPista(d)).join(', ')})`);
 
-  // ------------------------------------------------------------ a armadilha das duas trocas seguidas
-  a.musica('menu');
-  await espera(150);
+  ok(temaDaPista('neon') === 'cidade' && temaDaPista('orla') === 'praia', 'id de pista em texto acha o mesmo tema da definição (neon = cidade)');
+
+  // ------------------------------------------------------------ a armadilha das duas trocas seguidas (sintetizada: temas sem faixa)
   a.musica('praia');
-  a.musica('gelo');
+  await espera(150);
+  a.musica('funk');
+  a.musica('cidade');
   await espera((FADE_DA_MUSICA + 0.45) * 1000);
   const vivos = a._tocadores.map((t) => t.nome);
-  ok(vivos.length === 1 && vivos[0] === 'gelo', `três trocas seguidas: só a última fica (${vivos.join(',')})`);
+  ok(vivos.length === 1 && vivos[0] === 'cidade', `três trocas seguidas: só a última fica (${vivos.join(',')})`);
   ok(vivos.length === 1 && a._tocadores[0].g.gain.value > 0.5, `e ela toca no volume cheio (ganho ${vivos.length ? a._tocadores[0].g.gain.value.toFixed(2) : '-'}): o fade anterior não a calou`);
-  ok(a.temaAtual === 'gelo', 'temaAtual = gelo');
+  ok(a.temaAtual === 'cidade', 'temaAtual = cidade');
   a.musica(null);
   await espera((FADE_DA_MUSICA + 0.35) * 1000);
   ok(a._tocadores.length === 0, 'musica(null) silencia');
+
+  // ------------------------------------------------------------ as faixas do Suno: cada uma decodifica e a emenda nao estala
+  const ids = Object.keys(MUSICAS);
+  const pedidas = ['menu', 'podio', ...PISTAS.map((d) => d.id)];
+  ok(pedidas.every((id) => ids.includes(id)), `menu, pódio e as ${PISTAS.length} pistas têm faixa (${ids.join(', ')})`);
+  const ruins = [];
+  for (const id of ids) {
+    const m = MUSICAS[id], SR = 48000;
+    const oc = new OfflineAudioContext(2, SR * 3, SR);
+    let buf = null;
+    try { buf = await oc.decodeAudioData((await buscaFaixa(id)).slice(0)); } catch (e) { ruins.push(id + ': não decodificou (' + e + ')'); continue; }
+    if (!(m.inicio > 0.5 && m.fim < buf.duration - 0.5 && m.fim - m.inicio >= 45 && buf.numberOfChannels === 2)) {
+      ruins.push(`${id}: loop ${m.inicio.toFixed(2)}-${m.fim.toFixed(2)} s num arquivo de ${buf.duration.toFixed(2)} s`); continue;
+    }
+    // toca do fim do loop - 1,5 s: o pulo cai no meio dos 3 s renderizados
+    const f = oc.createBufferSource();
+    f.buffer = buf; f.loop = true; f.loopStart = m.inicio; f.loopEnd = m.fim;
+    f.connect(oc.destination); f.start(0, m.fim - 1.5);
+    const d = (await oc.startRendering()).getChannelData(0);
+    const k = Math.round(1.5 * SR), dif = new Float32Array(d.length - 1);
+    let soma = 0, salto = 0;
+    for (let i = 0; i < d.length - 1; i++) { dif[i] = Math.abs(d[i + 1] - d[i]); soma += d[i] * d[i]; }
+    for (let i = k - 48; i < k + 48; i++) salto = Math.max(salto, dif[i]);
+    const tipico = Float32Array.from(dif).sort()[Math.floor(dif.length * 0.999)];
+    const rms = Math.sqrt(soma / d.length);
+    if (salto > 2 * tipico || rms < 0.02) ruins.push(`${id}: salto ${salto.toFixed(3)} na emenda (típico ${tipico.toFixed(3)}), rms ${rms.toFixed(3)}`);
+    mede('faixa ' + id, `loop ${(m.fim - m.inicio).toFixed(1)} s, ${m.compassos} compassos a ${m.bpm} BPM; emenda ${salto.toFixed(3)} (típico ${tipico.toFixed(3)})`);
+  }
+  ok(ruins.length === 0, `as ${ids.length} faixas decodificam, o loop cabe no arquivo e a emenda não estala` + (ruins.length ? ': ' + ruins.join('; ') : ''));
+
+  // ------------------------------------------------------------ as faixas tocando: trocas seguidas, teto de memoria e as reservas
+  const b = new Audio(G, { mudo: false, ouve: false });
+  b.desbloqueia();
+  await esperaAte(() => b.ctx.state === 'running');
+  const tocando = () => { const t = b._tocadores.find((x) => x.ate === Infinity); return t ? t.chave : null; };
+  // os prazos das esperas que dependem de DECODIFICAR sao largos: com 3 baterias em paralelo (SwiftShader ocupa a CPU) uma faixa de
+  // 100 s levou mais de 4 s e a reserva sintetizada entrou antes dela — o certo, mas a suite mede o estado final, nao o relogio
+  b.musica('menu');
+  ok(await esperaAte(() => b.faixaTocando === 'menu', 12000), `a faixa do menu toca (${tocando()})`);
+  const t0 = b._tocadores.find((x) => x.ate === Infinity);
+  ok(t0 && t0.fonte.loop && Math.abs(t0.fonte.loopStart - MUSICAS.menu.inicio) < 1e-6 && Math.abs(t0.fonte.loopEnd - MUSICAS.menu.fim) < 1e-6,
+    'em loop, com loopStart/loopEnd do config/musicas.js');
+  b.musica('orla');      // ainda decodificando...
+  b.musica('canyon');    // ...e ja trocou de novo
+  ok(await esperaAte(() => b.faixaTocando === 'canyon', 12000), `três trocas seguidas com a do meio decodificando: fica a última (${tocando()})`);
+  await espera((FADE_DA_MUSICA + 1.5) * 1000);   // e a da orla, se terminar agora, teria entrado
+  const vivas = b._tocadores.map((t) => t.chave);
+  ok(vivas.length === 1 && vivas[0] === 'faixa:canyon' && b.temaAtual === 'canyon', `a orla que decodificou depois não entrou por cima (${vivas.join(',')})`);
+  ok(decodificadas().length <= DECODIFICADAS_MAX, `no máximo ${DECODIFICADAS_MAX} faixas decodificadas na memória (${decodificadas().join(', ')})`);
+  b.musica({ id: 'teste', nome: 'Pista de Teste' });
+  ok(await esperaAte(() => tocando() === 'tema:' + temaDaPista({ id: 'teste', nome: 'Pista de Teste' }), 2000), `pista sem faixa (a de teste) toca a sintetizada (${tocando()})`);
+  _falsificaFaixa('gelo', () => Promise.reject(new Error('arquivo de teste que falha')));
+  b.musica('gelo');
+  ok(await esperaAte(() => tocando() === 'tema:gelo', 3000), `faixa que não carrega: toca a sintetizada da pista (${tocando()})`);
+  _falsificaFaixa('gelo', null);
+  const bytesNeon = await buscaFaixa('neon');
+  _falsificaFaixa('neon', () => new Promise((r) => setTimeout(() => r(bytesNeon), 2600)));
+  b.musica('neon');
+  await espera(900);
+  ok(tocando() === 'tema:gelo', `faixa lenta: até ${1.5} s o que já tocava continua (${tocando()})`);
+  ok(await esperaAte(() => tocando() === 'tema:cidade', 2000), `faixa lenta: passou de 1,5 s entra a sintetizada da pista (${tocando()})`);
+  ok(await esperaAte(() => b.faixaTocando === 'neon', 12000), `e quando a faixa chega ela entra por cima (${tocando()})`);
+  _falsificaFaixa('neon', null);
+  const s = new Audio(G, { mudo: false, ouve: false, sintetizada: true });
+  ok(s.musica('orla') === 'praia', '?musica=sintetizada: a Orla toca o tema sintetizado da praia');
+  s.destroi();
+  b.destroi();
 
   // ------------------------------------------------------------ motor e eventos numa corrida
   const c = await corridaDeTeste({ pista: 'teste', voltas: 1, corredores: 6, auto: true });

@@ -25,7 +25,9 @@ import { fileURLToPath } from 'node:url';
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SAIDA = path.join(RAIZ, 'TurboCaos.html');
-const LIMITE_MB = 25; // pedido: "acima de ~25 MB" e grande demais para celular — avisa (decisao em docs/PENDENCIAS.md)
+// pedido: "acima de ~25 MB" e grande demais para celular — avisa. Subiu para 45 com as 12 faixas do Suno (02/11/2026: 16 MB de MP3,
+// 21 em base64; o plano das musicas, aprovado pelo Morassi, previa o HTML em ~43 MB). Decisao em docs/PENDENCIAS.md
+const LIMITE_MB = 45;
 const MINIFICA = !process.argv.includes('--sem-min');
 
 /** Arquivos que o jogo le em tempo de execucao e que, no HTML unico, viram blocos embutidos. Caminho relativo a raiz (= o id). */
@@ -33,6 +35,9 @@ function arquivosEmbutidos() {
   const lista = ['lib/addons/libs/basis/basis_transcoder.js', 'lib/addons/libs/basis/basis_transcoder.wasm'];
   const pasta = path.join(RAIZ, 'assets', 'cars');
   if (fs.existsSync(pasta)) for (const f of fs.readdirSync(pasta).sort()) if (f.endsWith('.glb')) lista.push('assets/cars/' + f);
+  // as faixas do Suno (js/faixas.js le pelo mesmo id `embutido:<caminho>`)
+  const musica = path.join(RAIZ, 'assets', 'musica');
+  if (fs.existsSync(musica)) for (const f of fs.readdirSync(musica).sort()) if (f.endsWith('.mp3')) lista.push('assets/musica/' + f);
   return lista;
 }
 
@@ -79,7 +84,7 @@ async function main() {
   fs.writeFileSync(SAIDA, html);
   const mb = fs.statSync(SAIDA).size / 1e6;
   console.log(`TurboCaos.html: ${mb.toFixed(2)} MB (codigo ${(js.length / 1e6).toFixed(2)} MB, ${arquivos.length} arquivos embutidos com ${(bytes / 1e6).toFixed(2)} MB antes do base64) em ${((Date.now() - t0) / 1000).toFixed(1)} s`);
-  if (mb > LIMITE_MB) console.log(`AVISO: passou de ${LIMITE_MB} MB — ver docs/PENDENCIAS.md (carregar os carros sob demanda)`);
+  if (mb > LIMITE_MB) console.log(`AVISO: passou de ${LIMITE_MB} MB — ver docs/PENDENCIAS.md (carros e musicas sob demanda)`);
   montaArtefato(index);
 }
 
@@ -106,6 +111,16 @@ function montaArtefato(index) {
     for (const f of fs.readdirSync(pasta).sort()) if (f.endsWith('.glb')) {
       const rel = 'assets/cars/' + f + '.js';
       fs.writeFileSync(path.join(DEST, rel), `export default '${fs.readFileSync(path.join(pasta, f)).toString('base64')}';\n`);
+      lista.push(rel);
+    }
+  }
+  // MP3 -> modulo JS com o base64, pelo mesmo motivo (o js/faixas.js le os .mp3.js com o mesmo aviso)
+  const musica = path.join(RAIZ, 'assets', 'musica');
+  if (fs.existsSync(musica)) {
+    fs.mkdirSync(path.join(DEST, 'assets', 'musica'), { recursive: true });
+    for (const f of fs.readdirSync(musica).sort()) if (f.endsWith('.mp3')) {
+      const rel = 'assets/musica/' + f + '.js';
+      fs.writeFileSync(path.join(DEST, rel), `export default '${fs.readFileSync(path.join(musica, f)).toString('base64')}';\n`);
       lista.push(rel);
     }
   }

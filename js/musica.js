@@ -1,5 +1,7 @@
 // MUSICA PROCEDURAL (fase 6). O sequenciador do Breno (referencias/breno/js/audio.js: compose/schedule/newPlayer) adaptado para corrida:
-// bateria + baixo + acorde/arpejo + melodia, tudo sintetizado na hora, nenhum arquivo de som (o TurboCaos.html abre em file://).
+// bateria + baixo + acorde/arpejo + melodia, tudo sintetizado na hora, nenhum arquivo de som.
+// Desde 02/11/2026 e a RESERVA: quem toca e a faixa do Suno de cada pista (js/faixas.js). Esta toca na pista sem faixa (a de teste),
+// quando a faixa nao decodifica a tempo ou falha, e com `?musica=sintetizada` (js/audio.js).
 //
 // O QUE MUDOU EM RELACAO AO BRENO (e por que):
 //   * `div` (passos por tempo): o Breno anda em colcheias (div 2); corrida pede SEMICOLCHEIA (div 4) — o chimbal correndo a 16 por
@@ -111,7 +113,8 @@ const PALAVRAS = [
 /** O tema musical de uma pista (Pista ou definicao). Ver o cabecalho. */
 export function temaDaPista(p) {
   if (!p) return 'praia';
-  if (typeof p === 'string') return TEMAS[p] ? p : 'praia';
+  // id de pista em texto ('neon', o que o js/audio.js recebe da tela de carga) cai na mesma busca por palavra da definicao
+  if (typeof p === 'string') return TEMAS[p] ? p : temaDaPista({ id: p });
   const tema = p.tema || {};
   if (typeof tema.musica === 'string' && TEMAS[tema.musica]) return tema.musica;
   // o estilo e o tipo de terreno que a fase 3 pos no tema tambem contam (orla, morro, cais, canyon...)

@@ -638,6 +638,8 @@ export class Telas {
     if (G.hud) G.hud.esconde();
     if (G.entrada && G.entrada.mostraControles) G.entrada.mostraControles(false);
     this.mostra('carregando_corrida', this._ultima);
+    // a faixa da pista decodifica junto com a carga da corrida: quando a largada aparece ela ja entra (js/audio.js preparaMusica)
+    if (G.audio && G.audio.preparaMusica) G.audio.preparaMusica(op.pista);
     this._pedida = true;
     let c = null;
     try {

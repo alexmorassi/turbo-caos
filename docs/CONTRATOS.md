@@ -17,10 +17,12 @@ própria o arquivo de outra fase.
   com `?teste=`). Nada de `Date.now()`/`performance.now()` na simulação (só para medir fps).
 - **Duas entregas montadas por `tools/monta.js`:** o artefato do Claude (`dist/artefato/`, ES modules como no desenvolvimento, GLB
   como módulo `.glb.js`) e o HTML único `TurboCaos.html`, que abre em `file://`. Por causa dos dois:
-  - nada de `fetch`/`XMLHttpRequest` de arquivo local — GLB só por `carregaGLB` (`js/glb.js`), que lê o bloco embutido;
+  - nada de `fetch`/`XMLHttpRequest` de arquivo local — GLB só por `carregaGLB` (`js/glb.js`) e MP3 só por `js/faixas.js`, que leem
+    o bloco embutido (HTML único), o módulo `.glb.js`/`.mp3.js` (artefato) ou HTTP (desenvolvimento e GitHub Pages);
   - nada de `import.meta`, nada de `import()` dinâmico (exceção: `main.js` carregando suíte de teste);
-  - nada de CDN, imagem ou som em arquivo: textura é gerada em canvas/código, som é sintetizado no WebAudio (exceção: as fontes
-    Baloo 2/Bungee do Google Fonts, injetadas pelo `telas.inicia()` fora dos testes, com fallback do sistema);
+  - nada de CDN, imagem ou som em arquivo: textura é gerada em canvas/código, efeito sonoro é sintetizado no WebAudio (exceções: as
+    fontes Baloo 2/Bungee do Google Fonts, injetadas pelo `telas.inicia()` fora dos testes, com fallback do sistema; e a MÚSICA, as
+    12 faixas do Suno em `assets/musica/*.mp3` — loop pronto pelo `tools/musica/prepara.py`, pontos do loop em `config/musicas.js`);
   - CSS em `css/jogo.css` (o `monta.js` embute).
 - `localStorage` sempre em try/catch (em `file://` e no modo privativo ele levanta exceção no simples acesso). Só via `G.save`.
 - Erro no console reprova a suíte de teste.
@@ -58,7 +60,7 @@ window.G = {
 | fase 3 pistas | `js/pistas/*.js` (menos `teste.js`), `js/visual_pista.js`, `js/cenario.js`, `js/ceu.js`, `config/pistas.js`, `testes/teste_pistas.js`, `tools/foto_pistas.js` |
 | fase 4 turbo/poderes | `js/turbo.js`, `js/capsulas.js`, `js/poderes.js`, `js/poderes/*.js`, `js/efeitos.js`, `config/turbo.js`, `config/poderes.js`, `testes/teste_turbo.js`, `testes/teste_poderes.js` |
 | fase 5 IA | `js/ia.js`, `js/dificuldade.js`, `config/dificuldade.js`, `testes/teste_ia.js`, `testes/teste_dificuldade.js` |
-| fase 6 interface | `css/jogo.css`, `js/telas.js`, `js/hud.js`, `js/minimapa.js`, `js/vitrine.js`, `js/audio.js`, `js/musica.js`, `js/vibracao.js`, `js/save.js`, `js/qualidade.js`, `testes/teste_telas.js`, `testes/teste_save.js`, `testes/teste_audio.js` |
+| fase 6 interface | `css/jogo.css`, `js/telas.js`, `js/hud.js`, `js/minimapa.js`, `js/vitrine.js`, `js/audio.js`, `js/musica.js`, `js/faixas.js` + `config/musicas.js` + `assets/musica/` + `tools/musica/` (02/11/2026), `js/vibracao.js`, `js/save.js`, `js/qualidade.js`, `testes/teste_telas.js`, `testes/teste_save.js`, `testes/teste_audio.js` |
 | fase 7 testes | `testes/teste_corridas.js`, `testes/teste_mobile.js`, `tools/foto.js`, `tools/mede.js` |
 
 `*` `js/pista.js` é da fundação; a fase 3 pode **acrescentar** funções a ele (sem mudar assinatura nem significado do que existe).
@@ -281,8 +283,12 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
   corrida** (pedido do Morassi, 30/10/2026: o `aviso()` e a faixa de última volta saíram). No lugar: classe **`tc-pronto`** em
   `#btn-turbo` (carga, apagado, sem EMP/gelo/rodopio) e `#btn-poder` (recarregado) quando um toque funciona agora — o botão pula, solta
   uma onda e balança o ícone (`css/jogo.css`); última volta = `.hud-pilula.ultima` (vermelha, pulsa).
-- `G.audio`: `desbloqueia()` (no primeiro toque), `toca(nome, { vol, tom, pos }) -> bool`, `motor(carro)`, `musica(nome|pista|null)`
-  (devolve o tema; `temaAtual`), `suspende()`/`retoma()`, `volume(geral, musica, efeitos)` em 0..1 (null mantém), `passo(dt)`; ouve os
+- `G.audio`: `desbloqueia()` (no primeiro toque), `toca(nome, { vol, tom, pos }) -> bool`, `motor(carro)`,
+  `musica('menu'|'podio'|id de pista|pista|tema sintetizado|null)` (toca a faixa do Suno quando existe, senão o tema sintetizado;
+  devolve o id da faixa ou o tema; `temaAtual`, `faixaTocando`), `preparaMusica(tema)` (busca e decodifica antes: a tela de carga da
+  corrida pede a da pista), `provaFaixa(id)` (só os testes do HTML único/artefato), `suspende()`/`retoma()`,
+  `volume(geral, musica, efeitos)` em 0..1 (null mantém), `passo(dt)`. Faixa que não decodifica em 1,5 s: toca a sintetizada e a faixa
+  entra por cima quando chega; pedido mais novo vence faixa atrasada; no máximo 2 faixas decodificadas na memória. Ouve os
   eventos da seção 3 para os efeitos (o som de cada poder toca no `poder:usa`; nomes extras: `estouro` (o pops and bangs), `gelo_quebra`, `acerto_bom`,
   `acerto_ruim`, `esquiva`, `escudo_bloqueia`).
 - `G.vibracao.vibra(ms | padrão)` (respeita a opção; `navigator.vibrate` em try/catch).
@@ -298,7 +304,8 @@ grade montada), `passo(dt)`, `quadro(dt)`, `destroi()`.
 ## 11. Flags de URL e testes
 
 `?teste=<suite>` (o laço para; o harness chama `G.passo`), `?pista=<id>` + `?carro=<id>` (pula os menus e larga direto),
-`?auto=1` (IA dirige o jogador), `?corredores=n`, `?voltas=n`, `?qualidade=baixa|media|alta`, `?semente=n`, `?mudo=1`, `?foto=1`, `?sem_armazenamento=1` (localStorage levanta exceção: para testar).
+`?auto=1` (IA dirige o jogador), `?corredores=n`, `?voltas=n`, `?qualidade=baixa|media|alta`, `?semente=n`, `?mudo=1` (sem som e sem
+buscar nenhuma faixa), `?musica=sintetizada` (a música procedural no lugar das faixas do Suno), `?foto=1`, `?sem_armazenamento=1` (localStorage levanta exceção: para testar).
 Com `?teste=`, `?foto=` ou `?semente=` o `Math.random` e o `G.sorteio` usam semente fixa.
 
 Bateria: `node testes/rodar.js` (todas), `--so <nome>`, `--mobile pixel|iphone` (emulação de aparelho), `--html` (abre o

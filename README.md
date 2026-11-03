@@ -11,7 +11,7 @@ temáticas, da Orla do Rio à Pista Maluca final, com atalhos, rampas e loops. M
 |---|---|
 | **Compartilhar (qualquer celular)** | Mande o link **https://alexmorassi.github.io/turbo-caos/** (GitHub Pages, publicado do branch `gh-pages`) e jogue deitado. |
 | **Celular (artefato do Claude)** | Abra **https://claude.ai/artifact/FWWGVVDUhpoUng3w8aTfUZ** (o mesmo jogo; ali a inclinação não funciona). |
-| **Sem internet / PC** | Dois cliques no `TurboCaos.html` (ou no `Jogar.bat`). É um arquivo único (15 MB): dá para copiar para o celular. |
+| **Sem internet / PC** | Dois cliques no `TurboCaos.html` (ou no `Jogar.bat`). É um arquivo único (37 MB, com as músicas): dá para copiar para o celular. |
 | **Desenvolvimento** | `Servidor.bat` (ou `python server.py 8125`) e `http://localhost:8125`. Com `--rede`, abre no celular pela Wi-Fi de casa. |
 
 **Controles de toque** (no estilo dos jogos de corrida de celular): à esquerda o **botão de arrastar** — arraste o botão amarelo para o
@@ -90,6 +90,18 @@ Os nomes são **os do Cidade Aberta**, iguais para todos (31/10/2026): os 10 pri
 **Curvas para a criança** (30/10/2026): toda curva das 10 pistas tem raio de 50 m ou mais — qualquer carro (todos viram igual) faz a
 volta inteira com o acelerador no fundo, sem frear nem diminuir. A inspeção das pistas (`teste_pistas`) reprova curva mais fechada.
 
+## A música
+
+Cada pista, o menu e o pódio têm a **sua música** (02/11/2026: 12 faixas feitas no Suno). Cada uma virou um **loop sem emenda** de
+77–113 s (o pódio, 53 s) — o pulo do fim para o começo cai em cima da batida, no mesmo andamento — e toca em
+`assets/musica/<id>.mp3` (~1,3 MB cada). Os efeitos continuam sintetizados; a música procedural de antes ficou de reserva (pista sem
+faixa, arquivo que não chegou a tempo) e volta com `?musica=sintetizada`.
+
+Para trocar uma música: gere no Suno, salve como `Turbo Caos - <Nome>.wav` (Orla, Favela, Deserto, Gelo, Vulcao, Selva, Neon, Porto,
+Canyon, Maluca, Menu, Podio) e rode `python3 tools/musica/prepara.py "<pasta>" --so <id> --previa <pasta da prévia>` (precisa de
+Python com numpy, scipy, soundfile, librosa e pyloudnorm, do ffmpeg e da biblioteca do Rubber Band). Ele acha o loop, acerta o
+volume, grava o MP3 e a linha do `config/musicas.js`; depois, `node tools/monta.js`.
+
 ## Estrutura
 
 ```
@@ -100,8 +112,9 @@ js/pistas/            as 10 pistas (construtor de peças -> spline CatmullRom) +
 js/poderes/           um arquivo por poder
 config/               PARÂMETROS DE JOGO: carros, física, turbo, poderes, dificuldade, pistas, corrida
 assets/cars/          os 19 carros (GLB meshopt + KTX2, 380–830 KB, vindos do cidadeaberta)
+assets/musica/        as 12 músicas (MP3 com o loop pronto; os pontos do loop em config/musicas.js)
 lib/                  three.js r170 + GLTFLoader/KTX2Loader + decoders meshopt e Basis (sem CDN)
-tools/                monta.js (HTML único + pasta do artefato), carros/ (otimização dos GLB), fotos
+tools/                monta.js (HTML único + pasta do artefato), carros/ (otimização dos GLB), musica/ (os loops), fotos
 testes/               bateria Playwright (node testes/rodar.js)
 docs/                 CONTRATOS, PENDENCIAS, relatórios das fases, fotos
 ```

@@ -27,9 +27,11 @@ Os contratos entre módulos estão em **`docs/CONTRATOS.md`** — leia antes de 
   `Math.random` na jogabilidade (`G.sorteio`); nada de `Date.now()` na simulação.
 - **Parâmetros de jogo em `config/`**: `carros.js`, `fisica.js`, `turbo.js`, `poderes.js`, `dificuldade.js`, `pistas.js`, `corrida.js`.
   Número de jogabilidade fora de `config/` só com comentário dizendo de onde veio.
-- **HTML único:** nada de `fetch` de arquivo (GLB só por `carregaGLB`), nada de `import.meta`, nada de CDN/imagem/som externo
-  (textura em canvas, som sintetizado). Única exceção: as fontes Baloo 2/Bungee do Google Fonts, como nos jogos de referência — o
-  `<link>` é injetado pelo `telas.inicia()` (fora de `?teste=`/`?foto=`/`?semente=`) e sem internet cai na fonte do sistema.
+- **HTML único:** nada de `fetch` de arquivo (GLB só por `carregaGLB`, MP3 só por `js/faixas.js`), nada de `import.meta`, nada de
+  CDN/imagem/som externo (textura em canvas, efeito sonoro sintetizado). Exceções: as fontes Baloo 2/Bungee do Google Fonts, como nos
+  jogos de referência — o `<link>` é injetado pelo `telas.inicia()` (fora de `?teste=`/`?foto=`/`?semente=`) e sem internet cai na
+  fonte do sistema —, e a **música**: as 12 faixas do Suno em `assets/musica/` (loop pronto pelo `tools/musica/prepara.py`, pontos
+  em `config/musicas.js`), com a procedural do `js/musica.js` de reserva.
   Se precisar de um arquivo novo em tempo de execução, ele entra na lista do `tools/monta.js`.
 - `localStorage` só por `G.save` (tudo em try/catch, cópia em memória).
 - **Estilo:** comentários em português sem acentos explicando o PORQUÊ, cabeçalho em todo módulo, identificadores em português,
@@ -47,9 +49,11 @@ node testes/rodar.js            # bateria inteira (Playwright headless, SwiftSha
 node testes/rodar.js --so fisica --mobile pixel   # so algumas suites, emulando o Pixel 7 (ou iphone)
 node testes/rodar.js --html --artefato   # + TurboCaos.html em file:// e dist/artefato por HTTP, uma corrida em cada
 node tools/carros/otimiza.mjs   # refaz os GLB dos carros a partir do cidadeaberta (fase 1)
+python3 tools/musica/prepara.py "<pasta dos WAV do Suno>" [--so orla] [--previa <pasta>]   # refaz os loops das musicas
 ```
 Flags de URL: `?pista=<id>&carro=<id>` (larga direto), `?auto=1` (IA dirige o jogador), `?corredores=n`, `?voltas=n`,
-`?qualidade=baixa|media|alta`, `?semente=n`, `?mudo=1`, `?teste=<suite>` (o laço para; o harness chama `G.passo`).
+`?qualidade=baixa|media|alta`, `?semente=n`, `?mudo=1`, `?musica=sintetizada`, `?teste=<suite>` (o laço para; o harness chama
+`G.passo`).
 
 ## Armadilhas já conhecidas (custaram tempo)
 
@@ -103,6 +107,15 @@ Flags de URL: `?pista=<id>&carro=<id>` (larga direto), `?auto=1` (IA dirige o jo
   a dificuldade ligadas, tocando o poder como a criança (assim que acende, sem mirar). E suíte que mede a física de um carro isola os
   rivais **também do poder** (`x.poder.restante = 1e9`): com efeito que tira velocidade, um EMP da IA no meio da medida a estraga
   (31/10/2026).
+
+- **O Suno não gera em andamento fixo** (02/11/2026): a Orla vai de 130 para 134 BPM; uma grade única de batidas erra ±200 ms. O
+  `prepara.py` marca batida por batida (beat tracker + ajuste local), não procura o tempo 1 (bumbo, caixa e acorde discordam nas
+  mixagens densas do Suno: o loop tem compassos inteiros e a nota da emenda escolhe a posição) e estica os últimos 8 compassos numa
+  rampa (Rubber Band R3 pela API C: o `set_keyframe_map` do pylibrb 0.1.2 não aceita o dict) para o fim chegar no andamento do
+  começo. A emenda é medida no MP3 decodificado: batida no pulo e andamento dos dois lados.
+- **Faixa decodifica pelo contexto que vai tocar** (o `decodeAudioData` converte para a taxa dele) e **toma posse do ArrayBuffer**:
+  passe uma cópia (`slice(0)`). Antes do primeiro gesto só os bytes são buscados. E **erro de rede vira erro no console** (reprova a
+  suíte): o teste de faixa que falha ou demora usa `_falsificaFaixa`, nunca um arquivo que não existe.
 
 ## Fluxo
 

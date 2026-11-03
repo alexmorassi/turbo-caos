@@ -12,7 +12,9 @@ export async function testaHtmlUnico(ctx, raiz, op = {}) {
   const mb = fs.statSync(arq).size / 1e6;
   console.log(`[MEDE] html_unico: tamanho = ${mb.toFixed(2)} MB`);
   let f = 0;
-  if (!(mb < 25)) { console.log(`[ERRO] html_unico: passou de 25 MB (${mb.toFixed(2)} MB)`); f++; } else console.log(`[OK]   html_unico: tamanho abaixo de 25 MB (${mb.toFixed(2)} MB)`);
+  // o teto do tools/monta.js (LIMITE_MB): 25 MB ate as faixas do Suno, 45 com elas (02/11/2026)
+  const LIMITE = 45;
+  if (!(mb < LIMITE)) { console.log(`[ERRO] html_unico: passou de ${LIMITE} MB (${mb.toFixed(2)} MB)`); f++; } else console.log(`[OK]   html_unico: tamanho abaixo de ${LIMITE} MB (${mb.toFixed(2)} MB)`);
   return f + await testaPagina(ctx, pathToFileURL(arq).href, 'html_unico', op);
 }
 
@@ -48,6 +50,14 @@ export async function testaPagina(ctx, base, nome, { pista = 'teste', voltas = 1
       return { estado: c.estado, tempo: fim && fim.tempoTotal, posicao: fim && fim.jogador.posicao, carros, malhas: malhas.length };
     }, { pista, voltas });
     linha(r.estado === 'terminou', `corrida de ${voltas} volta(s) na pista "${pista}" terminou (${r.tempo && r.tempo.toFixed(1)} s, jogador em ${r.posicao}º, ${r.carros} carros, ${r.malhas} malhas)`);
+    // as faixas do Suno chegam pelo caminho DESTA entrega (bloco embutido no HTML unico, modulo .mp3.js no artefato) e decodificam
+    const fx = await pagina.evaluate(async () => {
+      const out = {};
+      for (const id of ['menu', 'orla', 'podio']) out[id] = await window.G.audio.provaFaixa(id);
+      return out;
+    });
+    const ruins = Object.entries(fx).filter(([, v]) => v.erro || !(v.duracao > v.fim && v.canais === 2));
+    linha(ruins.length === 0, `faixas do Suno chegam e decodificam (${Object.entries(fx).map(([k, v]) => k + ' ' + (v.erro ? 'ERRO ' + v.erro : v.duracao.toFixed(1) + ' s')).join(', ')})`);
   }
   linha(erros.length === 0, `console limpo (${erros.length} erro(s))` + (erros.length ? ': ' + erros.slice(0, 3).join(' | ').slice(0, 600) : ''));
   await pagina.close();

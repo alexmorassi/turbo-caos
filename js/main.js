@@ -41,6 +41,7 @@ export const FLAGS = {
   qualidade: busca.get('qualidade'),
   semente: num('semente'),
   mudo: busca.get('mudo') === '1',
+  musica: busca.get('musica'),   // 'sintetizada': a musica procedural de antes no lugar das faixas do Suno (js/audio.js)
   foto: busca.get('foto') === '1',
 };
 

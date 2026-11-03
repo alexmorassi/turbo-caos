@@ -5,6 +5,23 @@ registre aqui e continue"). Cada fase detalha as suas em `docs/fases/faseN_*.md`
 
 ## 1. Para você fazer ou conferir
 
+0. **As músicas do Suno** (02/11/2026), para ouvir no celular: as 12 faixas (`D:\Downloads\Turbo Caos Songs`) viraram um loop cada
+   (`tools/musica/prepara.py`) e tocam no menu, no pódio e em cada pista; a sintetizada de antes ficou de reserva.
+   - **As emendas**: a prévia `Turbo Caos - emendas dos loops.mp3` (3 min) toca o fim de cada loop e o pulo para o começo (0:08 Menu,
+     0:23 Orla, 0:38 Favela, 0:53 Deserto, 1:08 Gelo, 1:23 Vulcão, 1:38 Selva, 1:53 Neon, 2:08 Porto, 2:23 Canyon, 2:38 Maluca,
+     2:53 Pódio). Medido em todas: a batida no pulo cai a menos de 7 ms do lugar e o andamento muda menos de 0,6 %. Pela medida, as
+     emendas mais fracas são **Vulcão** (a música quase não se repete: o pulo é liso, mas o trecho depois dele é outra parte) e
+     **Selva**. Se alguma soar estranha, diga qual: troco o ponto do loop (o script lista as alternativas).
+   - **O Suno acelera** ao longo da música (a Orla vai de 130 para 134 BPM): os últimos 8 compassos de cada loop foram esticados até
+     2 % (Rubber Band, numa rampa) para o fim chegar no andamento do começo. Não deve dar para ouvir; se der, é ali.
+   - **Duração**: as pistas ficaram com 94–113 s de loop, o menu com 80 s e o pódio com 53 s. **Deserto (77 s) e Neon (82 s)** ficaram
+     abaixo dos 90 s do plano: dentro dos 90–120 s a emenda era bem pior.
+   - **Volume**: as faixas tocam ~1 dB abaixo da sintetizada de antes (a mixagem do Suno é cheia e cobre mais os efeitos). Se a música
+     sumir sob o motor, ou cobrir o som dos poderes, o número é `MUSICA_ARQUIVO_VOL` (`js/audio.js`); o de cada faixa, `ganho` em
+     `config/musicas.js`.
+   - **HTML único maior**: o `TurboCaos.html` foi de 15 para 37 MB (as faixas vão embutidas; o limite subiu de 25 para 45 MB, como o
+     plano previa). Se ficar pesado para abrir no celular, a saída é embutir as faixas com metade da qualidade só nele.
+   - Para comparar com a de antes: `?musica=sintetizada` (no GitHub Pages ou no servidor local).
 1. **Repositório e link para compartilhar** (01/11/2026): o código está em https://github.com/alexmorassi/turbo-caos (público) e o
    jogo no **GitHub Pages: https://alexmorassi.github.io/turbo-caos/** — é esse o link para os amigos (o artefato do Claude é
    privado). O Pages sai do branch `gh-pages` (uma cópia do `main`, empurrada junto a cada atualização); se preferir que ele saia

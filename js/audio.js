@@ -1,7 +1,12 @@
-// AUDIO (fase 6): som 100% sintetizado no WebAudio — nenhum arquivo (o TurboCaos.html abre em file://, onde nem fetch existe). O
-// estilo e o do Breno (referencias/breno/js/audio.js): primitivas `nota`/`ruido` com envelope, um sintetizador por evento que se
-// desconecta sozinho, tabela de efeitos cartunescos, tabela de REFORCO para os curtos/agudos aparecerem sobre a musica, teto de vozes
-// com roubo da mais antiga, compressor no fim e a musica procedural (js/musica.js) com crossfade.
+// AUDIO (fase 6): efeitos 100% sintetizados no WebAudio — nenhum arquivo de efeito. O estilo e o do Breno
+// (referencias/breno/js/audio.js): primitivas `nota`/`ruido` com envelope, um sintetizador por evento que se desconecta sozinho,
+// tabela de efeitos cartunescos, tabela de REFORCO para os curtos/agudos aparecerem sobre a musica, teto de vozes com roubo da mais
+// antiga, compressor no fim e a musica com crossfade.
+//
+// A MUSICA (02/11/2026): as 12 faixas do Suno (menu, podio e uma por pista; js/faixas.js busca e decodifica, config/musicas.js tem os
+// pontos do loop) tocam num AudioBufferSourceNode em loop. A procedural do js/musica.js virou a RESERVA: pista sem faixa (a de
+// teste), faixa que nao decodificou a tempo (ESPERA_DA_FAIXA; quando ela chega, crossfade para ela) ou que falhou, e
+// `?musica=sintetizada`. Volume, pausa, aba escondida e crossfade valem igual para as duas.
 //
 // O QUE A CORRIDA PEDIU A MAIS QUE O BRENO:
 //   * MOTOR continuo do jogador: osciladores com o tom pela velocidade, pseudo-marchas (o "vrum-vrum" que sobe e cai e o que faz a
@@ -21,6 +26,8 @@
 //   * DUAS TROCAS DE MUSICA SEGUIDAS NAO PODEM CALAR A SEGUNDA (armadilha do dinotrails-web: o callback do primeiro crossfade parava o
 //     tocador que a segunda troca acabava de ligar). Aqui cada troca cria um tocador NOVO com o seu ganho e o seu `ate`; quem esta
 //     saindo nunca e reaproveitado, entao nada do fade antigo alcanca o tocador novo. O teste_audio troca tres vezes seguidas e mede;
+//   * a FAIXA QUE CHEGA ATRASADA nao toca por cima de um pedido mais novo: cada `musica()` ganha um numero (`_pedido`) e a decodificacao
+//     que termina so liga a faixa se o numero ainda for o dela (menu -> pista -> menu com a pista ainda decodificando fica no menu);
 //   * sorteio de enfeite (offset do ruido, estilhacos do gelo) tem GERADOR PROPRIO: o Math.random e semeado em ?teste= e e de todo
 //     mundo (three.js, cenario) — consumir ele num timer de audio embaralharia a sequencia (armadilha do dinotrails-web);
 //   * `?mudo=1` (a bateria abre assim) = nenhum AudioContext; navegador sem WebAudio = tudo vira no-op sem erro.
@@ -31,9 +38,17 @@ import * as THREE from 'three';
 import { on } from './eventos.js';
 import * as save from './save.js';
 import { TEMAS, temaDaPista, novoTocador, agenda } from './musica.js';
+import { idDaFaixa, dadosDaFaixa, buscaFaixa, decodificaFaixa, faixaPronta } from './faixas.js';
 
 /** Nivel base dos barramentos (o Breno: MUSIC_VOL 0,18 e SFX_VOL 0,5 — a musica bem abaixo dos efeitos para o aviso nao sumir). */
 const MUSICA_VOL = 0.2;
+/** Ganho das faixas do Suno antes do barramento. Medido (02/11/2026, OfflineAudioContext, BS.1770): a sintetizada sai do tocador em
+ *  -15,1 LUFS (media dos 12 temas) e as faixas, todas em -16 LUFS, em -16,2 com ganho 1 — 1 deixa a faixa ~1 dB abaixo da
+ *  sintetizada de proposito: a mixagem do Suno e cheia (baixo forte, tudo tocando junto) e cobre mais os efeitos no mesmo volume. */
+const MUSICA_ARQUIVO_VOL = 1.0;
+/** Quanto uma troca espera a faixa decodificar antes de tocar a sintetizada no lugar, s (o plano: 1,5). O normal e ela ja estar pronta:
+ *  a da pista e pedida na tela de carga da corrida (preparaMusica) e a do menu e buscada na abertura. */
+const ESPERA_DA_FAIXA = 1.5;
 const EFEITOS_VOL = 0.55;
 /** Motores somados num barramento proprio, abaixo dos efeitos: o ronco e chao, o "plim" da capsula e o que tem de aparecer. */
 const MOTORES_VOL = 0.75;
@@ -424,7 +439,12 @@ export class Audio {
     this.desconhecidos = new Set();
     this._vozes = [];
     this._tocadores = [];
-    this._querido = null;
+    this._querido = null;          // o tema sintetizado do ultimo pedido (a reserva)
+    this._faixaQuerida = null;     // a faixa do Suno do ultimo pedido, ou null
+    this._pedido = 0;              // numero do ultimo pedido de musica (ver o cabecalho: faixa atrasada)
+    this._esperando = 0;           // o pedido cuja faixa ja foi mandada decodificar
+    this._esperou = 0;             // o pedido cuja espera acabou sem a faixa (toca a sintetizada ate ela chegar)
+    this._soSintetizada = opcoes.sintetizada !== undefined ? !!opcoes.sintetizada : !!(G.flags && G.flags.musica === 'sintetizada');
     this._timer = 0;
     this._ultimaVez = new Map();
     this._motorCarro = null;
@@ -450,7 +470,7 @@ export class Audio {
       this._montaGrafo();
       // desbloqueio do iPhone: um buffer mudo tocado DENTRO do gesto
       try { const s = this.ctx.createBufferSource(); s.buffer = this.ctx.createBuffer(1, 1, 22050); s.connect(this.ctx.destination); s.start(0); } catch (e) { /* sem iOS */ }
-      if (this._querido) this._trocaMusica(this._querido);
+      if (this._querido || this._faixaQuerida) this._trocaMusica();
       if (this._motorCarro) this.motor(this._motorCarro);
     }
     this._acorda();
@@ -508,18 +528,54 @@ export class Audio {
     if (!carro && this._motor) this._motor.silencia(this.ctx.currentTime);
   }
 
-  /** Musica: nome de TEMAS ('menu', 'podio', 'praia'...), uma Pista/definicao (o tema sai de musica.temaDaPista) ou null (silencio).
-   *  Devolve o nome do tema escolhido. */
+  /** Musica: 'menu', 'podio', o id de uma pista, uma Pista/definicao, o nome de um tema sintetizado ('praia'...) ou null (silencio).
+   *  Toca a faixa do Suno quando ela existe (js/faixas.js), senao o tema sintetizado (musica.temaDaPista). Devolve o que vai tocar:
+   *  o id da faixa ou o nome do tema. */
   musica(tema) {
-    let nome = null;
-    if (tema) nome = typeof tema === 'string' && TEMAS[tema] ? tema : temaDaPista(tema);
+    let nome = null, faixa = null;
+    if (tema) {
+      nome = typeof tema === 'string' && TEMAS[tema] ? tema : temaDaPista(tema);
+      faixa = this._soSintetizada ? null : idDaFaixa(tema);
+    }
     this._querido = nome;
-    if (this.ctx) this._trocaMusica(nome);
-    return nome;
+    this._faixaQuerida = faixa;
+    this._pedido++;
+    // os bytes ja (antes do primeiro gesto o contexto nem existe: a do menu fica buscada e so decodifica quando ele nascer)
+    if (faixa && !this.mudo) buscaFaixa(faixa).catch(() => {});
+    if (this.ctx) this._trocaMusica();
+    return faixa || nome;
   }
 
-  /** Nome do tema que esta (ou vai ficar) tocando. */
-  get temaAtual() { return this._querido; }
+  /** Adianta a faixa de um tema sem tocar: busca e, se o contexto ja existe, decodifica (a tela de carga da corrida pede a da pista,
+   *  e quando a corrida comeca ela entra na hora). Devolve o id da faixa ou null. */
+  preparaMusica(tema) {
+    const faixa = this.mudo || this._soSintetizada ? null : idDaFaixa(tema);
+    if (!faixa) return null;
+    if (this.ctx) decodificaFaixa(this.ctx, faixa, this._faixasTocando()).catch(() => {});
+    else buscaFaixa(faixa).catch(() => {});
+    return faixa;
+  }
+
+  /** So os testes do HTML unico e do artefato (`?mudo=1`, sem contexto): busca a faixa pelo caminho daquela entrega (bloco embutido,
+   *  modulo .mp3.js) e decodifica num OfflineAudioContext. Devolve { duracao, canais, fim } ou { erro }. */
+  async provaFaixa(id) {
+    try {
+      const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      const oc = new OAC(2, 1, 48000);
+      const bytes = await buscaFaixa(id);
+      const buf = await new Promise((ok, erro) => { const r = oc.decodeAudioData(bytes.slice(0), ok, erro); if (r && r.then) r.then(ok, erro); });
+      return { duracao: buf.duration, canais: buf.numberOfChannels, fim: dadosDaFaixa(id).fim };
+    } catch (e) { return { erro: String(e && e.message || e) }; }
+  }
+
+  /** O que esta (ou vai ficar) tocando: o id da faixa ou o nome do tema sintetizado. */
+  get temaAtual() { return this._faixaQuerida || this._querido; }
+
+  /** A faixa do Suno que esta tocando agora (null = sintetizada ou silencio). */
+  get faixaTocando() {
+    const t = this._tocadores.find((x) => x.ate === Infinity);
+    return t && t.arquivo ? t.nome : null;
+  }
 
   /** Aba escondida (js/main.js). */
   suspende() {
@@ -653,10 +709,38 @@ export class Audio {
     v.atualiza(carro, k * k * 0.05, p.pan, t);
   }
 
-  _trocaMusica(nome) {
+  /** Poe para tocar o que o ultimo pedido quer: a faixa, se ja esta decodificada; senao manda decodificar e deixa o que toca continuar
+   *  ate ela chegar ou ate a espera acabar (ai entra a sintetizada, e a faixa entra por cima quando chegar). Chamado no pedido, no
+   *  desbloqueio, quando a decodificacao termina e quando a espera acaba — sempre olhando o pedido de AGORA. */
+  _trocaMusica() {
+    const c = this.ctx;
+    if (!c || !this.no) return;
+    const faixa = this._faixaQuerida, pedido = this._pedido;
+    if (faixa) {
+      const buf = faixaPronta(c, faixa);
+      if (buf) { this._liga('faixa', faixa, buf); return; }
+      if (this._esperando !== pedido) {
+        this._esperando = pedido;
+        const vale = () => this._pedido === pedido && this.ctx === c;
+        decodificaFaixa(c, faixa, this._faixasTocando()).then(
+          () => { if (vale()) this._trocaMusica(); },
+          (e) => {
+            console.warn(`[audio] a faixa "${faixa}" nao carregou (${e && e.message}): fica a musica sintetizada`);
+            if (vale()) { this._esperou = pedido; this._faixaQuerida = null; this._trocaMusica(); }
+          });
+        setTimeout(() => { if (vale() && !faixaPronta(c, faixa)) { this._esperou = pedido; this._trocaMusica(); } }, ESPERA_DA_FAIXA * 1000);
+      }
+      if (this._esperou !== pedido) return;
+    }
+    this._liga('tema', this._querido, null);
+  }
+
+  /** Crossfade para a faixa `id` (buffer decodificado), o tema sintetizado `id` ou silencio (id null). */
+  _liga(tipo, id, buf) {
     const c = this.ctx, agora = c.currentTime;
+    const chave = id ? tipo + ':' + id : null;
     const atual = this._tocadores.find((t) => t.ate === Infinity);
-    if (atual && atual.nome === nome) return;
+    if ((atual ? atual.chave : null) === chave) return;
     if (atual) { // crossfade: o atual desce a partir de onde esta (mesmo no meio da subida) enquanto o novo sobe
       const g = atual.g.gain;
       g.cancelScheduledValues(agora);
@@ -664,8 +748,33 @@ export class Audio {
       g.linearRampToValueAtTime(0.0001, agora + FADE_DA_MUSICA);
       atual.ate = agora + FADE_DA_MUSICA;
     }
-    if (nome) this._tocadores.push(novoTocador(c, this.no.musica, nome, agora, FADE_DA_MUSICA));
+    if (tipo === 'faixa') this._tocadores.push(this._tocadorDeFaixa(id, buf, agora));
+    else if (id) { const t = novoTocador(c, this.no.musica, id, agora, FADE_DA_MUSICA); t.chave = chave; this._tocadores.push(t); }
     if (!this._timer) this._tique();
+  }
+
+  /** A faixa em loop: comeca no inicio do loop (o compasso de folga antes dele fica de fora) e volta para ele no fim. */
+  _tocadorDeFaixa(id, buf, agora) {
+    const c = this.ctx, m = dadosDaFaixa(id);
+    const g = c.createGain(), fonte = c.createBufferSource();
+    const alvo = MUSICA_ARQUIVO_VOL * (m.ganho || 1);
+    fonte.buffer = buf;
+    fonte.loop = true;
+    fonte.loopStart = m.inicio;
+    fonte.loopEnd = Math.min(m.fim, buf.duration);
+    g.gain.setValueAtTime(0.0001, agora);
+    g.gain.linearRampToValueAtTime(alvo, agora + FADE_DA_MUSICA);
+    fonte.connect(g);
+    g.connect(this.no.musica);
+    fonte.start(agora, m.inicio);
+    return { nome: id, chave: 'faixa:' + id, arquivo: true, fonte, g, f: null, ate: Infinity, alvo };
+  }
+
+  /** As faixas que nao podem sair da memoria agora: as que tocam (inclusive saindo no crossfade) e a pedida. */
+  _faixasTocando() {
+    const l = this._tocadores.filter((t) => t.arquivo).map((t) => t.nome);
+    if (this._faixaQuerida) l.push(this._faixaQuerida);
+    return l;
   }
 
   _tique() {
@@ -673,10 +782,11 @@ export class Audio {
     const c = this.ctx;
     if (!c) return;
     const agora = c.currentTime;
-    if (c.state === 'running') for (const t of this._tocadores) agenda(c, t, Math.min(agora + ANTECEDENCIA, t.ate), this._criaS);
+    if (c.state === 'running') for (const t of this._tocadores) if (!t.arquivo) agenda(c, t, Math.min(agora + ANTECEDENCIA, t.ate), this._criaS);
     this._tocadores = this._tocadores.filter((t) => {
       if (t.ate > agora - 0.1) return true;
-      try { t.g.disconnect(); t.f.disconnect(); } catch (e) { /* ja desligado */ }
+      try { if (t.fonte) t.fonte.stop(); } catch (e) { /* ja parou */ }
+      try { t.g.disconnect(); if (t.f) t.f.disconnect(); if (t.fonte) t.fonte.disconnect(); } catch (e) { /* ja desligado */ }
       return false;
     });
     if (this._tocadores.length) this._timer = setTimeout(() => this._tique(), TIQUE_MS);
